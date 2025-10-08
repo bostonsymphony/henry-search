@@ -24,7 +24,7 @@
   const props = defineProps({
     indexName: {
       type: String,
-      default: "performances"
+      default: "archived_performances"
     }
   })
 
@@ -171,9 +171,8 @@
     //  So you can pass any parameters supported by the search endpoint below.
     //  query_by is required.
     additionalSearchParameters: {
-      query_by: 'title, excerpt, subhead, content_keywords',
+      query_by: 'works',
       sort_by: 'performance_date:asc',
-      // group_by: 'event_id',
       group_limit: 1
     },
   })
@@ -790,7 +789,6 @@
   }
 </script>
 
-
 <template>
   <div class="eventsCalendar">
     <ais-instant-search
@@ -807,427 +805,31 @@
       <div class="eventsCalendar__topSection">
 
       <!-- Search Filters Section -->
-      <section class="eventsCalendar__filters">
-             <header class="eventsCalendar__header">
-               <h1 class="eventsCalendar__title">Find Concerts & Events</h1>
-             </header>
-        <div class="eventsCalendar__filtersRow">
-          <!-- Search Box -->
-          <div class="eventsCalendar__filterGroup eventsCalendar__filterGroup--search">
-            <ais-search-box
-              placeholder="Performance name, artist, work, or category"
-              class="eventsCalendar__searchBox"
-            />
-          </div>
-
-          <!-- Date Filter -->
-          <div class="eventsCalendar__filterGroup eventsCalendar__filterGroup--date">
-            <ais-range-input attribute="performance_date" ref="rangeInput" :min="date && date[0] ? Math.floor(date[0]/1000) : Math.floor(today/1000)">
-              <template v-slot="{ currentRefinement, range, refine }">
-                <vue-date-picker
-                  ref="datepicker"
-                  :format="format"
-                  :model-value="displayDate"
-                  @update:model-value="setDate"
-                  range
-                  :multi-calendars="false"
-                  :enable-time-picker="false"
-                  @open="onDatePickerOpened"
-                  @close="onDatePickerClosed"
-                  placeholder="Date"
-                  class="eventsCalendar__datePicker"
+        <section class="eventsCalendar__filters">
+            <header class="eventsCalendar__header">
+            <h1 class="eventsCalendar__title">Find Concerts & Events</h1>
+            </header>
+            <div class="eventsCalendar__filtersRow">
+            <!-- Search Box -->
+            <div class="eventsCalendar__filterGroup eventsCalendar__filterGroup--search">
+                <ais-search-box
+                placeholder="Performance name, artist, work, or category"
+                class="eventsCalendar__searchBox"
                 />
-              </template>
-            </ais-range-input>
-          </div>
-
-          <!-- Venue Filter -->
-          <div class="eventsCalendar__filterGroup eventsCalendar__filterGroup--venue">
-            <ais-refinement-list attribute="performance_venue.display_name" show-more>
-              <template
-                v-slot="{
-                  items,
-                  refine
-                }"
-                >
-                  <div
-                    class="eventsCalendar__vueSelectWrapper"
-                    @click="(event) => handleFilterDropdownClick(event, 'venue', 'Venue', items, refine)"
-                  >
-                    <vue-select
-                     :options="items"
-                     :model-value="items.filter(item => item.isRefined).map(item => ({ ...item, label: item.value}))"
-                      label="label"
-                      placeholder="Venue"
-                      multiple
-                      :searchable="!isMobile"
-                      :filterable="!isMobile"
-                      :disabled="isMobile"
-                      class="eventsCalendar__vueSelect"
-                      @update:modelValue="(selected) => {
-                        // Clear previous refinements first
-                        items.forEach(item => {
-                          if (item.isRefined) refine(item.value);
-                        });
-                        // Apply new refinements
-                        selected.forEach(venue => refine(venue.value));
-                      }"
-                    >
-                    <template #search="{ attributes, events }">
-                      <div class="eventsCalendar__searchWithIcon">
-                        <svg width="18" height="19" fill="none" class="eventsCalendar__venueIcon">
-                          <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" clip-path="url(#a)">
-                            <path d="M9 10.063a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"/>
-                            <path d="M14.625 7.813c0 5.062-5.625 9-5.625 9s-5.625-3.938-5.625-9a5.625 5.625 0 0 1 11.25 0v0Z"/>
-                          </g>
-                          <defs>
-                            <clipPath id="a">
-                              <path fill="#fff" d="M0 .5h18v18H0z"/>
-                            </clipPath>
-                          </defs>
-                        </svg>
-                  <input
-                    class="vs__search"
-                    v-bind="attributes"
-                    v-on="events"
-                    :placeholder="getVenuePlaceholder(items)"
-                   />
-                </div>
-                    </template>
-                    <template #option="{ label, count }">
-                      <div class="eventsCalendar__selectOption eventsCalendar__selectOption--venue">
-                        <input
-                          type="checkbox"
-                          class="venue-checkbox eventsCalendar__checkbox"
-                          :checked="items.find(item => item.value === label)?.isRefined || false"
-                        />
-                        <div class="eventsCalendar__venueInfo">
-                          <span class="eventsCalendar__venueName">{{ getVenueName(label) }}</span>
-                          <span class="eventsCalendar__venueCity">{{ getVenueCity(label) }}</span>
-                        </div>
-                        <!-- <span class="eventsCalendar__selectCount">({{ count }})</span> -->
-                      </div>
-                    </template>
-                    </vue-select>
-                  </div>
-              </template>
-            </ais-refinement-list>
-          </div>
-
-          <!-- Ensemble Filter -->
-          <div class="eventsCalendar__filterGroup eventsCalendar__filterGroup--ensemble">
-            <ais-refinement-list attribute="ensembles" show-more>
-              <template
-                v-slot="{
-                  items,
-                  refine
-                }"
-                >
-                  <div
-                    class="eventsCalendar__vueSelectWrapper"
-                    @click="(event) => handleFilterDropdownClick(event, 'ensemble', 'Ensemble', items, refine)"
-                  >
-                    <vue-select
-                      :model-value="items.filter(item => item.isRefined).map(item => ({ ...item, label: item.value.replace(/<\/[^>]*>/g, ' ').replace(/<[^>]*>/g, '') }))"
-                      :options="items.map(item => ({ ...item, label: item.value.replace(/<\/[^>]*>/g, ' ').replace(/<[^>]*>/g, '') }))"
-                      label="label"
-                      placeholder="Ensemble"
-                      multiple
-                      :searchable="!isMobile"
-                      :filterable="!isMobile"
-                      :disabled="isMobile"
-                      class="eventsCalendar__vueSelect"
-                      @update:modelValue="(selected) => {
-                        // Clear previous refinements first
-                        items.forEach(item => {
-                          if (item.isRefined) refine(item.value);
-                        });
-                        // Apply new refinements
-                        selected.forEach(ensemble => refine(ensemble.value));
-                      }"
-                    >
-                    <template #search="{ attributes, events }">
-                      <div class="eventsCalendar__searchWithIcon">
-                        <svg width="19" height="18" viewBox="0 0 19 18" fill="none" class="eventsCalendar__ensembleIcon">
-                          <path d="M7 14.3333V2.77778L17.6667 1V12.5556" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                          <path d="M4.33317 17.0001C5.80593 17.0001 6.99984 15.8062 6.99984 14.3334C6.99984 12.8607 5.80593 11.6667 4.33317 11.6667C2.86041 11.6667 1.6665 12.8607 1.6665 14.3334C1.6665 15.8062 2.86041 17.0001 4.33317 17.0001Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                          <path d="M14.9997 15.2222C16.4724 15.2222 17.6663 14.0283 17.6663 12.5556C17.6663 11.0828 16.4724 9.88892 14.9997 9.88892C13.5269 9.88892 12.333 11.0828 12.333 12.5556C12.333 14.0283 13.5269 15.2222 14.9997 15.2222Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                  <input
-                          class="vs__search"
-                          v-bind="attributes"
-                          v-on="events"
-                    :placeholder="getEnsemblePlaceholder(items)"
-                        />
-                </div>
-                    </template>
-                    <template #option="{ label, count }">
-                      <div class="eventsCalendar__selectOption eventsCalendar__selectOption--ensemble">
-                        <input
-                          type="checkbox"
-                          class="ensemble-checkbox eventsCalendar__checkbox"
-                          :checked="items.find(item => item.value === label)?.isRefined || false"
-                        />
-                        <span v-html="label"></span>
-                        <!-- <span class="eventsCalendar__selectCount">({{ count }})</span> -->
-                      </div>
-                    </template>
-                    </vue-select>
-                  </div>
-              </template>
-            </ais-refinement-list>
-          </div>
-          </div>
+            </div>
+            </div>
         </section>
-        </div>
+    </div>
 
         <!-- View Toggle and Active Filters -->
-        <div class="eventsCalendar__filtersControls">
-          <div class="eventsCalendar__filtersControlsInner" :class="{ '-eventView': !byDate }">
-            <div class="eventsCalendar__filtersTitle">Calendar</div>
-             <div class="eventsCalendar__filtersActions">
-          <button
-                  @click="window.print()"
-                  class="eventsCalendar__printButton"
-                  title="Print Calendar"
-                >
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 7V1H14V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M3.2 14H2.6C2.17565 14 1.76869 13.8361 1.46863 13.5444C1.16857 13.2527 1 12.857 1 12.4444V8.55556C1 8.143 1.16857 7.74734 1.46863 7.45561C1.76869 7.16389 2.17565 7 2.6 7H15.4C15.8243 7 16.2313 7.16389 16.5314 7.45561C16.8314 7.74734 17 8.143 17 8.55556V12.4444C17 12.857 16.8314 13.2527 16.5314 13.5444C16.2313 13.8361 15.8243 14 15.4 14H14.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M14 11H4V17H14V11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Print</span>
-                </button>
-                <div class="eventsCalendar__viewToggle">
-                  <label class="eventsCalendar__radioOption" :class="{ '-selected': byDate }">
-                    <input
-                      type="radio"
-                      name="viewType"
-                      value="date"
-                      :checked="byDate"
-                      @change="setView('date')"
-                      class="eventsCalendar__radioInput"
-                    />
-                    <span class="eventsCalendar__radioLabel">Date View</span>
-                  </label>
-                  <label class="eventsCalendar__radioOption" :class="{ '-selected': !byDate }">
-                    <input
-                      type="radio"
-                      name="viewType"
-                      value="event"
-                      :checked="!byDate"
-                      @change="setView('event')"
-                      class="eventsCalendar__radioInput"
-                    />
-                    <span class="eventsCalendar__radioLabel">Event View</span>
-                  </label>
-                </div>
-             </div>
-          <!-- Current Refinements -->
-              <ais-current-refinements :excluded-attributes="['performance_date']">
-              <template v-slot="{ items, createURL }">
-                <div class="eventsCalendar__filtersArea" v-if="items.length">
-                  <!-- Results Count -->
-                  <ais-stats>
-                    <template v-slot="{ nbHits, query }">
-                      <span v-if="query != '*'" class="eventsCalendar__resultsCount">{{ nbHits }} Results</span>
-                      <span v-else class=""></span>
-                    </template>
-                  </ais-stats>
 
-                  <div class="eventsCalendar__activeFilters">
-                    <ul class="eventsCalendar__activeFiltersList">
-                      <li v-for="item in items" :key="item.attribute" class="eventsCalendar__activeFiltersGroup">
-                        <ul class="eventsCalendar__activeFiltersItems">
-                          <li
-                            v-for="refinement in item.refinements"
-                            :key="[
-                              refinement.attribute,
-                              refinement.type,
-                              refinement.value,
-                              refinement.operator
-                            ].join(':')"
-                            class="eventsCalendar__activeFilterItem"
-                          >
-                            <a
-                              :href="createURL(refinement)"
-                              @click.prevent="item.refine(refinement)"
-                              v-html="refinement.label + ' ×'"
-                              class="eventsCalendar__activeFilterRemove"
-                            ></a>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-                    <ais-clear-refinements>
-
-              <template v-slot="{ canRefine, refine, createURL }">
-                <a
-                  :href="createURL()"
-                  @click.prevent="refine"
-                  v-if="canRefine"
-                  class="eventsCalendar__clearFilters"
-                >
-                  Clear all filters
-                </a>
-                <span v-else></span>
-              </template>
-            </ais-clear-refinements>
-
-          </div>
-                </div>
-                </template>
-              </ais-current-refinements>
-        </div>
-        </div>
 
       <!-- Search Results Section -->
       <section class="eventsCalendar__results">
         <ais-hits class="eventsCalendar__hits">
           <template v-slot="{ items }">
-
-            <!-- Results by Date View -->
-            <div v-if="byDate" class="eventsCalendar__resultsByDate">
-              <div v-for="month, key in groupItemsByMonth(items)" :key="key" class="eventsCalendar__monthGroup">
-                <h2 class="eventsCalendar__monthTitle">{{ key }}</h2>
-                <div class="eventsCalendar__monthEvents">
-                  <article v-for="item in month" :key="item.objectId" class="eventsCalendar__eventCard">
-                      <div class="eventsCalendar__eventMeta">
-                      <div class="eventsCalendar__eventStatus" :class="getEventStatus(item).class">
-                        {{ getEventStatus(item).status }}
-                      </div>
-                      </div>
-                    <div class="eventsCalendar__eventContent">
-                    <div class="eventsCalendar__categories" v-if="item.performance_categories && item.performance_categories.length">
-                      <span
-                        class="eventsCalendar__category"
-                        v-for="category in item.performance_categories"
-                        :key="category"
-                        :style="getBrandColors(item.event_brand)"
-                      >{{ category }}</span>
-                    </div>
-                      <h3 class="eventsCalendar__eventTitle" v-html="item.title"></h3>
-                      <p v-if="item.subhead" class="eventsCalendar__eventSubhead">{{ item.subhead }}</p>
-
-                      <div class="eventsCalendar__eventDetails">
-                        <time class="eventsCalendar__eventDate">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" clip-path="url(#a)"><path d="M15.438 2.969H3.562a.594.594 0 0 0-.593.594v11.874c0 .328.266.594.594.594h11.874a.594.594 0 0 0 .594-.593V3.562a.594.594 0 0 0-.593-.593Zm-2.375-1.188v2.375M5.938 1.781v2.375M2.969 6.531H16.03"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h19v19H0z"/></clipPath></defs></svg>
-                          {{ formatDate(item.performance_date) }}
-                        </time>
-                        <div class="eventsCalendar__eventVenue">
-                          <svg width="18" height="19" fill="none"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" clip-path="url(#a)"><path d="M9 10.063a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"/><path d="M14.625 7.813c0 5.062-5.625 9-5.625 9s-5.625-3.938-5.625-9a5.625 5.625 0 0 1 11.25 0v0Z"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 .5h18v18H0z"/></clipPath></defs></svg>
-                          <div class="eventsCalendar__eventVenueInner">
-                            <a :href="item.performance_venue.link" class="eventsCalendar__venueLink">
-                              {{ item.performance_venue.name }}
-                            </a>
-                            <span class="eventsCalendar__venueLocation">, {{ item.performance_venue.location }}</span>
-                          </div>
-                        </div>
-                        <p v-if="item.performance_note" class="eventsCalendar__eventNote">
-                          {{ item.performance_note }}</p>
-                        <!-- Notice Display -->
-                        <div v-if="hasNotice(item)" class="eventsCalendar__eventNotice" :style="{ color: item.notice_color }">
-                          <span v-if="item.notice_icon" class="eventsCalendar__noticeIcon" v-html="renderNoticeIcon(item.notice_icon)" :style="{ color: item.notice_color }"></span>
-                          <span class="eventsCalendar__noticeText">{{ item.notice }}</span>
-                        </div>
-                      </div>
-
-                      <div class="eventsCalendar__eventActions">
-                        <a :href="item.performance_link" class="eventsCalendar__eventLink">Learn more</a>
-                        <a
-                          :href="item.ticket_link"
-                          class="eventsCalendar__ticketLink"
-                          :style="getBrandColors(item.event_brand)"
-                        >
-                          {{ item.ticket_text ? item.ticket_text : 'Buy Tickets' }}
-                          <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 7.5H12" stroke="#686F73" stroke-width="1.5"/>
-                            <path d="M6 1.5L12 7.5L6 13.5" stroke="#686F73" stroke-width="1.5"/>
-                          </svg>
-                        </a>
-                      </div>
-                    </div>
-                    <div class="eventsCalendar__eventImage">
-                      <img :src="item.image_src" :alt="item.image_alt" class="eventsCalendar__eventImg" />
-                    </div>
-                  </article>
-                </div>
-              </div>
-            </div>
-
-            <!-- Results by Event View -->
-            <div v-else class="eventsCalendar__resultsByEvent">
-              <div class="eventsCalendar__eventsList">
-                <article v-for="item in items" :key="item.objectId" class="eventsCalendar__eventCard">
-                    <div class="eventsCalendar__eventMeta">
-                    <div class="eventsCalendar__eventStatus" :class="getEventStatus(item).class">
-                      {{ getEventStatus(item).status }}
-                    </div>
-                    </div>
-                  <div class="eventsCalendar__eventContent">
-                    <div class="eventsCalendar__categories" v-if="item.performance_categories && item.performance_categories.length">
-                      <span
-                        class="eventsCalendar__category"
-                        v-for="category in item.performance_categories"
-                        :key="category"
-                        :style="getBrandColors(item.event_brand)"
-                      >{{ category }}</span>
-                    </div>
-                    <h3 class="eventsCalendar__eventTitle" v-html="item.title"></h3>
-                    <p v-if="item.subhead" class="eventsCalendar__eventSubhead">{{ item.subhead }}</p>
-
-                    <div class="eventsCalendar__eventDetails">
-                      <time v-if="item.num_performances == 1" class="eventsCalendar__eventDate">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" clip-path="url(#a)"><path d="M15.438 2.969H3.562a.594.594 0 0 0-.593.594v11.874c0 .328.266.594.594.594h11.874a.594.594 0 0 0 .594-.593V3.562a.594.594 0 0 0-.593-.593Zm-2.375-1.188v2.375M5.938 1.781v2.375M2.969 6.531H16.03"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h19v19H0z"/></clipPath></defs></svg>
-                        {{ formatDate(item.performance_date) }}
-                      </time>
-                      <time v-else-if="item.performance_range" class="eventsCalendar__eventDateRange">
-                        {{ item.performance_range }}
-                      </time>
-
-                      <div class="eventsCalendar__eventVenue">
-                        <a :href="item.performance_venue.link" class="eventsCalendar__venueLink">
-                          <svg width="18" height="19" fill="none"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" clip-path="url(#a)"><path d="M9 10.063a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"/><path d="M14.625 7.813c0 5.062-5.625 9-5.625 9s-5.625-3.938-5.625-9a5.625 5.625 0 0 1 11.25 0v0Z"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 .5h18v18H0z"/></clipPath></defs></svg>
-                          {{ item.performance_venue.name }}
-                        </a>
-                        <span class="eventsCalendar__venueLocation">, {{ item.performance_venue.location }}</span>
-                      </div>
-                      <p v-if="item.performance_note" class="eventsCalendar__eventNote">{{ item.performance_note }}</p>
-                      <!-- Notice Display -->
-                      <div v-if="hasNotice(item)" class="eventsCalendar__eventNotice" :style="{ color: item.notice_color }">
-                        <span v-if="item.notice_icon" class="eventsCalendar__noticeIcon" v-html="renderNoticeIcon(item.notice_icon)" :style="{ color: item.notice_color }"></span>
-                        <span class="eventsCalendar__noticeText">{{ item.notice }}</span>
-                      </div>
-                    </div>
-
-                    <div class="eventsCalendar__eventActions">
-                      <a :href="item.performance_link" class="eventsCalendar__eventLink">Learn more</a>
-                      <a
-                        v-if="item.ticket_link && item.num_performances == 1"
-                        :href="item.ticket_link"
-                        class="eventsCalendar__ticketLink"
-                        :style="getBrandColors(item.event_brand)"
-                      >
-                        {{ item.ticket_text ? item.ticket_text : 'Buy Tickets' }}
-                        <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M0 7.5H12" stroke="#686F73" stroke-width="1.5"/>
-                          <path d="M6 1.5L12 7.5L6 13.5" stroke="#686F73" stroke-width="1.5"/>
-                        </svg>
-                      </a>
-                      <a
-                        v-else
-                        :href="item.performance_link"
-                        class="eventsCalendar__ticketLink"
-                        :style="getBrandColors(item.event_brand)"
-                      >Get Tickets</a>
-                    </div>
-                  </div>
-                  <div class="eventsCalendar__eventImage">
-                    <img :src="item.image_src" :alt="item.image_alt" class="eventsCalendar__eventImg" />
-                  </div>
-                </article>
-              </div>
-            </div>
+            <h2>Hits: {{ items.length }}</h2>
+            <div v-for="item in items">{{ JSON.stringify(item) }}</div>
           </template>
         </ais-hits>
 
