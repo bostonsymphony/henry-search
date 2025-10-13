@@ -20,6 +20,9 @@
   import VueSelect from 'vue-select'
   import { history as historyRouter } from 'instantsearch.js/es/lib/routers'
   import { simple as simpleStateMapping } from 'instantsearch.js/es/lib/stateMappings'
+  import Typesense from 'typesense'
+
+  import PAccordion from '../components/PAccordion.vue'
 
   const props = defineProps({
     indexName: {
@@ -27,7 +30,14 @@
       default: "archived_performances"
     }
   })
-
+  
+  const mainRefinements = [
+    {attribute: 'work.composer', title: 'Composer', placeholder: 'Search Composers'},
+    {attribute: 'work.title', title: 'Work', placeholder: 'Search Works'},
+    {attribute: 'conductor', title: 'Conductor', placeholder: 'Search Conductors'},
+    {attribute: 'orchestra', title: 'Orchestra/Ensemble', placeholder: 'Search Orchestras/Ensembles'},
+    {attribute: 'work.artist.artist_name', title: 'Artist', placeholder: 'Search Artists'}
+  ]
 
   const routing = ref({
     router: historyRouter({
@@ -49,6 +59,17 @@
   // Modal state management
   let isCreatingModal = false
   let modalCreated = false
+
+  function slugify(str) {
+    return String(str)
+      .normalize('NFKD') // split accented characters into their base characters and diacritical marks
+      .replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
+      .trim() // trim leading or trailing whitespace
+      .toLowerCase() // convert to lowercase
+      .replace(/[^a-z0-9 -]/g, '') // remove non-alphanumeric characters
+      .replace(/\s+/g, '-') // replace spaces with hyphens
+      .replace(/-+/g, '-'); // remove consecutive hyphens
+  }
 
   // Reusable multi-select modal template function
   function createMultiSelectModalHTML(options = {}) {
@@ -171,9 +192,10 @@
     //  So you can pass any parameters supported by the search endpoint below.
     //  query_by is required.
     additionalSearchParameters: {
-      query_by: 'works',
+      query_by: 'work.artist.artist_name',
       sort_by: 'performance_date:asc',
-      group_limit: 1
+      // group_by: 'work',
+      // group_limit: 1
     },
   })
 
@@ -192,11 +214,29 @@
   }
 
   onMounted(() => {
-    // const startDate = new Date();
-    // const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
-    // date.value = [startDate, endDate];
-    //datepicker.value.clearValue()
-    console.log("index name", props.indexName)
+
+    // let client = new Typesense.Client({
+    //   'nodes': [{
+    //     'host': 'go8f04wi19tuvlyrp-1.a1.typesense.net',
+    //     'port': '443',      
+    //     'protocol': 'https'   
+    //   }],
+    //   'apiKey': 'qoWHCTjesGfIaxdXbw9vOgod1VToEXNI',
+    //   'connectionTimeoutSeconds': 2
+    // })
+
+    // let searchParameters = {
+    //   'q'            : 'john williams',
+    //   'filter_by'    : 'work.artist.{artist_name:=John Williams}',
+    //   'query_by'     : 'work',
+    //   'group_by'     : 'work',
+    //   'group_limit'  : '1'
+    // }
+
+    // client.collections('archived_performances').documents().search(searchParameters).then(function (searchResults) {
+    //   console.log('searchResults', searchResults)
+    // })
+    
 
     // Disable browser scroll restoration
     if ('scrollRestoration' in history) {
@@ -354,116 +394,6 @@
     displayDate.value = value
 
     // Note: Modal closing is now handled by the Select button click handler
-  }
-
-  // Function to determine event status
-  function getEventStatus(item) {
-    // First check if backend provides real status data
-    if (item.event_status && item.event_status.length > 0) {
-      const status = item.event_status[0]; // Assuming first status is primary
-      return getStatusMapping(status);
-    }
-
-    // Fallback logic until backend provides data
-    if (item.performance_categories && item.performance_categories.includes('Free')) {
-      return { status: 'Free Event', class: '-free' };
-    }
-
-    // Check if past date
-    const eventDate = new Date(item.performance_date * 1000);
-    const now = new Date();
-    if (eventDate < now) {
-      return { status: 'Past Event', class: '-past-date' };
-    }
-
-    // Default status
-    return { status: 'On Sale', class: '-status' };
-  }
-
-  // Status mapping function to match Dropdown.vue status
-  function getStatusMapping(status) {
-    const statusMap = {
-      'Cancelled': { status: 'Cancelled', class: '-cancelled' },
-      'Rescheduled': { status: 'Rescheduled', class: '-rescheduled' },
-      'Postponed': { status: 'Postponed', class: '-postponed' },
-      'Sold Out': { status: 'Sold Out', class: '-sold-out' },
-      'Best Availability': { status: 'Best Availability', class: '-best-availability' },
-      'Limited Availability': { status: 'Limited Availability', class: '-limited-availability' },
-      'Coming Soon': { status: 'Coming Soon', class: '-coming-soon' },
-      'Past Event': { status: 'Past Event', class: '-past-date' },
-      'Free': { status: 'Free Event', class: '-free' },
-      'On Sale': { status: 'On Sale', class: '-status' },
-      // Add fallback for unknown statuses
-      'default': { status: 'Status', class: '-status' }
-    };
-
-    return statusMap[status] || statusMap['default'];
-  }
-
-  // Get brand-specific CSS custom properties
-  function getBrandColors(eventBrand) {
-    // Map event_brand values to brand identifiers
-    const brandMap = {
-      'bso': 'bso',
-      'boston symphony orchestra': 'bso',
-      'pops': 'pops',
-      'boston pops': 'pops',
-      'tanglewood': 'tw',
-      'tanglewood learning institute': 'tw',
-      'symphonyhall': 'sh',
-      'symphony hall': 'sh'
-    };
-
-    const brand = brandMap[eventBrand?.toLowerCase()] || 'bso';
-
-    return {
-      '--brand-200': `var(--c-brand-${brand}-200)`,
-      '--brand-400': `var(--c-brand-${brand}-400)`,
-      '--brand-600': `var(--c-brand-${brand}-600)`,
-      '--brand-800': `var(--c-brand-${brand}-800)`
-    };
-  }
-
-  // Check if notice should be displayed
-  function hasNotice(item) {
-    return item.notice && item.notice.trim().length > 0;
-  }
-
-  // Render notice icon using SVG symbol reference
-  function renderNoticeIcon(iconName) {
-    if (!iconName) return '';
-
-    // Clean the icon name - remove any 'icon-' prefix if it exists
-    const cleanIconName = iconName.replace(/^icon-/, '');
-
-    return `<svg class="eventsCalendar__noticeIconSvg">
-      <use xlink:href="#icon-${cleanIconName}"></use>
-    </svg>`;
-  }
-
-  // Generate venue placeholder with count
-  function getVenuePlaceholder(items) {
-    const selectedCount = items.filter(item => item.isRefined).length;
-    return selectedCount > 0 ? `Venue (${selectedCount})` : 'Venue';
-  }
-
-  // Generate ensemble placeholder with count
-  function getEnsemblePlaceholder(items) {
-    const selectedCount = items.filter(item => item.isRefined).length;
-    return selectedCount > 0 ? `Ensemble (${selectedCount})` : 'Ensemble';
-  }
-
-  // Helper functions to split venue name from city
-  function getVenueName(venueLabel) {
-    const cleanLabel = venueLabel.replace(/<[^>]*>/g, ''); // Remove HTML tags
-    const parts = cleanLabel.split(/,\s*(?=[A-Z])|(?:\s*\|\s*[^|]*,\s*)/);
-    return parts[0]?.trim() || cleanLabel;
-  }
-
-  function getVenueCity(venueLabel) {
-    const cleanLabel = venueLabel.replace(/<[^>]*>/g, ''); // Remove HTML tags
-    const parts = cleanLabel.split(/,\s*(?=[A-Z])|(?:\s*\|\s*[^|]*,\s*)/);
-    return parts.length >= 2 ? parts.slice(1).join(', ').trim() : '';
   }
 
   // Generic mobile filter modal function
@@ -791,6 +721,7 @@
 
 <template>
   <div class="eventsCalendar">
+
     <ais-instant-search
       :search-client="searchClient"
       :index-name="props.indexName"
@@ -803,29 +734,57 @@
 
       <!-- Header and Search Section -->
       <div class="eventsCalendar__topSection">
-
-      <!-- Search Filters Section -->
+        <!-- Search Filters Section -->
         <section class="eventsCalendar__filters">
             <header class="eventsCalendar__header">
-            <h1 class="eventsCalendar__title">Find Concerts & Events</h1>
+              <h1 class="eventsCalendar__title">Find Concerts & Events</h1>
             </header>
             <div class="eventsCalendar__filtersRow">
             <!-- Search Box -->
-            <div class="eventsCalendar__filterGroup eventsCalendar__filterGroup--search">
-                <ais-search-box
-                placeholder="Performance name, artist, work, or category"
-                class="eventsCalendar__searchBox"
-                />
-            </div>
+              <div class="eventsCalendar__filterGroup eventsCalendar__filterGroup--search">
+                  <ais-search-box
+                  placeholder="Performance name, artist, work, or category"
+                  class="eventsCalendar__searchBox"
+                  />
+              </div>
             </div>
         </section>
     </div>
 
         <!-- View Toggle and Active Filters -->
-
+      <section class="eventsCalendar__filterRail">
+        <div style="display: grid;">
+          <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
+            <template v-slot="{items, refine, searchForItems}">
+              <p-accordion name="example" class="accordion">
+                  <summary class="accordion__summary">
+                      <h6 class="accordion__heading">{{ refinement.title }}</h6>
+                      <div class="accordion__iconWrapper">
+                      <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation">
+                          <use href="/main-icons-sprite.svg#chevron-right" />
+                      </svg>
+                      </div>
+                  </summary>
+                  <div class="accordion__content">
+                      <div class="ais-SearchBox eventsCalendar__searchBox -filter">
+                        <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
+                      </div>
+                      <div class="eventsCalendar__checkBoxes">
+                      <label v-for="item in items" class="eventsCalendar__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
+                          <input class="checkbox" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
+                          <span>{{ item.isRefined + ' ' + item.value }}</span><span>{{ item.count }}</span>
+                      </label>
+                      </div>
+                  </div> 
+              </p-accordion>
+            </template>
+          </ais-refinement-list>
+        </div>
+      </section>
 
       <!-- Search Results Section -->
       <section class="eventsCalendar__results">
+        <ais-current-refinements></ais-current-refinements>
         <ais-hits class="eventsCalendar__hits">
           <template v-slot="{ items }">
             <h2>Hits: {{ items.length }}</h2>
@@ -846,6 +805,8 @@
       </section>
     </ais-instant-search>
   </div>
+  
+
 
 </template>
 
@@ -855,11 +816,37 @@
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
+
+  &__boxLabel {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 10% 80% 10%;
+    padding-bottom: .5rem;
+    color: var(--color-dark-blue);
+  }
+
+  &__checkBoxes {
+    margin: 1rem 0;
+    height: 10rem;
+    overflow-y: scroll;
+    // input[type=checkbox] {
+    //   border: thin solid #AFAFAF;
+    //   background-color: var(--color-white);
+    //   border-radius: 0;
+    //   height: 1rem;
+    //   width: 1rem;
+    // }
+    // input[type=checkbox]:checked {
+    //   color:#AFAFAF;
+    // }
+  }
+
   &__topSection {
     background-color: #FBF4EF;
     display: flex;
     align-items: flex-start;
     gap: 2rem;
+    grid-column: 1 / span 2;
     padding: 2rem 20px;
     width: 100%;
     box-sizing: border-box;
@@ -893,6 +880,13 @@
      margin-bottom: 0;
    }
 
+   &__search {
+    display: grid;
+    grid-template-columns: 25% 75%;
+    gap: 2rem;
+    background-color: var(--color-white);
+   }
+
    &__searchBox {
      border: 1px solid #D7D7D7;
      border-radius: 5px;
@@ -903,6 +897,10 @@
      display: flex;
      align-items: center;
      box-sizing: border-box;
+
+     &.-filter {
+      background-color:#ffffff;
+     }
 
      .ais-SearchBox-form {
        display: flex;
@@ -918,8 +916,18 @@
        font-size: var(--font-size-2);
        width: 90%;
        height: 100%;
+       background-color: #FDF9F7;
        border: none;
        outline: none;
+       &.-filter {
+          width: 100%;
+          border: none;
+          background-color:#ffffff;
+          color:var(--color-dark-blue);
+       }
+       &.-filter::placeholder {
+        color:#AFAFAF;
+       }
      }
 
      .ais-SearchBox-submitIcon {
@@ -927,8 +935,10 @@
        height: 16px;
      }
 
-     .ais-SearchBox-reset {
+     .ais-SearchBox-reset, .ais-SearchBox-submit {
        align-self: center !important;
+       border: none;
+       background-color: #FDF9F7;
        display: flex;
        align-items: center !important;
        justify-content: center !important;
@@ -986,6 +996,23 @@
       grid-template-columns: 1fr 200px 200px 200px;
       grid-template-areas:
       "search date venue ensemble";
+    }
+  }
+
+  &__filterRail {
+    grid-column-start: 1;
+    background-color:#ffffff;
+    @media screen and (min-width: 768px) {
+      padding-left: 80px;
+    }
+
+    @media screen and (max-width: 768px) {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    @media screen and (min-width: 1070px) {
+      padding-left: 140px;
     }
   }
 
@@ -1334,6 +1361,10 @@
         color: var(--brand-800, var(--c-theme-800));
       }
      }
+   }
+
+   &__results {
+    grid-column-start: 2;
    }
 
    &__radioInput {
@@ -2161,55 +2192,55 @@
     }
 
     // Ensure checkboxes are visible in modals
-    input[type="checkbox"] {
-      display: block !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      width: 20px !important;
-      height: 20px !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      border: 2px solid #ccc !important;
-      border-radius: 3px !important;
-      background: white !important;
-      appearance: checkbox !important;
-      -webkit-appearance: checkbox !important;
-      -moz-appearance: checkbox !important;
+    // input[type="checkbox"] {
+    //   display: block !important;
+    //   opacity: 1 !important;
+    //   visibility: visible !important;
+    //   width: 20px !important;
+    //   height: 20px !important;
+    //   margin: 0 !important;
+    //   padding: 0 !important;
+    //   border: 2px solid #ccc !important;
+    //   border-radius: 3px !important;
+    //   background: white !important;
+    //   appearance: checkbox !important;
+    //   -webkit-appearance: checkbox !important;
+    //   -moz-appearance: checkbox !important;
 
-      &:checked {
-        background: var(--c-brand, #007bff) !important;
-        border-color: var(--c-brand, #007bff) !important;
-      }
-    }
+    //   &:checked {
+    //     background: var(--c-brand, #007bff) !important;
+    //     border-color: var(--c-brand, #007bff) !important;
+    //   }
+    // }
   }
 
   // Desktop dropdown checkbox styles (matching mobile modal)
-  .eventsCalendar__checkbox {
-    margin: 0 12px 0 0 !important;
-    flex-shrink: 0;
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
-    accent-color: var(--c-brand, #007bff) !important;
-    appearance: checkbox !important;
-    -webkit-appearance: checkbox !important;
-    -moz-appearance: checkbox !important;
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: relative !important;
-    z-index: 1 !important;
-    background: white !important;
-    border: 2px solid #ccc !important;
-    border-radius: 3px !important;
-    cursor: pointer;
+  // .eventsCalendar__checkbox {
+  //   margin: 0 12px 0 0 !important;
+  //   flex-shrink: 0;
+  //   width: 20px !important;
+  //   height: 20px !important;
+  //   min-width: 20px !important;
+  //   min-height: 20px !important;
+  //   accent-color: var(--c-brand, #007bff) !important;
+  //   appearance: checkbox !important;
+  //   -webkit-appearance: checkbox !important;
+  //   -moz-appearance: checkbox !important;
+  //   display: block !important;
+  //   opacity: 1 !important;
+  //   visibility: visible !important;
+  //   position: relative !important;
+  //   z-index: 1 !important;
+  //   background: white !important;
+  //   border: 2px solid #ccc !important;
+  //   border-radius: 3px !important;
+  //   cursor: pointer;
 
-    &:checked {
-      background: var(--c-brand, #007bff) !important;
-      border-color: var(--c-brand, #007bff) !important;
-    }
-  }
+  //   &:checked {
+  //     background: var(--c-brand, #007bff) !important;
+  //     border-color: var(--c-brand, #007bff) !important;
+  //   }
+  // }
 
   // Desktop venue dropdown styles
   .eventsCalendar__selectOption--venue {
@@ -2318,31 +2349,31 @@
   margin: 0;
 }
 
-.eventsModal .filterModal__itemLabel input[type="checkbox"] {
-  margin: 0 !important;
-  flex-shrink: 0;
-  width: 20px !important;
-  height: 20px !important;
-  min-width: 20px !important;
-  min-height: 20px !important;
-  accent-color: var(--c-brand, #007bff) !important;
-  appearance: checkbox !important;
-  -webkit-appearance: checkbox !important;
-  -moz-appearance: checkbox !important;
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  position: relative !important;
-  z-index: 1 !important;
-  background: white !important;
-  border: 2px solid #ccc !important;
-  border-radius: 3px !important;
-}
+// .eventsModal .filterModal__itemLabel input[type="checkbox"] {
+//   margin: 0 !important;
+//   flex-shrink: 0;
+//   width: 20px !important;
+//   height: 20px !important;
+//   min-width: 20px !important;
+//   min-height: 20px !important;
+//   accent-color: var(--c-brand, #007bff) !important;
+//   appearance: checkbox !important;
+//   -webkit-appearance: checkbox !important;
+//   -moz-appearance: checkbox !important;
+//   display: block !important;
+//   opacity: 1 !important;
+//   visibility: visible !important;
+//   position: relative !important;
+//   z-index: 1 !important;
+//   background: white !important;
+//   border: 2px solid #ccc !important;
+//   border-radius: 3px !important;
+// }
 
-.eventsModal .filterModal__itemLabel input[type="checkbox"]:checked {
-  background: var(--c-brand, #007bff) !important;
-  border-color: var(--c-brand, #007bff) !important;
-}
+// .eventsModal .filterModal__itemLabel input[type="checkbox"]:checked {
+//   background: var(--c-brand, #007bff) !important;
+//   border-color: var(--c-brand, #007bff) !important;
+// }
 
 .eventsModal .filterModal__itemText {
   flex: 1;

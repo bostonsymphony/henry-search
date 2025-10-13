@@ -20,8 +20,10 @@
   },
   "homepage": "https://github.com/bostonsymphony/henry-search#readme",
   "dependencies": {
+    "@babel/runtime": "^7.28.4",
     "@vuepic/vue-datepicker": "^11.0.2",
     "instantsearch.js": "^4.80.0",
+    "typesense": "^2.1.0",
     "typesense-instantsearch-adapter": "^2.9.0",
     "vue": "^3.5.21",
     "vue-instantsearch": "^4.21.3",
