@@ -1,10 +1,12 @@
 {
   "name": "henry-search",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Searches a typesense archive of musical performances",
-  "main": "js/components/Calendar.vue",
+  "main": "js/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -28,5 +30,21 @@
     "vue": "^3.5.21",
     "vue-instantsearch": "^4.21.3",
     "vue-select": "^4.0.0-beta.6"
-  }
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "sass-embedded": "^1.93.2",
+    "vite": "^7.1.7"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/HenrySearch.js",
+      "require": "./dist/HenrySearch.umd.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
 }
