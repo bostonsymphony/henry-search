@@ -23,6 +23,7 @@
   import Typesense from 'typesense'
 
   import PAccordion from './PAccordion.vue'
+  import PTabs from './PTabs.vue'
 
   const props = defineProps({
     indexName: {
@@ -731,81 +732,93 @@
       <ais-configure
         :hits-per-page.camel="perPage"
       />
+      Tabs
+      <p-tabs :titles="['First Tab', 'Second Tab', 'Third Tab']">
+        <template #tabpanel-1>
+          <!-- Header and Search Section -->
+          <div class="eventsCalendar__topSection">
+            <!-- Search Filters Section -->
+            <section class="eventsCalendar__filters">
+                <header class="eventsCalendar__header">
+                  <h1 class="eventsCalendar__title">Find Concerts & Events</h1>
+                </header>
+                <div class="eventsCalendar__filtersRow">
+                <!-- Search Box -->
+                  <div class="eventsCalendar__filterGroup eventsCalendar__filterGroup--search">
+                      <ais-search-box
+                      placeholder="Performance name, artist, work, or category"
+                      class="eventsCalendar__searchBox"
+                      />
+                  </div>
+                </div>
+            </section>
+          </div>
 
-      <!-- Header and Search Section -->
-      <div class="eventsCalendar__topSection">
-        <!-- Search Filters Section -->
-        <section class="eventsCalendar__filters">
-            <header class="eventsCalendar__header">
-              <h1 class="eventsCalendar__title">Find Concerts & Events</h1>
-            </header>
-            <div class="eventsCalendar__filtersRow">
-            <!-- Search Box -->
-              <div class="eventsCalendar__filterGroup eventsCalendar__filterGroup--search">
-                  <ais-search-box
-                  placeholder="Performance name, artist, work, or category"
-                  class="eventsCalendar__searchBox"
-                  />
-              </div>
+            <!-- View Toggle and Active Filters -->
+          <section class="eventsCalendar__filterRail">
+            <div style="display: grid;">
+              <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
+                <template v-slot="{items, refine, searchForItems}">
+                  <p-accordion name="example" class="accordion">
+                      <summary class="accordion__summary">
+                          <h6 class="accordion__heading">{{ refinement.title }}</h6>
+                          <div class="accordion__iconWrapper">
+                          <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation">
+                              <use href="../assets/main-icons-sprite.svg#chevron-right" />
+                          </svg>
+                          </div>
+                      </summary>
+                      <div class="accordion__content">
+                          <div class="ais-SearchBox eventsCalendar__searchBox -filter">
+                            <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
+                          </div>
+                          <div class="eventsCalendar__checkBoxes">
+                          <label v-for="item in items" class="eventsCalendar__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
+                              <input class="checkbox" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
+                              <span>{{ item.isRefined + ' ' + item.value }}</span><span>{{ item.count }}</span>
+                          </label>
+                          </div>
+                      </div> 
+                  </p-accordion>
+                </template>
+              </ais-refinement-list>
             </div>
-        </section>
-    </div>
+          </section>
 
-        <!-- View Toggle and Active Filters -->
-      <section class="eventsCalendar__filterRail">
-        <div style="display: grid;">
-          <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
-            <template v-slot="{items, refine, searchForItems}">
-              <p-accordion name="example" class="accordion">
-                  <summary class="accordion__summary">
-                      <h6 class="accordion__heading">{{ refinement.title }}</h6>
-                      <div class="accordion__iconWrapper">
-                      <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation">
-                          <use href="../assets/main-icons-sprite.svg#chevron-right" />
-                      </svg>
-                      </div>
-                  </summary>
-                  <div class="accordion__content">
-                      <div class="ais-SearchBox eventsCalendar__searchBox -filter">
-                        <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
-                      </div>
-                      <div class="eventsCalendar__checkBoxes">
-                      <label v-for="item in items" class="eventsCalendar__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
-                          <input class="checkbox" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
-                          <span>{{ item.isRefined + ' ' + item.value }}</span><span>{{ item.count }}</span>
-                      </label>
-                      </div>
-                  </div> 
-              </p-accordion>
-            </template>
-          </ais-refinement-list>
-        </div>
-      </section>
+          <!-- Search Results Section -->
+          <section class="eventsCalendar__results">
+            <ais-current-refinements></ais-current-refinements>
+            <ais-hits class="eventsCalendar__hits">
+              <template v-slot="{ items }">
+                <h2>Hits!!!: {{ items.length }}</h2>
+                <div v-for="item in items">{{ JSON.stringify(item) }}</div>
+              </template>
+            </ais-hits>
 
-      <!-- Search Results Section -->
-      <section class="eventsCalendar__results">
-        <ais-current-refinements></ais-current-refinements>
-        <ais-hits class="eventsCalendar__hits">
-          <template v-slot="{ items }">
-            <h2>Hits: {{ items.length }}</h2>
-            <div v-for="item in items">{{ JSON.stringify(item) }}</div>
-          </template>
-        </ais-hits>
+            <!-- Pagination -->
+            <nav class="eventsCalendar__pagination">
+              <ais-pagination
+                :show-first="true"
+                :show-previous="true"
+                :show-next="true"
+                :show-last="true"
+                class="eventsCalendar__paginationComponent"
+              />
+            </nav>
+          </section>     
+        </template>
+        <template #tabpanel-2>
+          <h3>Sit voluptas illo beatae.</h3>
+          <p>Ipsum eos quidem quae exercitationem distinctio. Deleniti exercitationem corrupti nihil porro consequuntur Repudiandae ut non libero expedita nulla? Autem obcaecati fugit blanditiis autem molestiae omnis? Similique odit eius eveniet veritatis.</p>
+        </template>
 
-        <!-- Pagination -->
-        <nav class="eventsCalendar__pagination">
-          <ais-pagination
-            :show-first="true"
-            :show-previous="true"
-            :show-next="true"
-            :show-last="true"
-            class="eventsCalendar__paginationComponent"
-          />
-        </nav>
-      </section>
+        <template #tabpanel-3>
+          <h3>Consectetur odit distinctio beatae!</h3>
+          <p>Ipsum eaque ipsam asperiores consequatur est libero. Incidunt distinctio non quae veniam illum Laborum est harum sapiente vel suscipit maiores? Dicta quo velit eos ab distinctio, delectus! Autem sunt aperiam!</p>
+        </template>
+      </p-tabs>
     </ais-instant-search>
   </div>
-  
 
 
 </template>
