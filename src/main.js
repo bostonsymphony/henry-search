@@ -5,6 +5,7 @@ import { createApp } from 'vue'
 // createApp(App).mount('#app')
 
 import Search from './components/Search.vue'
+import SearchDetail from './components/SearchDetail.vue'
 
 export default {
 
@@ -16,4 +17,4 @@ export default {
 
 }
 
-export { Search }
+export { Search, SearchDetail }

@@ -1,6 +1,6 @@
 <script setup>
-  import { computed, ref, useTemplateRef, isRef, isReactive, watchEffect } from 'vue'
-  import focusWithArrows from './composables/focusWithArrows'
+  import { computed, ref, useTemplateRef, isRef, isReactive, onMounted, watchEffect } from 'vue'
+  import focusWithArrows from '../composables/focusWithArrows'
 
   const props = defineProps({
     titles: { type: Array, required: true },
@@ -8,12 +8,16 @@
 
   const tablist = useTemplateRef('tablist')
   const visibleTab = ref(0)
+  const firstLoad = ref(true)
 
   const focusedElement = focusWithArrows(tablist)
 
   watchEffect(() => {
     if (focusedElement.value) {
       visibleTab.value = tablist.value.indexOf(focusedElement.value)
+      if (!firstLoad.value) {
+          history.replaceState(undefined, undefined, `${window.location.pathname}#${tabs.value[visibleTab.value]['title']}`)
+      }
     }
   })
 
@@ -25,6 +29,41 @@
     buttonId: `tab-${i + 1}`,
     panelId: `tabpanel-${i + 1}`,
   })))
+
+  onMounted(() => {
+      setInitActiveItem ()
+      addEventListener('hashchange', event => {
+          event.preventDefault()
+          setInitActiveItem()
+      })
+      firstLoad.value = false
+  })
+
+  function setInitActiveItem () {
+      if (location.hash) {
+          tabs.value.every((el, index) => {
+            console.log('el, index', el, index)
+            if (location.hash.substring(1) == el.title) {
+                visibleTab.value = index
+                return true
+            }
+            return true
+          })
+      } else {
+          visibleTab.value = 0
+          if (!firstLoad.value) {
+              history.replaceState(undefined, undefined, `#${tabs.value[visibleTab.value]['title']}`)
+          }
+      }
+  }
+
+  // handleOnOpen( payload ) {
+  //           this.activeItem = payload
+  //           if (this.setHash && !this.firstLoad) {
+  //               history.replaceState(undefined, undefined, `#${this.activeItem}`)
+  //           }
+  //       },
+        
 </script>
 
 <template>
