@@ -808,7 +808,26 @@
                   <div class="eventsSearch__filtersRow">
                   <!-- Search Box -->
                     <div class="eventsSearch__filterGroup eventsSearch__filterGroup--search">
-                        <autocomplete />
+                        <ais-autocomplete>
+                          <template v-slot="{ currentRefinement, indices, refine }">
+                            <input
+                              type="search"
+                              :value="currentRefinement"
+                              placeholder="Search performances"
+                              @input="refine($event.currentTarget.value)"
+                            >
+                            <ul v-if="currentRefinement" v-for="index in indices" :key="index.indexId">
+                              <li>
+                                <h3>{{ index.indexName }}</h3>
+                                <ul>
+                                  <li v-for="hit in index.hits" :key="hit.objectID">
+                                    <ais-highlight attribute="conductor" :hit="hit"/>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </template>
+                        </ais-autocomplete>
                     </div>
                   </div>
               </section>

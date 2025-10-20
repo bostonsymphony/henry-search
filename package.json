@@ -23,7 +23,10 @@
   },
   "homepage": "https://github.com/bostonsymphony/henry-search#readme",
   "dependencies": {
+    "@algolia/autocomplete-js": "^1.19.4",
+    "@algolia/autocomplete-theme-classic": "^1.19.4",
     "@babel/runtime": "^7.28.4",
+    "@vitejs/plugin-vue-jsx": "^5.1.1",
     "@vuepic/vue-datepicker": "^11.0.2",
     "instantsearch.js": "^4.80.0",
     "typesense": "^2.1.0",
