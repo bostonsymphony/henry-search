@@ -1,0 +1,1 @@
+export const INSTANT_SEARCH_INDEX_NAME = "archived_performances"

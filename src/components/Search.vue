@@ -16,17 +16,19 @@
     AisSortBy,
     AisStats
   } from 'vue-instantsearch/vue3/es'
-  import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter'
+  
   import VueDatePicker from '@vuepic/vue-datepicker';
   import '@vuepic/vue-datepicker/dist/main.css'
   import VueSelect from 'vue-select'
-  import { history as historyRouter } from 'instantsearch.js/es/lib/routers'
-  import { simple as simpleStateMapping } from 'instantsearch.js/es/lib/stateMappings'
+
   import Typesense from 'typesense'
 
-  import PAccordion from './PAccordion.vue'
+  
   import PTabs from './PTabs.vue'
   import Autocomplete from "./Autocomplete.vue";
+  import SearchTab from "./SearchTab.vue"
+
+  import formatDate from '../composables/formatDate'
 
   const props = defineProps({
     indexName: {
@@ -35,20 +37,7 @@
     }
   })
   
-  const routing = ref({
-    router: historyRouter({
-      // Disable scroll restoration to prevent erratic behavior
-      writeDelay: 0,
-      parseURL({ qsModule, location }) {
-        const uiState = qsModule.parse(location.search.slice(1))
-        updateStateRefs(uiState)
-         
-        return uiState
-      }
-    }),
-    stateMapping: simpleStateMapping()
-  })
-  const sortView = ref('Most Recent')
+  
   const displayDate = ref(null)
   const datepicker = ref(null)
   const rangeInput = ref(null)
@@ -58,8 +47,8 @@
   const today = Date.now()
   const date = ref([today, today])
 
-  const showNumHits = ref(false)
-  const currentQuery = ref(null)
+  
+  
 
   // Modal state management
   let isCreatingModal = false
@@ -74,159 +63,11 @@
   ]
 
   const artistRefinements = [
-    {attribute: 'work.artist.artist_name', title: 'Artist/Ensemble', placeholder: 'Search Artists/Ensembles'},
-    {attribute: 'work.artist.artist_role', title: 'Instrument/Role', placeholder: 'Instruments/Roles'}
+    {attribute: 'artist_name', title: 'Artist/Ensemble', placeholder: 'Search Artists/Ensembles'},
+    {attribute: 'artist_role', title: 'Instrument/Role', placeholder: 'Instruments/Roles'}
   ]
 
-  function slugify(str) {
-    return String(str)
-      .normalize('NFKD') // split accented characters into their base characters and diacritical marks
-      .replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
-      .trim() // trim leading or trailing whitespace
-      .toLowerCase() // convert to lowercase
-      .replace(/[^a-z0-9 -]/g, '') // remove non-alphanumeric characters
-      .replace(/\s+/g, '-') // replace spaces with hyphens
-      .replace(/-+/g, '-'); // remove consecutive hyphens
-  }
-
-  // Reusable multi-select modal template function
-  function createMultiSelectModalHTML(options = {}) {
-    const {
-      modalId = 'multi-select-modal',
-      title = 'Make Selection',
-      description = 'Choose your options',
-      cancelText = 'Cancel',
-      selectText = 'Select',
-      cancelButtonClass = 'js-modal-cancel',
-      selectButtonClass = 'js-modal-select',
-      contentContainerClass = 'eventsModal__contentContainer'
-    } = options
-
-    return `
-      <div class="modal-container">
-        <div class="eventsModal js--modal -full menu-is-open ${modalId}" aria-hidden="false">
-          <div class="eventsModal__headerGrid">
-            <div class="event__performance-wrapper">
-              <span class="event__performance-name">${title}</span>
-            </div>
-            <button class="js--modal-close" aria-label="Close modal">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="17" fill="none">
-                <path stroke="#686F73" d="m1.354.646 16 16m-16.708 0 16-16"/>
-              </svg>
-            </button>
-          </div>
-
-          <div class="eventsModal__content -full">
-            <div class="eventsModal__dropdown -isMultiSelect">
-              <span class="eventsModal__numberOfPerformances">${description}</span>
-              <div class="${contentContainerClass}">
-                <!-- Dynamic content will be inserted here -->
-              </div>
-            </div>
-          </div>
-
-          <div class="eventsModal__actions-container js-performance-actions" data-performance-id="${modalId}">
-            <div class="performance__buttons">
-              <div class="event__buttons">
-                <div class="event__buy-button-wrapper js-event-buttons" data-where="modal" data-performance-id="${modalId}" style="display: flex; gap: 1rem; justify-content: center; width: 100%;">
-                  <button type="button" class="event__buy-button event__buy-button--secondary ${cancelButtonClass}" style="background: #F5F5F5; color: #333; border: 1px solid #ddd;">
-                    <strong>${cancelText}</strong>
-                  </button>
-                  <button type="button" class="event__buy-button ${selectButtonClass}">
-                    <strong>${selectText}</strong>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `
-  }
-
-  // Handle date picker opened event
-  function onDatePickerOpened() {
-    const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1024
-    // Only create modal on mobile and if not already created or in progress
-    if (windowWidth <= 767 && !modalCreated && !isCreatingModal) {
-      isCreatingModal = true
-      setTimeout(() => {
-        createMobileDatePickerModal()
-        isCreatingModal = false
-      }, 150) // Timeout to ensure menu is fully rendered
-    }
-  }
-
-  // Handle date picker closed event
-  function onDatePickerClosed(value) {
-    const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1024
-
-    // Process the date selection
-    if (value && Array.isArray(value) && value.length >= 2) {
-      console.log('Processing date selection:', Math.floor(value[0]/1000), Math.floor(value[1]/1000))
-    } else {
-      console.log('No date selection or incomplete selection:', value)
-    }
-
-    // Clean up mobile fullscreen styling
-    if (windowWidth <= 767) {
-      const menu = document.querySelector('.dp__menu')
-      if (menu) {
-        // Reset styles
-        menu.style.position = ''
-        menu.style.top = ''
-        menu.style.left = ''
-        menu.style.right = ''
-        menu.style.bottom = ''
-        menu.style.width = ''
-        menu.style.height = ''
-        menu.style.zIndex = ''
-        menu.style.background = ''
-        menu.style.padding = ''
-      }
-
-      // Remove body class
-      document.body.classList.remove('menu-is-open')
-    }
-  }
-
-
-  const server = {
-      connectionTimeoutSeconds: 20,
-      apiKey: 'qoWHCTjesGfIaxdXbw9vOgod1VToEXNI', // Be sure to use an API key that only allows search operations
-      nodes: [
-        {
-          host: 'go8f04wi19tuvlyrp-1.a1.typesense.net',
-          path: '', // Optional. Example: If you have your typesense mounted in localhost:8108/typesense, path should be equal to '/typesense'
-          port: '443',
-          protocol: 'https',
-        },
-      ],
-      cacheSearchResultsForSeconds: 0, // Cache search results from server. Defaults to 2 minutes. Set to 0 to disable caching.
-    }
-  const performanceAdapter = new TypesenseInstantSearchAdapter({
-    server: server,
-    // The following parameters are directly passed to Typesense's search API endpoint.
-    //  So you can pass any parameters supported by the search endpoint below.
-    //  query_by is required.
-    additionalSearchParameters: {
-      query_by: 'work, season, orchestra, venue, event_types, notes, event_title',
-      sort_by: 'performance_date:desc',
-      // group_by: 'work',
-      // group_limit: 1
-    },
-  })
-
-  const artistAdapter = new TypesenseInstantSearchAdapter({
-    server: server,
-    additionalSearchParameters: {
-      query_by: 'work.artist.artist_name',
-      sort_by: 'performance_date:asc',
-    },
-  })
-
-  const searchClient = performanceAdapter.searchClient
-  const artistClient = artistAdapter.searchClient
+  
 
   // Check if we're on mobile
   const isMobile = ref(false)
@@ -315,27 +156,9 @@
     }
   })
 
-  function updateStateRefs(uiState) {
-    if (uiState && uiState[props.indexName]) {
-      currentQuery.value = uiState[props.indexName].query
-      if (currentQuery.value) {
-        sortView.value = 'Most Relevant'
-      } else {
-        sortView.value = 'Most Recent'
-      }
-      if (currentQuery.value || uiState[props.indexName].refinementList) {
-        showNumHits.value = true
-      } else {
-        showNumHits.value = false
-      }
-    }
-  }
 
-  function onStateChange({ uiState, setUiState }) {
-    console.log('uiState', uiState)
-    updateStateRefs(uiState)
-    setUiState(uiState)
-  }
+
+
 
   function artistView(items) {
     let artistItems = {}
@@ -411,22 +234,7 @@
 
   }
 
-  function formatDate(unix_timestamp, detail = false) {
-        // multiplied by 1000 so that the argument is in milliseconds, not seconds
-    const date = new Date(unix_timestamp * 1000)
-    const days = ["Sun", "Mon", "Tues", "Weds", "Thurs", "Fri", "Sat"]
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-    const hour = date.getHours() + 1 > 12 ? date.getHours() - 11 : date.getHours() + 1
-    const amPm = date.getHours() + 1 > 12 ? "pm" : "am"
-    const minutes = "0" + date.getMinutes()
-
-    if (detail) {
-      return `${days[date.getDay()]}, ${(months[date.getMonth()]).substring(0, 3)} ${date.getDate()}, ${hour}:${minutes.substr(-2)}${amPm} EDT`
-    } else {
-      return `${date.getMonth() + 1}-${date.getDay() + 1}-${date.getFullYear()}`
-    }
-  }
-
+  
   function toValue(value, range) {
       return [
         typeof value.min === "number" ? value.min * 1000 : range.min * 1000,
@@ -434,27 +242,7 @@
       ];
   }
 
-  function setView() {
-    console.log(sortView.value)
-    if (sortView.value == 'Oldest First') {
-      console.log('changeing to oldest first')
-      performanceAdapter.updateConfiguration({...performanceAdapter.configuration, additionalSearchParameters: {
-        query_by: 'work, season, orchestra, venue, event_types, notes, event_title',
-        sort_by: 'performance_date:asc'
-      }})
-      console.log(performanceAdapter.configuration)
-    } else if (sortView.value == 'Most Relevant') {
-      performanceAdapter.updateConfiguration({...performanceAdapter.configuration, additionalSearchParameters: {
-        query_by: 'work, season, orchestra, venue, event_types, notes, event_title',
-        sort_by: '_text_match:desc,performance_date:desc'
-      }})
-    } else {
-      performanceAdapter.updateConfiguration({...performanceAdapter.configuration, additionalSearchParameters: {
-        query_by: 'work, season, orchestra, venue, event_types, notes, event_title',
-        sort_by: 'performance_date:desc'
-      }})
-    }
-  }
+  
 
   const setDate = (value) => {
     date.value = value
@@ -790,348 +578,85 @@
   <div class="eventsSearch">
     <p-tabs :titles="['Performances', 'Artists', 'Works']">
       <template #tabpanel-1>
-        <ais-instant-search
-          :search-client="searchClient"
-          :index-name="props.indexName"
-          :routing="routing"
-          :on-state-change="onStateChange"
-          :key="sortView"
+        <search-tab
+          :index-name="'archived_performances'"
+          :main-refinements="mainRefinements"
+          :sort-field="'performance_date'"
+          :query-by-fields="'work, season, orchestra, venue, event_types, notes, event_title'"
+          search-placeholder="Search by composer, work, conductor, orchestra, and more"
+          results-title="Performances"
         >
-          <div class="tabs__content">
-            <!-- Header and Search Section -->
-            <div class="eventsSearch__topSection">
-              <!-- Search Filters Section -->
-              <section class="eventsSearch__filters">
-                  <header class="eventsSearch__header">
-                    <h1 class="eventsSearch__title">Find Concerts & Events</h1>
-                  </header>
-                  <div class="eventsSearch__filtersRow">
-                  <!-- Search Box -->
-                    <div class="eventsSearch__filterGroup eventsSearch__filterGroup--search">
-                        <ais-autocomplete>
-                          <template v-slot="{ currentRefinement, indices, refine }">
-                            <input
-                              type="search"
-                              :value="currentRefinement"
-                              placeholder="Search performances"
-                              @input="refine($event.currentTarget.value)"
-                            >
-                            <ul v-if="currentRefinement" v-for="index in indices" :key="index.indexId">
-                              <li>
-                                <h3>{{ index.indexName }}</h3>
-                                <ul>
-                                  <li v-for="hit in index.hits" :key="hit.objectID">
-                                    <ais-highlight attribute="conductor" :hit="hit"/>
-                                  </li>
-                                </ul>
-                              </li>
-                            </ul>
-                          </template>
-                        </ais-autocomplete>
+          <template v-slot="{ items }">
+            <div v-for="item, index in items">
+                <div v-if="index == 0"  class="eventsSearch__resultsGrid">
+                    <div>Date/Season/Title</div>
+                    <div>Venue</div>
+                    <div>Orchestra</div>
+                    <div>Conductor</div>
+                    <div>Composer/Work</div>
+                    <div>Artist/Role</div>
+                    <div>View</div>
+                </div>
+                <div v-for="w, i in item.work.slice(0, 6)">
+                    <div v-if="i == 0" :class="`eventsSearch__resultsGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
+                    <div>{{ formatDate(item.performance_date) }} / {{ item.season }}</div>
+                    <div>{{ item.venue }} {{ item.location.city }}, {{  item.location.state }}, {{ item.location.country }}</div>
+                    <div>{{ item.orchestra.join('; ')}}</div>
+                    <div>{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
+                    <div>{{ w.composer }} / {{ w.title }}</div>
+                    <div>{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).join('; ') }}</div>
+                    <div><a :href="`/details?performanceId=${item.id}`">Details</a></div>
                     </div>
-                  </div>
-              </section>
+                    <div v-else-if="i > 0 && i <= 4" :class="`eventsSearch__resultsGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div>{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
+                    <div>{{ w.composer }} / {{ w.title }}</div>
+                    <div v-if="w.artist.filter((artist) => artist.artist_role != 'Conductor').length < 3">{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).join('; ') }}</div>
+                    <div v-else>{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).slice(0, 2).join('; ') }}<br/><a :href="`/details?performanceId=${item.id}`">More...</a></div>
+                    <div></div>
+                    </div>
+                    <div v-else-if="i > 4" :class="`eventsSearch__resultsGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div><a :href="`/details?performanceId=${item.id}`">More...</a></div>
+                    <div></div>
+                    <div></div>
+                    </div>
+                </div>
             </div>
-
-              <!-- View Toggle and Active Filters -->
-            <section class="eventsSearch__filterRail">
-              <div style="display: grid;">
-                <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
-                  <template v-slot="{items, refine, searchForItems}">
-                    <p-accordion name="example" class="accordion">
-                        <summary class="accordion__summary">
-                            <h6 class="accordion__heading">{{ refinement.title }}</h6>
-                            <div class="accordion__iconWrapper">
-                            <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation">
-                                <use href="../assets/main-icons-sprite.svg#chevron-right" />
-                            </svg>
-                            </div>
-                        </summary>
-                        <div class="accordion__content">
-                            <div class="ais-SearchBox eventsSearch__searchBox -filter">
-                              <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
-                            </div>
-                            <div class="eventsSearch__checkBoxes">
-                            <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
-                                <input class="checkbox" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
-                                <span>{{ item.value }}</span><span>{{ item.count }}</span>
-                            </label>
-                            </div>
-                        </div> 
-                    </p-accordion>
-                  </template>
-                </ais-refinement-list>
-              </div>
-            </section>
-
-            <!-- Search Results Section -->
-            <section class="eventsSearch__results">
-              
-              <ais-hits class="eventsSearch__hits">
-                <template v-slot="{ items }">
-                  <div class="eventsSearch__resultsHeader">
-                    <h2 v-if="showNumHits">{{ items.length }} Results</h2>
-                    <h2 v-else>Performances</h2>
-                    <div class="eventsSearch__resultsSort">Sort By 
-                      <select v-model="sortView" @change="setView">
-                        <option value="Most Recent">Most Recent</option>
-                        <option value="Most Relevant">Most Relevant</option>
-                        <option value="Oldest First">Oldest First</option>
-                      </select>
-                    </div>
-                  </div>
-                  <ais-current-refinements>
-                    <template v-slot="{ items, createURL }">
-                      <div class="eventsSearch__activeFilters">
-                        <ul class="eventsSearch__activeFiltersList">
-                          <li v-for="item in items" :key="item.attribute" class="eventsSearch__activeFiltersGroup">
-                            <ul class="eventsSearch__activeFiltersItems">
-                              <li
-                                v-for="refinement in item.refinements"
-                                :key="[
-                                  refinement.attribute,
-                                  refinement.type,
-                                  refinement.value,
-                                  refinement.operator
-                                ].join(':')"
-                                class="eventsSearch__activeFilterItem"
-                              >
-                                <a
-                                  :href="createURL(refinement)"
-                                  @click.prevent="item.refine(refinement)"
-                                  v-html="refinement.label + ' ×'"
-                                  class="eventsSearch__activeFilterRemove"
-                                ></a>
-                              </li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ais-clear-refinements>
-                          <template v-slot="{ canRefine, refine, createURL }">
-                            <a
-                              :href="createURL()"
-                              @click.prevent="refine"
-                              v-if="canRefine"
-                              class="eventsSearch__clearFilters"
-                            >
-                              Clear all filters
-                            </a>
-                            <span v-else></span>
-                          </template>
-                        </ais-clear-refinements>
-                      </div>
-                    </template>
-                  </ais-current-refinements>
-                  <div v-for="item, index in items">
-                    <div v-if="index == 0"  class="eventsSearch__resultsGrid">
-                      <div>Date/Season/Title</div>
-                      <div>Venue</div>
-                      <div>Orchestra</div>
-                      <div>Conductor</div>
-                      <div>Composer/Work</div>
-                      <div>Artist/Role</div>
-                      <div>View</div>
-                    </div>
-                    <div v-for="w, i in item.work.slice(0, 6)">
-                      <div v-if="i == 0" :class="`eventsSearch__resultsGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
-                        <div>{{ formatDate(item.performance_date) }} / {{ item.season }}</div>
-                        <div>{{ item.venue }} {{ item.location.city }}, {{  item.location.state }}, {{ item.location.country }}</div>
-                        <div>{{ item.orchestra.join('; ')}}</div>
-                        <div>{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
-                        <div>{{ w.composer }} / {{ w.title }}</div>
-                        <div>{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).join('; ') }}</div>
-                        <div><a :href="`/details?performanceId=${item.id}`">Details</a></div>
-                      </div>
-                      <div v-else-if="i > 0 && i <= 4" :class="`eventsSearch__resultsGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                        <div>{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
-                        <div>{{ w.composer }} / {{ w.title }}</div>
-                        <div v-if="w.artist.filter((artist) => artist.artist_role != 'Conductor').length < 3">{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).join('; ') }}</div>
-                        <div v-else>{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).slice(0, 2).join('; ') }}<br/><a :href="`/details?performanceId=${item.id}`">More...</a></div>
-                        <div></div>
-                      </div>
-                      <div v-else-if="i > 4" :class="`eventsSearch__resultsGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                        <div><a :href="`/details?performanceId=${item.id}`">More...</a></div>
-                        <div></div>
-                        <div></div>
-                      </div>
-                    </div>
-                    
-                  </div>
-                </template>
-              </ais-hits>
-
-
-              <!-- Pagination -->
-              <nav class="eventsSearch__pagination">
-                <ais-pagination
-                  :show-first="true"
-                  :show-previous="true"
-                  :show-next="true"
-                  :show-last="true"
-                  class="eventsSearch__paginationComponent"
-                />
-              </nav>
-            </section> 
-          </div>
-        </ais-instant-search>    
+          </template>
+        </search-tab>  
       </template>
       <template #tabpanel-2>
-        <ais-instant-search
-          :search-client="artistClient"
-          :index-name="props.indexName"
-          :routing="routing"
-          :on-state-change="onStateChange"
+        <search-tab
+          :index-name="'archived_artists'"
+          :main-refinements="artistRefinements"
+          :sort-field="'last_performance_date'"
+          :query-by-fields="'artist_name, artist_role, work_title'"
+          search-placeholder="Search by conductor, soloist, ensemble, instruument, or role"
+          results-title="Artists"
         >
-          <div class="tabs__content">
-            <!-- Header and Search Section -->
-            <div class="eventsSearch__topSection">
-              <!-- Search Filters Section -->
-              <section class="eventsSearch__filters">
-                  <header class="eventsSearch__header">
-                    <h1 class="eventsSearch__title">Find Concerts & Events</h1>
-                  </header>
-                  <div class="eventsSearch__filtersRow">
-                  <!-- Search Box -->
-                    <div class="eventsSearch__filterGroup eventsSearch__filterGroup--search">
-                        <ais-search-box
-                        placeholder="Performance name, artist, work, or category"
-                        class="eventsSearch__searchBox"
-                        name="performance_search"
-                        />
-                    </div>
-                  </div>
-              </section>
-            </div>
-
-              <!-- View Toggle and Active Filters -->
-            <section class="eventsSearch__filterRail">
-              <div style="display: grid;">
-                <ais-refinement-list v-for="refinement in artistRefinements" :attribute="refinement.attribute" operator="and">
-                  <template v-slot="{items, refine, searchForItems}">
-                    <p-accordion name="example" class="accordion">
-                        <summary class="accordion__summary">
-                            <h6 class="accordion__heading">{{ refinement.title }}</h6>
-                            <div class="accordion__iconWrapper">
-                            <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation">
-                                <use href="../assets/main-icons-sprite.svg#chevron-right" />
-                            </svg>
-                            </div>
-                        </summary>
-                        <div class="accordion__content">
-                            <div class="ais-SearchBox eventsSearch__searchBox -filter">
-                              <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
-                            </div>
-                            <div class="eventsSearch__checkBoxes">
-                            <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
-                                <input class="checkbox" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
-                                <span>{{ item.value }}</span><span>{{ item.count }}</span>
-                            </label>
-                            </div>
-                        </div> 
-                    </p-accordion>
-                  </template>
-                </ais-refinement-list>
+          <template v-slot="{ items }">
+            <div class="eventsSearch__artistGrid">
+                <div>Artist</div>
+                <div>Instrument/Role</div>
+                <div>Composer/Work</div>
+                <div># of Performances</div>
               </div>
-            </section>
-
-            <!-- Search Results Section -->
-            <section class="eventsSearch__results">
-              
-              <ais-hits class="eventsSearch__hits">
-                <template v-slot="{ items }">
-                  <div class="eventsSearch__resultsHeader">
-                    <h2 v-if="showNumHits">{{ items.length }} Results</h2>
-                    <h2 v-else>Performances</h2>
-                    <div class="eventsSearch__resultsSort">Sort By 
-                      <select v-model="sortView">
-                        <option value="Most Recent">Most Recent</option>
-                        <option value="Most Relevant">Most Relevant</option>
-                        <option value="Oldest First">Oldest First</option>
-                      </select>
-                    </div>
-        
-                  </div>
-                  <ais-current-refinements>
-                    <template v-slot="{ items, createURL }">
-                      <div class="eventsSearch__activeFilters">
-                        <ul class="eventsSearch__activeFiltersList">
-                          <li v-for="item in items" :key="item.attribute" class="eventsSearch__activeFiltersGroup">
-                            <ul class="eventsSearch__activeFiltersItems">
-                              <li
-                                v-for="refinement in item.refinements"
-                                :key="[
-                                  refinement.attribute,
-                                  refinement.type,
-                                  refinement.value,
-                                  refinement.operator
-                                ].join(':')"
-                                class="eventsSearch__activeFilterItem"
-                              >
-                                <a
-                                  :href="createURL(refinement)"
-                                  @click.prevent="item.refine(refinement)"
-                                  v-html="refinement.label + ' ×'"
-                                  class="eventsSearch__activeFilterRemove"
-                                ></a>
-                              </li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ais-clear-refinements>
-                          <template v-slot="{ canRefine, refine, createURL }">
-                            <a
-                              :href="createURL()"
-                              @click.prevent="refine"
-                              v-if="canRefine"
-                              class="eventsSearch__clearFilters"
-                            >
-                              Clear all filters
-                            </a>
-                            <span v-else></span>
-                          </template>
-                        </ais-clear-refinements>
-                      </div>
-                    </template>
-                  </ais-current-refinements>
-                  <!-- {{ JSON.stringify(artistView(items)) }} -->
-                  <div class="eventsSearch__artistGrid">
-                    <div>Artist</div>
-                    <div>Instrument/Role</div>
-                    <div>Composer/Work</div>
-                    <div># of Performances</div>
-                  </div>
-                  <div v-for="item, index in artistView(items)">
-                    <div class="eventsSearch__artistGrid">
-                      <div>{{ item.artist }}</div>
-                      <div>{{ item.role }}</div>
-                      <div>{{ item.work }}</div>
-                      <div>{{ item.numPerformances }}</div>
-                    </div>
-                  </div>
-                </template>
-              </ais-hits>
-
-
-              <!-- Pagination -->
-              <nav class="eventsSearch__pagination">
-                <ais-pagination
-                  :show-first="true"
-                  :show-previous="true"
-                  :show-next="true"
-                  :show-last="true"
-                  class="eventsSearch__paginationComponent"
-                />
-              </nav>
-            </section> 
-          </div> 
-        </ais-instant-search>  
+              <div v-for="item, index in items">
+                <div :class="`eventsSearch__artistGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
+                  <div>{{ item.artist_name }}</div>
+                  <div>{{ item.artist_role }}</div>
+                  <div>{{ item.work_title }}</div>
+                  <div>{{ item.num_performances }}</div>
+                </div>
+              </div>
+          </template>
+        </search-tab>  
       </template>
 
       <template #tabpanel-3>
