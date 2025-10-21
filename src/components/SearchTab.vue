@@ -193,9 +193,9 @@
                             </ais-autocomplete>
                         </div>
                         <div class="eventsSearch__filterGroup eventsSearch__filterGroup--date">
-                            <ais-range-input :attribute="props.sortField">
+                            <!-- <ais-range-input :attribute="props.sortField">
                                 <template v-slot="{ currentRefinement, range, canRefine, refine, sendEvent }" >
-                                    <!-- <vue-date-picker
+                                    <vue-date-picker
                                         ref="datepicker"
                                         :format="format"
                                         :model-value="range.min"
@@ -209,9 +209,9 @@
                                         @close="onDatePickerClosed"
                                         placeholder="Date"
                                         class="eventsSearch__datePicker"
-                                    /> -->
+                                    />
                                 </template>
-                            </ais-range-input>
+                            </ais-range-input> -->
                         </div>
                     </div>
                 </section>
