@@ -70,6 +70,10 @@ onMounted(() => {
     }
     return locationArray.join(', ')
   }
+
+  function createURL(facet, value) {
+    return encodeURI(`/?${ props.indexName }[refinementList][${ facet }][0]=${ value }`)
+  }
  
 
 </script>
@@ -88,11 +92,24 @@ onMounted(() => {
             <a onclick="navigator.clipboard.writeText(window.location.href);">Copy URL</a>
         </div>
         <div class="performance__headerData">
-            <div><span class="performance__dataTitle">Season:</span><br/>{{ performance.season }}</div>
-            <div><span class="performance__dataTitle">Orchestra/Ensemble:</span><br/>{{ performance.orchestra.join('; ') }}</div>
-            <div><span class="performance__dataTitle">Conductor:</span><br/>{{ performance.conductor.join(', ') }}</div>
+            <div><span class="performance__dataTitle">Season:</span><br/><a :href="createURL('season', performance.season)">{{ performance.season }}</a></div>
+            <div><span class="performance__dataTitle">Orchestra/Ensemble:</span><br/>
+                <span v-for="orch, index in performance.orchestra">
+                    <a :href="createURL('orchestra', orch)">{{ orch + (index < performance.orchestra.length - 1 ? ";&nbsp;" : "") }}</a>
+                </span>
+            </div>
+           <div><span class="performance__dataTitle">Conductor:</span><br/>
+                <span v-for="conductor, index in performance.conductor">
+                    <a :href="createURL('conductor', conductor)">{{ conductor + (index < performance.conductor.length - 1 ? ",&nbsp;" : "") }}</a>
+                </span>
+            </div>
             <div><span class="performance__dataTitle">Event Title:</span><br/>{{ performance.event_title ?? '---' }}</div>
-            <div><span class="performance__dataTitle">Event Type:</span><br/>{{ performance.event_type ? performance.event_type.join(', ') : '---' }}</div>
+            <div><span class="performance__dataTitle">Event Type:</span><br/>
+                <span v-for="type, index in performance.event_type">
+                    <a :href="createURL('event_type', type)">{{ type + (index < performance.event_type - 1 ? ",&nbsp;" : "") }}</a>
+                </span>
+                <span v-if="!performance.event_type || performance.event_type.length < 1">---</span>
+            </div>
             <div><span class="performance__dataTitle">Notes:</span><br/>{{ performance.notes ?? '---' }}</div>
         </div>
         <h4>Program</h4>
@@ -106,20 +123,28 @@ onMounted(() => {
         </div>
         <div v-for="work, index in performance.work">
             <div :class="`performance__program ${index % 2 == 0 ? '-even' : '-odd'}`">
-               <div class="composer">{{ work.composer }}</div>
-               <div class="workInfo">{{ work.title }}<br/>
-                    <span v-if="work.premier" class="infoItem">Work Premiere:<br/>{{ work.premiere }}</span><br/>
-                    <span v-if="work.commission" class="infoItem">Commission:<br/>{{ work.commission }}</span><br/>
-                    <span v-if="work.encore" class="infoItem">Encore</span>
+               <div class="composer"><a :href="createURL('work.composer', work.composer)">{{ work.composer }}</a></div>
+               <div class="workInfo"><a :href="createURL('work.title', work.title)">{{ work.title }}</a><br/>
+                    <span v-if="work.premiere" class="infoItem">Work Premiere:<br/>
+                        <a :href="createURL('work.premiere', work.premier)">{{ work.premiere }}</a>
+                    </span><br/>
+                    <span v-if="work.commission" class="infoItem">Commission:<br/>
+                        <a :href="createURL('work.commission', work.commission)">
+                            {{ work.commission }}
+                        </a>
+                    </span><br/>
+                    <span v-if="work.encore" class="infoItem"><a :href="createURL('work.encore', work.encore)">Encore</a></span>
                 </div>
                 <div class="workInfo">
-                    <span v-for="c in work.creator" class="infoItem">{{ c.creator_name }}, {{ c.creator_role }}</span>
+                    <span v-for="c in work.creator" class="infoItem">
+                        <a :href="createURL('work.creator.creator_name', c.creator_name)">{{ c.creator_name }}, {{ c.creator_role }}</a>
+                    </span>
                 </div>
                 <div class="workInfo">
-                    <span v-for="a in work.artist" class="infoItem">{{ a.artist_name }}</span>
+                    <span v-for="a in work.artist" class="infoItem"><a :href="createURL('work.artist.artist_name', a.artist_name)">{{ a.artist_name }}</a></span>
                 </div>
                 <div class="workInfo">
-                    <span v-for="a in work.artist" class="infoItem">{{ a.artist_role }}</span>
+                    <span v-for="a in work.artist" class="infoItem"><a :href="createURL('work.artist.artist_role', a.artist_role)">{{ a.artist_role }}</a></span>
                 </div>
             </div>
         </div>

@@ -1,21 +1,6 @@
 <script setup>
 
   import { ref, onMounted, onUnmounted, computed } from 'vue'
-  import {
-    AisAutocomplete,
-    AisClearRefinements,
-    AisConfigure,
-    AisCurrentRefinements,
-    AisHighlight,
-    AisHits,
-    AisInstantSearch,
-    AisPagination,
-    AisRangeInput,
-    AisRefinementList,
-    AisSearchBox,
-    AisSortBy,
-    AisStats
-  } from 'vue-instantsearch/vue3/es'
   
   import VueDatePicker from '@vuepic/vue-datepicker';
   import '@vuepic/vue-datepicker/dist/main.css'
@@ -25,7 +10,6 @@
 
   
   import PTabs from './PTabs.vue'
-  import Autocomplete from "./Autocomplete.vue";
   import SearchTab from "./SearchTab.vue"
 
   import formatDate from '../composables/formatDate'
@@ -59,7 +43,8 @@
     {attribute: 'work.title', title: 'Work', placeholder: 'Search Works'},
     {attribute: 'conductor', title: 'Conductor', placeholder: 'Search Conductors'},
     {attribute: 'orchestra', title: 'Orchestra/Ensemble', placeholder: 'Search Orchestras/Ensembles'},
-    {attribute: 'work.artist.artist_name', title: 'Artist', placeholder: 'Search Artists'}
+    {attribute: 'work.artist.artist_name', title: 'Artist', placeholder: 'Search Artists'},
+    //{attribute: 'season', title: 'Season', placeholder: 'Search Seasons'}
   ]
 
   const artistRefinements = [

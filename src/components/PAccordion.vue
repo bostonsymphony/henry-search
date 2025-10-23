@@ -20,6 +20,7 @@ const details = useTemplateRef('details')
 
 onMounted(() => {
   details.value.style.setProperty('--accordion-height-closed', 'auto')
+  details.value.open = true
 })
 
 const handleToggle = event => {

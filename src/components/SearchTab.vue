@@ -8,7 +8,9 @@
         AisHits,
         AisInstantSearch,
         AisPagination,
-        AisRefinementList
+        AisRangeInput,
+        AisRefinementList,
+        AisSearchBox
     } from 'vue-instantsearch/vue3/es'
     import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter'
     import { history as historyRouter } from 'instantsearch.js/es/lib/routers'
@@ -89,12 +91,19 @@
     function updateStateRefs(uiState) {
         if (uiState && uiState[props.indexName]) {
             currentQuery.value = uiState[props.indexName].query
+            console.log('currentQuery', uiState[props.indexName].query, currentQuery.value ? 'true' : 'false')
             if (currentQuery.value) {
-                sortView.value = 'Most Relevant'
+                if (sortView.value != 'Most Relevant') {
+                    sortView.value = 'Most Relevant'
+                }
             } else {
-                sortView.value = 'Most Recent'
+                if (sortView.value != 'Most Recent') {
+                    sortView.value = 'Most Recent'
+                }
+                
             }
-            if (currentQuery.value || uiState[props.indexName].refinementList) {
+            console.log(' uiState[props.indexName]', uiState[props.indexName])
+            if (currentQuery.value || uiState[props.indexName].refinementList || uiState[props.indexName].range) {
                 showNumHits.value = true
             } else {
                 showNumHits.value = false
@@ -146,6 +155,23 @@
 
     }
 
+    function toMinValue(value, range) {
+        return typeof value.min === "number" ? value.min * 1000 : range.min * 1000
+    }
+
+    function toMaxValue(value, range) {
+        return typeof value.max === "number" ? value.max * 1000 : range.max * 1000
+    }
+
+    function formatMinValue(minValue, minRange) {
+        console.log('minValue', minValue, minValue * 1000)
+      return typeof minValue === "number" && minValue !== null && minValue !== minRange ? minValue : minRange
+    }
+    
+    function formatMaxValue(maxValue, maxRange) {
+        console.log('maxValue', maxValue, maxValue * 1000)
+      return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxValue
+    }
 
 </script>
 
@@ -168,50 +194,45 @@
                     <div class="eventsSearch__filtersRow">
                         <!-- Search Box -->
                         <div class="eventsSearch__filterGroup eventsSearch__filterGroup--search">
-                            <ais-autocomplete>
-                                <template v-slot="{ currentRefinement, indices, refine }">
-                                    <div class="eventsSearch__searchBox">
-                                        <input
-                                            type="search"
-                                            :value="currentRefinement"
-                                            :placeholder="props.searchPlaceholder"
-                                            @input="refine($event.currentTarget.value)"
-                                        >
-                                            <ul v-if="currentRefinement" v-for="index in indices" :key="index.indexId">
-                                                <li>
-                                                <h3>{{ index.indexName }}</h3>
-                                                <ul>
-                                                    <li v-for="hit in index.hits" :key="hit.objectID">
-                                                    <ais-highlight attribute="conductor" :hit="hit"/>
-                                                    </li>
-                                                </ul>
-                                                </li>
-                                            </ul>
-                                        </input>
-                                    </div>
-                                </template>
-                            </ais-autocomplete>
+                            <ais-search-box
+                                :placeholder="props.searchPlaceholder"
+                                class="eventsSearch__searchBox"
+                            />
                         </div>
                         <div class="eventsSearch__filterGroup eventsSearch__filterGroup--date">
-                            <!-- <ais-range-input :attribute="props.sortField">
+                            <ais-range-input :attribute="props.sortField">
                                 <template v-slot="{ currentRefinement, range, canRefine, refine, sendEvent }" >
                                     <vue-date-picker
-                                        ref="datepicker"
-                                        :format="format"
-                                        :model-value="range.min"
-                                        @update:model-value="refine({
-                                            min: $event.currentTarget.value,
-                                            max: formatMaxValue()
-                                        })"
+                                        :model-value="toMinValue(currentRefinement, range)"
+                                        @update:model-value="(modelValue) => {
+                                            console.log('range', range);
+                                            console.log('currentRefinement', currentRefinement);
+                                            refine({
+                                                min: formatMinValue(modelValue/1000, range.min),
+                                                max: formatMaxValue(currentRefinement.max, range.max),
+                                            })
+                                        }"
                                         :multi-calendars="false"
                                         :enable-time-picker="false"
-                                        @open="onDatePickerOpened"
-                                        @close="onDatePickerClosed"
-                                        placeholder="Date"
+                                        :text-input="true"
+                                        placeholder="Start"
                                         class="eventsSearch__datePicker"
+                                        id="start"
+                                    />
+                                    <vue-date-picker
+                                        :model-value="toMaxValue(currentRefinement, range)"
+                                        @update:model-value="(modelValue) => { refine({
+                                            min: formatMinValue(currentRefinement.min, range.min),
+                                            max: formatMaxValue(modelValue/1000, range.max),
+                                        })}"
+                                        :multi-calendars="false"
+                                        :enable-time-picker="false"
+                                        placeholder="End"
+                                        class="eventsSearch__datePicker"
+                                        id="end"
                                     />
                                 </template>
-                            </ais-range-input> -->
+                            </ais-range-input>
                         </div>
                     </div>
                 </section>
@@ -222,27 +243,27 @@
                 <div style="display: grid;">
                 <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
                     <template v-slot="{items, refine, searchForItems}">
-                    <p-accordion name="example" class="accordion">
-                        <summary class="accordion__summary">
-                            <h6 class="accordion__heading">{{ refinement.title }}</h6>
-                            <div class="accordion__iconWrapper">
-                            <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation">
-                                <use href="../assets/main-icons-sprite.svg#chevron-right" />
-                            </svg>
-                            </div>
-                        </summary>
-                        <div class="accordion__content">
-                            <div class="ais-SearchBox eventsSearch__searchBox -filter">
-                                <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
-                            </div>
-                            <div class="eventsSearch__checkBoxes">
-                            <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
-                                <input class="checkbox" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
-                                <span>{{ item.value }}</span><span>{{ item.count }}</span>
-                            </label>
-                            </div>
-                        </div> 
-                    </p-accordion>
+                        <p-accordion :name="refinement.title" class="accordion">
+                            <summary class="accordion__summary">
+                                <h6 class="accordion__heading">{{ refinement.title }}</h6>
+                                <div class="accordion__iconWrapper">
+                                <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation">
+                                    <use href="../assets/main-icons-sprite.svg#chevron-right" />
+                                </svg>
+                                </div>
+                            </summary>
+                            <div class="accordion__content">
+                                <div class="ais-SearchBox eventsSearch__searchBox -filter">
+                                    <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
+                                </div>
+                                <div class="eventsSearch__checkBoxes">
+                                <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
+                                    <input class="checkbox" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
+                                    <span>{{ item.value }}</span><span>{{ item.count }}</span>
+                                </label>
+                                </div>
+                            </div> 
+                        </p-accordion>
                     </template>
                 </ais-refinement-list>
                 </div>
@@ -329,3 +350,4 @@
         </div>
     </ais-instant-search>    
 </template>
+
