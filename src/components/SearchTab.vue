@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from 'vue'
+    import { onMounted, ref } from 'vue'
     import {
         AisAutocomplete,
         AisClearRefinements,
@@ -65,6 +65,20 @@
         stateMapping: simpleStateMapping()
     })
 
+    onMounted(() => {
+        // const toggleButton = document.getElementById(`${props.resultsTitle.toLowerCase()}_filterToggle`)
+        // const wrapper = document.querySelector('.eventsSearch__filterRail')
+        
+        // toggleButton.addEventListener('click', () => {
+        //     const toggleOnButton = document.getElementById(`${props.resultsTitle.toLowerCase()}_filterToggleOn`)
+        //     if (toggleOnButton) {
+        //         toggleOnButton.classList.toggle('closed')
+        //     }
+        //     wrapper.classList.toggle('closed')
+        // })
+
+    })
+
     const server = {
       connectionTimeoutSeconds: 20,
       apiKey: 'qoWHCTjesGfIaxdXbw9vOgod1VToEXNI', // Be sure to use an API key that only allows search operations
@@ -87,6 +101,15 @@
     })
 
     const searchClient = adapter.searchClient
+
+    function toggleFilters() {
+        const wrapper = document.querySelector('.eventsSearch__filterRail')
+        const toggleOnButton = document.getElementById(`${props.resultsTitle.toLowerCase()}_filterToggleOn`)
+        if (toggleOnButton) {
+            toggleOnButton.classList.toggle('closed')
+        }
+        wrapper.classList.toggle('closed')
+    }
 
     function updateStateRefs(uiState) {
         if (uiState && uiState[props.indexName]) {
@@ -188,9 +211,6 @@
             <div class="eventsSearch__topSection">
                 <!-- Search Filters Section -->
                 <section class="eventsSearch__filters">
-                    <header class="eventsSearch__header">
-                        <h1 class="eventsSearch__title">Find Concerts & Events</h1>
-                    </header>
                     <div class="eventsSearch__filtersRow">
                         <!-- Search Box -->
                         <div class="eventsSearch__filterGroup eventsSearch__filterGroup--search">
@@ -234,38 +254,59 @@
                                 </template>
                             </ais-range-input>
                         </div>
+                        <div class="eventsSearch__filterGroup">
+                            <button class="button info">Search</button>
+                        </div>
                     </div>
                 </section>
             </div>
 
                 <!-- View Toggle and Active Filters -->
             <section class="eventsSearch__filterRail">
-                <div style="display: grid;">
-                <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
-                    <template v-slot="{items, refine, searchForItems}">
-                        <p-accordion :name="refinement.title" class="accordion">
-                            <summary class="accordion__summary">
-                                <h6 class="accordion__heading">{{ refinement.title }}</h6>
-                                <div class="accordion__iconWrapper">
-                                <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation">
-                                    <use href="../assets/main-icons-sprite.svg#chevron-right" />
-                                </svg>
-                                </div>
-                            </summary>
-                            <div class="accordion__content">
-                                <div class="ais-SearchBox eventsSearch__searchBox -filter">
-                                    <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
-                                </div>
-                                <div class="eventsSearch__checkBoxes">
-                                <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
-                                    <input class="checkbox" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
-                                    <span>{{ item.value }}</span><span>{{ item.count }}</span>
-                                </label>
-                                </div>
-                            </div> 
-                        </p-accordion>
-                    </template>
-                </ais-refinement-list>
+                
+                <div class="eventsSearch__filterWrapper">
+                    <div class="eventsSearch__filterHeader">
+                        <div class="eventsSearch__filterToggle">
+                            <svg width="24" height="24" viewBox="0 0 24 24" >
+                                <rect width="24" height="24" rx="4" fill="#01ABE6"/>
+                                <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
+                                <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
+                                <path d="M6 17.75H18.8864" stroke="white" stroke-linecap="round"/>
+                                <circle cx="8.72709" cy="17.9544" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                <circle cx="14.8633" cy="12.5" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                <circle cx="10.7725" cy="7.04545" r="1.54545" fill="#01ABE6" stroke="white"/>
+                            </svg> 
+                            <span class="label">Filters</span>
+                        </div>
+                        <div><a :id="`${props.resultsTitle.toLowerCase()}_filterToggle`" @click="toggleFilters()">Hide</a></div>
+                    </div>
+                    <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
+                        <template v-slot="{items, refine, searchForItems}">
+                            <p-accordion :name="refinement.title" class="accordion">
+                                <summary class="accordion__summary">
+                                    <h6 class="accordion__heading">{{ refinement.title }}</h6>
+                                    <div class="accordion__iconWrapper">
+                                    <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
+                                        <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    </div>
+                                </summary>
+                                <div class="accordion__content">
+                                    <div class="ais-SearchBox eventsSearch__searchBox -filter">
+                                        <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
+                                    </div>
+                                    <div class="eventsSearch__checkBoxes">
+                                        <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
+                                            <div class="eventSearch__checkBox">
+                                                <input class="checkbox" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
+                                            </div>
+                                            <span>{{ item.value }}</span><span>{{ item.count }}</span>
+                                        </label>
+                                    </div>
+                                </div> 
+                            </p-accordion>
+                        </template>
+                    </ais-refinement-list>
                 </div>
             </section>
 
@@ -275,15 +316,26 @@
                 <ais-hits class="eventsSearch__hits">
                     <template v-slot="{ items }">
                         <div class="eventsSearch__resultsHeader">
-                        <h2 v-if="showNumHits">{{ items.length }} Results</h2>
-                        <h2 v-else>{{ props.resultsTitle }}</h2>
-                        <div class="eventsSearch__resultsSort">Sort By 
-                            <select v-model="sortView" @change="setView">
-                            <option value="Most Recent">Most Recent</option>
-                            <option value="Most Relevant">Most Relevant</option>
-                            <option value="Oldest First">Oldest First</option>
-                            </select>
-                        </div>
+                            <div class="eventsSearch__resultsTitle">
+                                <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.resultsTitle.toLowerCase()}_filterToggleOn`" class="eventsSearch__filterToggleOn" @click="toggleFilters()">
+                                    <rect width="24" height="24" rx="4" fill="#01ABE6"/>
+                                    <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
+                                    <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
+                                    <path d="M6 17.75H18.8864" stroke="white" stroke-linecap="round"/>
+                                    <circle cx="8.72709" cy="17.9544" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                    <circle cx="14.8633" cy="12.5" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                    <circle cx="10.7725" cy="7.04545" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                </svg> 
+                                <h3 v-if="showNumHits">{{ items.length }} Results</h3>
+                                <h3 v-else>{{ props.resultsTitle }}</h3>
+                            </div>
+                            <div class="eventsSearch__resultsSort">Sort by: 
+                                <select v-model="sortView" @change="setView">
+                                <option value="Most Recent">Most Recent</option>
+                                <option value="Most Relevant">Most Relevant</option>
+                                <option value="Oldest First">Oldest First</option>
+                                </select>
+                            </div>
                         </div>
                         <ais-current-refinements>
                         <template v-slot="{ items, createURL }">
