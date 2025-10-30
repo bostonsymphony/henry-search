@@ -19,6 +19,7 @@
     import VueDatePicker from '@vuepic/vue-datepicker'
     import '@vuepic/vue-datepicker/dist/main.css'
     import slugify from '../composables/slugify'
+    import formatDate from '../composables/formatDate'
 
     const props = defineProps({
         indexName: {
@@ -50,6 +51,7 @@
     const sortView = ref('Most Recent')
     const currentQuery = ref(null)
     const showNumHits = ref(false)
+    const updateNow = ref(0)
 
     const routing = ref({
         router: historyRouter({
@@ -63,20 +65,6 @@
             }
         }),
         stateMapping: simpleStateMapping()
-    })
-
-    onMounted(() => {
-        // const toggleButton = document.getElementById(`${props.resultsTitle.toLowerCase()}_filterToggle`)
-        // const wrapper = document.querySelector('.eventsSearch__filterRail')
-        
-        // toggleButton.addEventListener('click', () => {
-        //     const toggleOnButton = document.getElementById(`${props.resultsTitle.toLowerCase()}_filterToggleOn`)
-        //     if (toggleOnButton) {
-        //         toggleOnButton.classList.toggle('closed')
-        //     }
-        //     wrapper.classList.toggle('closed')
-        // })
-
     })
 
     const server = {
@@ -104,28 +92,33 @@
 
     function toggleFilters() {
         const wrapper = document.querySelector('.eventsSearch__filterRail')
+        const tabContent = document.querySelector('.tabs__content')
+        const leftPane = document.querySelector('.eventsSearch__results')
         const toggleOnButton = document.getElementById(`${props.resultsTitle.toLowerCase()}_filterToggleOn`)
         if (toggleOnButton) {
             toggleOnButton.classList.toggle('closed')
         }
         wrapper.classList.toggle('closed')
+        leftPane.classList.toggle('closed')
+        tabContent.classList.toggle('open')
+        tabContent.classList.toggle('closed')
     }
 
     function updateStateRefs(uiState) {
         if (uiState && uiState[props.indexName]) {
             currentQuery.value = uiState[props.indexName].query
-            console.log('currentQuery', uiState[props.indexName].query, currentQuery.value ? 'true' : 'false')
             if (currentQuery.value) {
                 if (sortView.value != 'Most Relevant') {
                     sortView.value = 'Most Relevant'
+                    
+                    console.log('changed')
                 }
             } else {
                 if (sortView.value != 'Most Recent') {
                     sortView.value = 'Most Recent'
+                    console.log('changed')
                 }
-                
             }
-            console.log(' uiState[props.indexName]', uiState[props.indexName])
             if (currentQuery.value || uiState[props.indexName].refinementList || uiState[props.indexName].range) {
                 showNumHits.value = true
             } else {
@@ -135,32 +128,52 @@
     }
 
     function onStateChange({ uiState, setUiState }) {
-        console.log('uiState', uiState)
         updateStateRefs(uiState)
         setUiState(uiState)
+       
     }
 
     function setView() {
-        console.log(sortView.value)
         if (sortView.value == 'Oldest First') {
-            console.log('changeing to oldest first')
-            adapter.updateConfiguration({...props.adapter.configuration, additionalSearchParameters: {
+            adapter.updateConfiguration({...adapter.configuration, additionalSearchParameters: {
                 query_by: props.queryByFields,
                 sort_by: `${props.sortField}:asc`
             }})
-            console.log(props.adapter.configuration)
         } else if (sortView.value == 'Most Relevant') {
-            props.adapter.updateConfiguration({...props.adapter.configuration, additionalSearchParameters: {
+            adapter.updateConfiguration({...adapter.configuration, additionalSearchParameters: {
                 query_by: props.queryByFields,
                 sort_by: `_text_match:desc,${props.sortField}:desc`
             }})
         } else {
-            props.adapter.updateConfiguration({...props.adapter.configuration, additionalSearchParameters: {
+            adapter.updateConfiguration({...adapter.configuration, additionalSearchParameters: {
                 query_by: props.queryByFields,
                 sort_by: `${props.sortField}:desc`
             }})
         }
+        updateNow.value++
     }
+
+    function formatRefinement(refinement) {
+        console.log('refinement', refinement)
+        const attributeMap = {
+            "work.composer" : "Composer",
+            "work.title" : "Work",
+            "conductor" : "Conductor",
+            "orchestra" : "Orchestra",
+            "work.artist.artist_name" : "Artist",
+            "query" : "Keyword"
+        }
+        if (refinement.attribute == 'performance_date' || refinement.attribute == 'last_performance_date') {
+            return 'Date: ' + refinement.label[0] + ' ' + formatDate(refinement.value) + ' ×'
+        }
+        if (attributeMap[refinement.attribute]) {
+            return attributeMap[refinement.attribute] + ': ' + refinement.value + ' ×'
+        } else {
+            return refinement.attribute + ': ' + refinement.value + ' ×'
+        }
+       
+    }
+
 
     const format = (date) => {
         if (date && date.length > 1) {
@@ -179,21 +192,23 @@
     }
 
     function toMinValue(value, range) {
-        return typeof value.min === "number" ? value.min * 1000 : range.min * 1000
+        console.log('toMinValue', typeof value.min, range.min)
+        console.log('value.min != 0', value.min != 0)
+        return typeof value.min === "number" && value.min != 0 ? value.min * 1000 : range.min * 1000
     }
 
     function toMaxValue(value, range) {
-        return typeof value.max === "number" ? value.max * 1000 : range.max * 1000
+        return typeof value.max === "number" && value.max != 0 ? value.max * 1000 : range.max * 1000
     }
 
     function formatMinValue(minValue, minRange) {
-        console.log('minValue', minValue, minValue * 1000)
-      return typeof minValue === "number" && minValue !== null && minValue !== minRange ? minValue : minRange
+        console.log('minValue', minValue, minRange)
+        return typeof minValue === "number" && minValue !== null && minValue !== minRange ? minValue : minRange
     }
     
     function formatMaxValue(maxValue, maxRange) {
-        console.log('maxValue', maxValue, maxValue * 1000)
-      return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxValue
+        console.log('maxValue', maxValue, maxRange)
+      return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxRange
     }
 
 </script>
@@ -204,9 +219,10 @@
         :index-name="props.indexName"
         :routing="routing"
         :on-state-change="onStateChange"
-        :key="sortView"
+        
     >
-        <div class="tabs__content">
+    <!-- :key="sortView" -->
+        <div class="tabs__content open">
             <!-- Header and Search Section -->
             <div class="eventsSearch__topSection">
                 <!-- Search Filters Section -->
@@ -215,9 +231,24 @@
                         <!-- Search Box -->
                         <div class="eventsSearch__filterGroup eventsSearch__filterGroup--search">
                             <ais-search-box
-                                :placeholder="props.searchPlaceholder"
+                                
                                 class="eventsSearch__searchBox"
-                            />
+                            >
+                                <template v-slot="{ currentRefinement, isSearchStalled, refine }">
+                                    <form class="ais-SearchBox-form" novalidate>
+                                        <input
+                                            class="ais-SearchBox-input"
+                                            type="search"
+                                            :value="currentRefinement"
+                                            @input="refine($event.currentTarget.value)"
+                                            :placeholder="props.searchPlaceholder"
+                                            >
+                                        <button type="submit" title="Submit the search query" class="ais-SearchBox-submit"><svg aria-hidden="true" width="10" height="10" viewBox="0 0 40 40" class="ais-SearchBox-submitIcon"><path d="M26.804 29.01c-2.832 2.34-6.465 3.746-10.426 3.746C7.333 32.756 0 25.424 0 16.378 0 7.333 7.333 0 16.378 0c9.046 0 16.378 7.333 16.378 16.378 0 3.96-1.406 7.594-3.746 10.426l10.534 10.534c.607.607.61 1.59-.004 2.202-.61.61-1.597.61-2.202.004L26.804 29.01zm-10.426.627c7.323 0 13.26-5.936 13.26-13.26 0-7.32-5.937-13.257-13.26-13.257C9.056 3.12 3.12 9.056 3.12 16.378c0 7.323 5.936 13.26 13.258 13.26z"></path></svg>
+                                        </button>
+                                    </form>
+                                    <span :hidden="!isSearchStalled">Loading...</span>
+                                </template>
+                            </ais-search-box>
                         </div>
                         <div class="eventsSearch__filterGroup eventsSearch__filterGroup--date">
                             <ais-range-input :attribute="props.sortField">
@@ -225,13 +256,14 @@
                                     <vue-date-picker
                                         :model-value="toMinValue(currentRefinement, range)"
                                         @update:model-value="(modelValue) => {
-                                            console.log('range', range);
-                                            console.log('currentRefinement', currentRefinement);
                                             refine({
                                                 min: formatMinValue(modelValue/1000, range.min),
                                                 max: formatMaxValue(currentRefinement.max, range.max),
-                                            })
+                                            });
+                                            
                                         }"
+                                        
+                                        :clearable="false"
                                         :multi-calendars="false"
                                         :enable-time-picker="false"
                                         :text-input="true"
@@ -245,6 +277,8 @@
                                             min: formatMinValue(currentRefinement.min, range.min),
                                             max: formatMaxValue(modelValue/1000, range.max),
                                         })}"
+                                        :clearable="false"
+                                        :text-input="true"
                                         :multi-calendars="false"
                                         :enable-time-picker="false"
                                         placeholder="End"
@@ -282,7 +316,7 @@
                     </div>
                     <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
                         <template v-slot="{items, refine, searchForItems}">
-                            <p-accordion :name="refinement.title" class="accordion">
+                            <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 0">
                                 <summary class="accordion__summary">
                                     <h6 class="accordion__heading">{{ refinement.title }}</h6>
                                     <div class="accordion__iconWrapper">
@@ -298,7 +332,7 @@
                                     <div class="eventsSearch__checkBoxes">
                                         <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
                                             <div class="eventSearch__checkBox">
-                                                <input class="checkbox" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
+                                                <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
                                             </div>
                                             <span>{{ item.value }}</span><span>{{ item.count }}</span>
                                         </label>
@@ -313,7 +347,7 @@
             <!-- Search Results Section -->
             <section class="eventsSearch__results">
                 
-                <ais-hits class="eventsSearch__hits">
+                <ais-hits :key="updateNow" class="eventsSearch__hits">
                     <template v-slot="{ items }">
                         <div class="eventsSearch__resultsHeader">
                             <div class="eventsSearch__resultsTitle">
@@ -329,55 +363,74 @@
                                 <h3 v-if="showNumHits">{{ items.length }} Results</h3>
                                 <h3 v-else>{{ props.resultsTitle }}</h3>
                             </div>
-                            <div class="eventsSearch__resultsSort">Sort by: 
-                                <select v-model="sortView" @change="setView">
-                                <option value="Most Recent">Most Recent</option>
-                                <option value="Most Relevant">Most Relevant</option>
-                                <option value="Oldest First">Oldest First</option>
-                                </select>
+                            <div class="eventsSearch__actions">
+                                <div class="eventsSearch__resultsSort">Sort by: 
+                                    <select v-model="sortView" @change="setView">
+                                    <option value="Most Recent">Most Recent</option>
+                                    <option value="Most Relevant">Most Relevant</option>
+                                    <option value="Oldest First">Oldest First</option>
+                                    </select>
+                                </div>
+                                <div v-if="showNumHits" class="eventsSearch__actionButtons">
+                                    <a onclick="navigator.clipboard.writeText(window.location.href);" class="eventsSearch__actionIcon">
+                                        <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3.8335 5.00683C4.00129 5.24348 4.21538 5.4393 4.46122 5.581C4.70706 5.72269 4.97891 5.80696 5.25834 5.82807C5.53776 5.84918 5.81823 5.80665 6.0807 5.70336C6.34317 5.60006 6.58152 5.43843 6.77957 5.22941L7.95175 3.99281C8.30762 3.6041 8.50454 3.08349 8.50009 2.5431C8.49564 2.00271 8.29018 1.48578 7.92796 1.10365C7.56574 0.721528 7.07574 0.504774 6.5635 0.500078C6.05127 0.495382 5.55778 0.70312 5.18932 1.07855L4.51727 1.78341" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M5.83333 3.99326C5.64156 3.7566 5.3969 3.56078 5.11594 3.41908C4.83497 3.27739 4.52428 3.19313 4.20494 3.17201C3.8856 3.1509 3.56507 3.19343 3.2651 3.29673C2.96513 3.40002 2.69273 3.56165 2.46639 3.77067L1.12675 5.00727C0.720043 5.39598 0.494997 5.9166 0.500084 6.45698C0.505171 6.99737 0.739985 7.5143 1.15395 7.89643C1.56791 8.27855 2.12791 8.49531 2.71332 8.5C3.29874 8.5047 3.86273 8.29696 4.28382 7.92153L5.04741 7.21667" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </a>
+                                    <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`"  class="eventsSearch__actionIcon">
+                                        <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7.47805 10.9099L0.5 10.9099" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M0.75293 4.94067L3.92477 8.11252L7.09662 4.94067" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M3.9248 8.11242V0.5" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                        <ais-current-refinements>
-                        <template v-slot="{ items, createURL }">
-                            <div class="eventsSearch__activeFilters">
-                            <ul class="eventsSearch__activeFiltersList">
-                                <li v-for="item in items" :key="item.attribute" class="eventsSearch__activeFiltersGroup">
-                                <ul class="eventsSearch__activeFiltersItems">
-                                    <li
-                                    v-for="refinement in item.refinements"
-                                    :key="[
-                                        refinement.attribute,
-                                        refinement.type,
-                                        refinement.value,
-                                        refinement.operator
-                                    ].join(':')"
-                                    class="eventsSearch__activeFilterItem"
-                                    >
-                                    <a
-                                        :href="createURL(refinement)"
-                                        @click.prevent="item.refine(refinement)"
-                                        v-html="refinement.label + ' ×'"
-                                        class="eventsSearch__activeFilterRemove"
-                                    ></a>
-                                    </li>
-                                </ul>
-                                </li>
-                            </ul>
-                            <ais-clear-refinements>
-                                <template v-slot="{ canRefine, refine, createURL }">
-                                <a
-                                    :href="createURL()"
-                                    @click.prevent="refine"
-                                    v-if="canRefine"
-                                    class="eventsSearch__clearFilters"
-                                >
-                                    Clear all filters
-                                </a>
-                                <span v-else></span>
-                                </template>
-                            </ais-clear-refinements>
-                            </div>
-                        </template>
+                        <ais-current-refinements :excluded-attributes="[]">
+                            <template v-slot="{ items, createURL }">
+                                <div class="eventsSearch__activeFilters">
+                                    <div class="eventsSearch__activeTitle" v-if="items.length">Applied Filters</div>
+                                    <ais-clear-refinements v-if="items.length" :excluded-attributes="[]">
+                                        <template v-slot="{ canRefine, refine, createURL }">
+                                        <a
+                                            :href="createURL()"
+                                            @click.prevent="refine"
+                                            v-if="canRefine"
+                                            class="eventsSearch__clearFilters"
+                                        >
+                                            Clear
+                                        </a>
+                                        <span v-else></span>
+                                        </template>
+                                    </ais-clear-refinements>
+                                    <ul class="eventsSearch__activeFiltersList">
+                                        <li v-for="item in items" :key="item.attribute" class="eventsSearch__activeFiltersGroup">
+                                        <ul class="eventsSearch__activeFiltersItems">
+                                            <li
+                                            v-for="refinement in item.refinements"
+                                            :key="[
+                                                refinement.attribute,
+                                                refinement.type,
+                                                refinement.value,
+                                                refinement.operator
+                                            ].join(':')"
+                                            class="eventsSearch__activeFilterItem"
+                                            >
+                                            <a
+                                                :href="createURL(refinement)"
+                                                @click.prevent="item.refine(refinement)"
+                                                v-html="formatRefinement(refinement)"
+                                                class="eventsSearch__activeFilterRemove"
+                                            ></a>
+                                            </li>
+                                        </ul>
+                                        </li>
+                                    </ul>
+                                    
+                                </div>
+                            </template>
                         </ais-current-refinements>
                         <slot :items="items">
                             <div v-for="item in items">

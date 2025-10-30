@@ -572,46 +572,51 @@
           results-title="Performances"
         >
           <template v-slot="{ items }">
-            <div v-for="item, index in items">
-                <div v-if="index == 0"  class="eventsSearch__resultsGrid">
-                    <div>Date/Season/Title</div>
-                    <div>Venue</div>
-                    <div>Orchestra</div>
-                    <div>Conductor</div>
-                    <div>Composer/Work</div>
-                    <div>Artist/Role</div>
-                    <div>View</div>
-                </div>
-                <div v-for="w, i in item.work.slice(0, 6)">
-                    <div v-if="i == 0" :class="`eventsSearch__resultsGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
-                    <div>{{ formatDate(item.performance_date) }} / {{ item.season }}</div>
-                    <div>{{ item.venue }} {{ item.location.city }}, {{  item.location.state }}, {{ item.location.country }}</div>
-                    <div>{{ item.orchestra.join('; ')}}</div>
-                    <div>{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
-                    <div>{{ w.composer }} / {{ w.title }}</div>
-                    <div>{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).join('; ') }}</div>
-                    <div><a :href="`/details?performanceId=${item.id}`">Details</a></div>
-                    </div>
-                    <div v-else-if="i > 0 && i <= 4" :class="`eventsSearch__resultsGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div>{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
-                    <div>{{ w.composer }} / {{ w.title }}</div>
-                    <div v-if="w.artist.filter((artist) => artist.artist_role != 'Conductor').length < 3">{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).join('; ') }}</div>
-                    <div v-else>{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).slice(0, 2).join('; ') }}<br/><a :href="`/details?performanceId=${item.id}`">More...</a></div>
-                    <div></div>
-                    </div>
-                    <div v-else-if="i > 4" :class="`eventsSearch__resultsGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div><a :href="`/details?performanceId=${item.id}`">More...</a></div>
-                    <div></div>
-                    <div></div>
-                    </div>
-                </div>
+            <div class="eventsSearch__resultsGrid">
+              <template v-for="item, index in items">
+                <template v-for="w, i in item.work.slice(0, 6)">
+                  <!-- Header Row -->
+                  <template v-if="index == 0 && i == 0">                  
+                    <div class="eventsSearch__resultCell -header -first">Date/Season/Title</div>
+                    <div class="eventsSearch__resultCell -header">Venue</div>
+                    <div class="eventsSearch__resultCell -header">Orchestra</div>
+                    <div class="eventsSearch__resultCell -header">Conductor</div>
+                    <div class="eventsSearch__resultCell -header">Composer/Work</div>
+                    <div class="eventsSearch__resultCell -header">Artist/Role</div>
+                    <div class="eventsSearch__resultCell -header">View</div>
+                  </template>
+                  <!-- First row of an event -->
+                  <template v-if="i == 0">
+                    <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ formatDate(item.performance_date) }} / {{ item.season }}</div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${((index + 1 == items.length && (i + 1 == item.work.length || i == 5)) && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ item.venue }} {{ item.location.city }}, {{  item.location.state }}, {{ item.location.country }}</div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ item.orchestra.join('; ')}}</div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.composer }} / {{ w.title }}</div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).join('; ') }}</div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"><a :href="`/details?performanceId=${item.id}`">Details</a></div>
+                  </template>
+                  <!-- Additional event rows -->
+                  <template v-else-if="i > 0 && i <= 4">
+                    <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.composer }} / {{ w.title }}</div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`" v-if="w.artist.filter((artist) => artist.artist_role != 'Conductor').length < 3">{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).join('; ') }}</div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`" v-else>{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).slice(0, 2).join('; ') }}<br/><a :href="`/details?performanceId=${item.id}`">More...</a></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                  </template>
+                  <template v-else-if="i > 4">
+                    <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"><a :href="`/details?performanceId=${item.id}`">More...</a></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                  </template>
+                </template>
+            </template>
             </div>
           </template>
         </search-tab>  
