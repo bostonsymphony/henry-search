@@ -14,13 +14,19 @@ import { onMounted, useTemplateRef } from 'vue'
 
 const props = defineProps({
   duration: { type: Number },
-  summary: { type: String, default: 'summary:first-of-type' }
+  summary: { type: String, default: 'summary:first-of-type' },
+  startOpen: { type: Boolean, default: true},
+  openText: { type: String, default: null},
+  closedText: { type: String, default: null}
 })
 const details = useTemplateRef('details')
+const summaryText = null
 
 onMounted(() => {
   details.value.style.setProperty('--accordion-height-closed', 'auto')
-  details.value.open = true
+  if (props.startOpen) {
+    details.value.open = true
+  }
 })
 
 const handleToggle = event => {
@@ -33,7 +39,7 @@ const handleToggle = event => {
   }
 
   const summaryHeight = summary?.clientHeight
-
+  
   if (!summary.contains(event.target)) {
     return
   }
@@ -58,6 +64,22 @@ const handleToggle = event => {
       el.style.transitionDuration = ''
       el.open = true
     })
+  }
+  if (props.openText && props.closedText) {
+    console.log('open closed text', props.openText, props.closedText)
+    let replacementText = ""
+    console.log('details.value.open', details.value.open)
+    if (details.value.open) {
+      replacementText = props.closedText
+    } else {
+      replacementText = props.openText
+    }
+    console.log(summary.children)
+    if (summary.children) {
+      summary.children[0].innerHTML = replacementText
+    } else {
+      summary.innerHTML = replacementText
+    }
   }
 }
 </script>

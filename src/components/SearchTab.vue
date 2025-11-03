@@ -7,6 +7,7 @@
         AisHighlight,
         AisHits,
         AisInstantSearch,
+        AisMenuSelect,
         AisPagination,
         AisRangeInput,
         AisRefinementList,
@@ -30,6 +31,10 @@
             type: Object,
             require: true
         },
+        addlRefinements: {
+            type: Object,
+            default: null
+        },
         queryByFields: {
             type: String,
             default: "work, season, orchestra, venue, event_types, notes, event_title"
@@ -49,8 +54,7 @@
     })
 
     const sortView = ref('Most Recent')
-    const currentQuery = ref(null)
-    const showNumHits = ref(false)
+    
     const updateNow = ref(0)
 
     const routing = ref({
@@ -90,6 +94,12 @@
 
     const searchClient = adapter.searchClient
 
+    let showNumHits = false
+    let showByWorks = false
+    let flatFilters = []
+    let workFilters = null
+    let currentQuery = null
+
     function toggleFilters() {
         const wrapper = document.querySelector('.eventsSearch__filterRail')
         const tabContent = document.querySelector('.tabs__content')
@@ -106,25 +116,43 @@
 
     function updateStateRefs(uiState) {
         if (uiState && uiState[props.indexName]) {
-            currentQuery.value = uiState[props.indexName].query
-            if (currentQuery.value) {
+            currentQuery = uiState[props.indexName].query
+            if (currentQuery) {
                 if (sortView.value != 'Most Relevant') {
                     sortView.value = 'Most Relevant'
-                    
-                    console.log('changed')
                 }
             } else {
                 if (sortView.value != 'Most Recent') {
                     sortView.value = 'Most Recent'
-                    console.log('changed')
                 }
             }
-            if (currentQuery.value || uiState[props.indexName].refinementList || uiState[props.indexName].range) {
-                showNumHits.value = true
-            } else {
-                showNumHits.value = false
-            }
+            showNumHits = currentQuery || uiState[props.indexName].refinementList || uiState[props.indexName].range
+            showByWorks = uiState[props.indexName].refinementList != null
+            workFilters = uiState[props.indexName].refinementList ? getWorkFilters(uiState[props.indexName].refinementList) : []
+          
         }
+    }
+
+    function getWorkFilters(refinementList) {
+        let returnFilters = {}
+        Object.entries(refinementList).forEach(([k, v]) => {
+            if (k.includes('work')) {
+                let workAttribute = k.substring(k.indexOf('work.') + 5, k.length)
+                const subFilter = {}
+                if (workAttribute.includes('.')) {
+                    const workSubAttribute = workAttribute.substring(workAttribute.indexOf('.') + 1, workAttribute.length)
+                    workAttribute = workAttribute.substring(0, workAttribute.indexOf('.'))
+                    const subSubFilter = {}
+                    subSubFilter[workSubAttribute] = v
+                    subFilter[workAttribute] = subSubFilter
+                    
+                } else {
+                    subFilter[workAttribute] = v
+                }
+                returnFilters = {...returnFilters, ...subFilter}
+            }
+        })
+        return returnFilters
     }
 
     function onStateChange({ uiState, setUiState }) {
@@ -154,7 +182,6 @@
     }
 
     function formatRefinement(refinement) {
-        console.log('refinement', refinement)
         const attributeMap = {
             "work.composer" : "Composer",
             "work.title" : "Work",
@@ -174,6 +201,57 @@
        
     }
 
+    function intersect(filters, work){
+        let intersectKeys = Object.keys(filters).filter(k => Object.hasOwn(work, k))
+        let intersectArray = []
+        intersectKeys.forEach((key) => {
+            if (typeof filters[key] == 'object' && typeof work[key] == 'object') {
+                if (Array.isArray(work[key])) {
+                    Object.entries(filters[key])?.forEach(([k1, v1]) => {
+                        work[key]?.forEach((workvalue) => {
+                            if (typeof workvalue == 'object') {
+                                Object.entries(workvalue).forEach(([k2, v2]) => {
+                                    if (k1 == k2 && v1.includes(v2)) {
+                                        intersectArray.push(workvalue[k2])
+                                    }
+                                })
+                            }
+                            
+                        })
+                    }) 
+                }
+            } else if (filters[key].includes(work[key])) {
+                intersectArray.push(work[key])
+            }
+        })
+        return intersectArray
+
+    }
+
+    function filterItems(items) {
+        if (showByWorks) {
+            let returnItems = items
+            let itemIndex = 0
+            returnItems.forEach((item) => {
+                let shownWorks = []
+                item?.work.forEach((work) => {
+                    let workAdded = false
+                    if (intersect(workFilters, work)?.length) {
+                        shownWorks.push(work)
+                        workAdded = true
+                    }
+                    if (!workAdded && currentQuery && JSON.stringify(work).includes(currentQuery)) {
+                        shownWorks.push(work)
+                    }  
+                })
+                returnItems[itemIndex].work = shownWorks
+                itemIndex++
+            })
+            return returnItems
+        }
+        return items
+
+    }
 
     const format = (date) => {
         if (date && date.length > 1) {
@@ -192,8 +270,6 @@
     }
 
     function toMinValue(value, range) {
-        console.log('toMinValue', typeof value.min, range.min)
-        console.log('value.min != 0', value.min != 0)
         return typeof value.min === "number" && value.min != 0 ? value.min * 1000 : range.min * 1000
     }
 
@@ -202,12 +278,10 @@
     }
 
     function formatMinValue(minValue, minRange) {
-        console.log('minValue', minValue, minRange)
         return typeof minValue === "number" && minValue !== null && minValue !== minRange ? minValue : minRange
     }
     
     function formatMaxValue(maxValue, maxRange) {
-        console.log('maxValue', maxValue, maxRange)
       return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxRange
     }
 
@@ -316,7 +390,7 @@
                     </div>
                     <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
                         <template v-slot="{items, refine, searchForItems}">
-                            <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 0">
+                            <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 0" :start-open="true">
                                 <summary class="accordion__summary">
                                     <h6 class="accordion__heading">{{ refinement.title }}</h6>
                                     <div class="accordion__iconWrapper">
@@ -341,13 +415,51 @@
                             </p-accordion>
                         </template>
                     </ais-refinement-list>
+                    <p-accordion v-if="addlRefinements" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
+                        <summary class="accordion__summary">
+                            <h6 class="accordion__heading -thin">More Filters</h6>
+                        </summary>
+                        <div class="accordion__content">
+                            <ais-refinement-list v-for="refinement in addlRefinements.filter((r) => r.type == 'list')" :attribute="refinement.attribute" operator="and">
+                                <template v-slot="{items, refine, searchForItems}">
+                                    <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 0" :start-open="false">
+                                        <summary class="accordion__summary">
+                                            <h6 class="accordion__heading">{{ refinement.title }}</h6>
+                                            <div class="accordion__iconWrapper">
+                                            <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
+                                                <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            </div>
+                                        </summary>
+                                        <div class="accordion__content">
+                                            <div class="ais-SearchBox eventsSearch__searchBox -filter">
+                                                <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
+                                            </div>
+                                            <div class="eventsSearch__checkBoxes">
+                                                <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
+                                                    <div class="eventSearch__checkBox">
+                                                        <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
+                                                    </div>
+                                                    <span>{{ item.value }}</span><span>{{ item.count }}</span>
+                                                </label>
+                                            </div>
+                                        </div> 
+                                    </p-accordion>
+                                </template>
+                            </ais-refinement-list>
+                            <!-- add locations here -->
+                            <ais-menu-select v-for="refinement in addlRefinements.filter((r) => r.type == 'dropdown')" :attribute="refinement.attribute" operator="and">
+
+                            </ais-menu-select>
+                        </div>
+                    </p-accordion>
                 </div>
             </section>
 
             <!-- Search Results Section -->
             <section class="eventsSearch__results">
                 
-                <ais-hits :key="updateNow" class="eventsSearch__hits">
+                <ais-hits :key="updateNow" class="eventsSearch__hits" :transform-items="filterItems">
                     <template v-slot="{ items }">
                         <div class="eventsSearch__resultsHeader">
                             <div class="eventsSearch__resultsTitle">
@@ -362,6 +474,7 @@
                                 </svg> 
                                 <h3 v-if="showNumHits">{{ items.length }} Results</h3>
                                 <h3 v-else>{{ props.resultsTitle }}</h3>
+
                             </div>
                             <div class="eventsSearch__actions">
                                 <div class="eventsSearch__resultsSort">Sort by: 
@@ -432,7 +545,7 @@
                                 </div>
                             </template>
                         </ais-current-refinements>
-                        <slot :items="items">
+                        <slot :items="items" :show-by-works="showByWorks">
                             <div v-for="item in items">
                                 {{ JSON.stringify(item) }}<br/><br/>
                             </div>

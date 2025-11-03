@@ -8,8 +8,8 @@ export default function formatDate(unix_timestamp, detail = false) {
     const minutes = "0" + date.getMinutes()
 
     if (detail) {
-        return `${days[date.getDay()]}, ${(months[date.getMonth()]).substring(0, 3)} ${date.getDate()}, ${hour}:${minutes.substr(-2)}${amPm} EDT`
+        return `${days[date.getDate()]}, ${(months[date.getMonth()]).substring(0, 3)} ${date.getDate()}, ${hour}:${minutes.substr(-2)}${amPm} EDT`
     } else {
-        return `${date.getMonth() + 1}-${date.getDay() + 1}-${date.getFullYear()}`
+        return `${date.getMonth() + 1}-${date.getDate() + 1}-${date.getFullYear()}`
     }
 }

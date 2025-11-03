@@ -44,7 +44,19 @@
     {attribute: 'conductor', title: 'Conductor', placeholder: 'Search Conductors'},
     {attribute: 'orchestra', title: 'Orchestra/Ensemble', placeholder: 'Search Orchestras/Ensembles'},
     {attribute: 'work.artist.artist_name', title: 'Artist', placeholder: 'Search Artists'},
-    //{attribute: 'season', title: 'Season', placeholder: 'Search Seasons'}
+  ]
+
+  const addlRefinements = [
+    {attribute: 'work.artist.artist_role', title: 'Instrument', placeholder: 'Search Instruments', type: 'list'},
+    {attribute: 'work.creator.creator_name', title: 'Additional Creator', placeholder: 'Search Creators', type: 'list'},
+    {attribute: 'work.creator.creator_role', title: 'Additional Creator Role', placeholder: 'Search Creator Roles', type: 'list'},
+    {attribute: 'season', title: 'Season', placeholder: 'Search Seasons', type: 'list'},
+    {attribute: 'event_title', title: 'Event Title', placeholder: 'Search Event Titles', type: 'list'},
+    {attribute: 'event_types', title: 'Series', placeholder: 'Search Event Types', type: 'list'},
+    {attribute: 'venue', title: 'Venue', placeholder: 'Search Venues', type: 'list'},
+    // {attribute: 'location', title: 'Location', type: 'location'},
+    {attribute: 'media', title: 'Media', placeholder: 'Select Media', type: 'dropdown'}
+
   ]
 
   const artistRefinements = [
@@ -64,29 +76,7 @@
     }
   }
 
-  onMounted(() => {
-
-    // let client = new Typesense.Client({
-    //   'nodes': [{
-    //     'host': 'go8f04wi19tuvlyrp-1.a1.typesense.net',
-    //     'port': '443',      
-    //     'protocol': 'https'   
-    //   }],
-    //   'apiKey': 'qoWHCTjesGfIaxdXbw9vOgod1VToEXNI',
-    //   'connectionTimeoutSeconds': 2
-    // })
-
-    // let searchParameters = {
-    //   'q'            : 'john williams',
-    //   'query_by'     : 'work.artist.artist_name',
-    //   'group_by'     : 'work.title',
-    //   'group_limit'  : '1'
-    // }
-
-    // client.collections('archived_performances').documents().search(searchParameters).then(function (searchResults) {
-    //   console.log('searchResults', searchResults)
-    // })
-    
+  onMounted(() => {  
 
     // Disable browser scroll restoration
     if ('scrollRestoration' in history) {
@@ -566,12 +556,13 @@
         <search-tab
           :index-name="'archived_performances'"
           :main-refinements="mainRefinements"
+          :addl-refinements="addlRefinements"
           :sort-field="'performance_date'"
           :query-by-fields="'work, season, orchestra, venue, event_types, notes, event_title'"
           search-placeholder="Search by composer, work, conductor, orchestra, and more"
           results-title="Performances"
         >
-          <template v-slot="{ items }">
+          <template v-slot="{ items, showByWorks }">
             <div class="eventsSearch__resultsGrid">
               <template v-for="item, index in items">
                 <template v-for="w, i in item.work.slice(0, 6)">
@@ -587,7 +578,7 @@
                   </template>
                   <!-- First row of an event -->
                   <template v-if="i == 0">
-                    <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ formatDate(item.performance_date) }} / {{ item.season }}</div>
+                    <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ formatDate(item.performance_date) }} / {{ item.season + (item.event_title ? " / " + item.event_title : "")}}</div>
                     <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${((index + 1 == items.length && (i + 1 == item.work.length || i == 5)) && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ item.venue }} {{ item.location.city }}, {{  item.location.state }}, {{ item.location.country }}</div>
                     <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ item.orchestra.join('; ')}}</div>
                     <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
