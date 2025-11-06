@@ -103,7 +103,7 @@ onMounted(() => {
                     <a :href="createURL('conductor', conductor)">{{ conductor + (index < performance.conductor.length - 1 ? ",&nbsp;" : "") }}</a>
                 </span>
             </div>
-            <div><span class="performance__dataTitle">Event Title:</span><br/>{{ performance.event_title ?? '---' }}</div>
+            <div><span class="performance__dataTitle">Event Title:</span><br/>{{ performance.event_title && performance.event_title.length ? performance.event_title : '---' }}</div>
             <div><span class="performance__dataTitle">Event Type:</span><br/>
                 <span v-for="type, index in performance.event_type">
                     <a :href="createURL('event_type', type)">{{ type + (index < performance.event_type - 1 ? ",&nbsp;" : "") }}</a>
@@ -113,18 +113,26 @@ onMounted(() => {
             <div><span class="performance__dataTitle">Notes:</span><br/>{{ performance.notes ?? '---' }}</div>
         </div>
         <h4>Program</h4>
-        <div class="performance__program">
-            <!--header-->
-            <div class="performance__dataTitle header">Composer</div>
-            <div class="performance__dataTitle header">Works</div>
-            <div class="performance__dataTitle header">Additional Creator</div>
-            <div class="performance__dataTitle header">Artist</div>
-            <div class="performance__dataTitle header">Role</div>
-        </div>
-        <div v-for="work, index in performance.work">
-            <div :class="`performance__program ${index % 2 == 0 ? '-even' : '-odd'}`">
-               <div class="composer"><a :href="createURL('work.composer', work.composer)">{{ work.composer }}</a></div>
-               <div class="workInfo"><a :href="createURL('work.title', work.title)">{{ work.title }}</a><br/>
+        <div class="performance__grid">
+            <template v-for="work, index in performance.work">
+                <!--header-->
+                <template v-if="index == 0">
+                    <div class="performance__cell -header -first">Composer</div>
+                    <div class="performance__cell -header">Works</div>
+                    <div class="performance__cell -header">Additional Creator</div>
+                    <div class="performance__cell -header">Artist</div>
+                    <div class="performance__cell -header">Role</div>
+                </template>
+
+               <div :class="`performance__cell -first ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.work.length ? '-last' : ''}`"><a :href="createURL('work.composer', work.composer)">{{ work.composer }}</a></div>
+               <div :class="`performance__cell ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.work.length ? '-last' : ''}`">
+                    <span class="infoItem">
+                        <a :href="createURL('work.title', work.title)">{{ work.title }}</a><br/>
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="work.has_recording">
+                            <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>    
+                    </span>
                     <span v-if="work.premiere" class="infoItem">Work Premiere:<br/>
                         <a :href="createURL('work.premiere', work.premier)">{{ work.premiere }}</a>
                     </span><br/>
@@ -135,19 +143,18 @@ onMounted(() => {
                     </span><br/>
                     <span v-if="work.encore" class="infoItem"><a :href="createURL('work.encore', work.encore)">Encore</a></span>
                 </div>
-                <div class="workInfo">
+                <div :class="`performance__cell ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.work.length ? '-last' : ''}`">
                     <span v-for="c in work.creator" class="infoItem">
                         <a :href="createURL('work.creator.creator_name', c.creator_name)">{{ c.creator_name }}, {{ c.creator_role }}</a>
                     </span>
                 </div>
-                <div class="workInfo">
+                <div :class="`performance__cell ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.work.length ? '-last' : ''}`">
                     <span v-for="a in work.artist" class="infoItem"><a :href="createURL('work.artist.artist_name', a.artist_name)">{{ a.artist_name }}</a></span>
                 </div>
-                <div class="workInfo">
+               <div :class="`performance__cell ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.work.length ? '-last' : ''}`">
                     <span v-for="a in work.artist" class="infoItem"><a :href="createURL('work.artist.artist_role', a.artist_role)">{{ a.artist_role }}</a></span>
                 </div>
-            </div>
+            </template>
         </div>
-
     </div>
 </template>

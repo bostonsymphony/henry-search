@@ -1,7 +1,6 @@
 <script setup>
     import { onMounted, ref } from 'vue'
     import {
-        AisAutocomplete,
         AisClearRefinements,
         AisCurrentRefinements,
         AisHighlight,
@@ -11,17 +10,18 @@
         AisPagination,
         AisRangeInput,
         AisRefinementList,
-        AisSearchBox
+        AisSearchBox,
+        AisStats
     } from 'vue-instantsearch/vue3/es'
     import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter'
     import { history as historyRouter } from 'instantsearch.js/es/lib/routers'
     import { simple as simpleStateMapping } from 'instantsearch.js/es/lib/stateMappings'
     import PAccordion from './PAccordion.vue'
     import VueDatePicker from '@vuepic/vue-datepicker'
-    import '@vuepic/vue-datepicker/dist/main.css'
     import slugify from '../composables/slugify'
     import formatDate from '../composables/formatDate'
-
+    import vSelect from 'vue-select'
+ 
     const props = defineProps({
         indexName: {
             type: String,
@@ -57,12 +57,17 @@
     
     const updateNow = ref(0)
 
+    // onMounted(() => {
+
+    // })
+
     const routing = ref({
         router: historyRouter({
             // Disable scroll restoration to prevent erratic behavior
             writeDelay: 0,
             parseURL({ qsModule, location }) {
                 const uiState = qsModule.parse(location.search.slice(1))
+
                 updateStateRefs(uiState)
                 
                 return uiState
@@ -96,7 +101,6 @@
 
     let showNumHits = false
     let showByWorks = false
-    let flatFilters = []
     let workFilters = null
     let currentQuery = null
 
@@ -126,10 +130,10 @@
                     sortView.value = 'Most Recent'
                 }
             }
-            showNumHits = currentQuery || uiState[props.indexName].refinementList || uiState[props.indexName].range
-            showByWorks = uiState[props.indexName].refinementList != null
-            workFilters = uiState[props.indexName].refinementList ? getWorkFilters(uiState[props.indexName].refinementList) : []
-          
+            showNumHits = currentQuery || uiState[props.indexName].refinementList || uiState[props.indexName].range || uiState[props.indexName].menu
+            workFilters =  uiState[props.indexName].refinementList && Object.keys(uiState[props.indexName].refinementList).length !== 0 ? getWorkFilters(uiState[props.indexName].refinementList) : []
+            showByWorks = Object.keys(workFilters).length !== 0
+
         }
     }
 
@@ -158,6 +162,32 @@
     function onStateChange({ uiState, setUiState }) {
         updateStateRefs(uiState)
         setUiState(uiState)
+        // console.log('uiState', uiState)
+        // let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
+        // searchHistory = searchHistory.map((item) => {
+        //     if (document.location.href.includes(item.link)) {
+        //         return {
+        //             date: new Date(),
+        //             uiState: uiState,
+        //             link: document.location.href
+        //         }
+        //     } else {
+        //         return item
+        //     }
+        // })
+        
+        // if (!(searchHistory.map((a) => a.link)).includes(document.location.href) && 
+        //         document.location.search != '') {
+        //      searchHistory.push({
+        //         date: new Date(),
+        //         uiState: uiState,
+        //         link: document.location.href
+        //     })
+        // }
+       
+        // console.log('searchHistory', searchHistory, typeof searchHistory)
+        // sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
+        
        
     }
 
@@ -188,7 +218,10 @@
             "conductor" : "Conductor",
             "orchestra" : "Orchestra",
             "work.artist.artist_name" : "Artist",
-            "query" : "Keyword"
+            "query" : "Keyword",
+            'location.city': 'City',
+            'location.country': 'Country',
+            'location.state': 'State'
         }
         if (refinement.attribute == 'performance_date' || refinement.attribute == 'last_performance_date') {
             return 'Date: ' + refinement.label[0] + ' ' + formatDate(refinement.value) + ' ×'
@@ -390,7 +423,7 @@
                     </div>
                     <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
                         <template v-slot="{items, refine, searchForItems}">
-                            <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 0" :start-open="true">
+                            <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 1" :start-open="true">
                                 <summary class="accordion__summary">
                                     <h6 class="accordion__heading">{{ refinement.title }}</h6>
                                     <div class="accordion__iconWrapper">
@@ -413,6 +446,7 @@
                                     </div>
                                 </div> 
                             </p-accordion>
+                            <template v-else><div></div></template>
                         </template>
                     </ais-refinement-list>
                     <p-accordion v-if="addlRefinements" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
@@ -420,37 +454,94 @@
                             <h6 class="accordion__heading -thin">More Filters</h6>
                         </summary>
                         <div class="accordion__content">
-                            <ais-refinement-list v-for="refinement in addlRefinements.filter((r) => r.type == 'list')" :attribute="refinement.attribute" operator="and">
-                                <template v-slot="{items, refine, searchForItems}">
-                                    <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 0" :start-open="false">
-                                        <summary class="accordion__summary">
-                                            <h6 class="accordion__heading">{{ refinement.title }}</h6>
-                                            <div class="accordion__iconWrapper">
-                                            <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
-                                                <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                            </div>
-                                        </summary>
-                                        <div class="accordion__content">
-                                            <div class="ais-SearchBox eventsSearch__searchBox -filter">
-                                                <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
-                                            </div>
-                                            <div class="eventsSearch__checkBoxes">
-                                                <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
-                                                    <div class="eventSearch__checkBox">
-                                                        <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
-                                                    </div>
-                                                    <span>{{ item.value }}</span><span>{{ item.count }}</span>
-                                                </label>
-                                            </div>
-                                        </div> 
-                                    </p-accordion>
-                                </template>
-                            </ais-refinement-list>
+                            <template v-for="refinement in addlRefinements">
+                                <ais-refinement-list v-if="refinement.type == 'list'" :attribute="refinement.attribute" operator="and">
+                                    <template v-slot="{items, refine, searchForItems}">
+                                        <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 1" :start-open="false">
+                                            <summary class="accordion__summary">
+                                                <h6 class="accordion__heading">{{ refinement.title }}</h6>
+                                                <div class="accordion__iconWrapper">
+                                                <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
+                                                    <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                </div>
+                                            </summary>
+                                            <div class="accordion__content">
+                                                <div class="ais-SearchBox eventsSearch__searchBox -filter" v-if="!refinement.hideSearch">
+                                                    <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
+                                                </div>
+                                                <div class="eventsSearch__checkBoxes">
+                                                    <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
+                                                        <div class="eventSearch__checkBox">
+                                                            <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
+                                                        </div>
+                                                        <span>{{ item.value }}</span><span>{{ item.count }}</span>
+                                                    </label>
+                                                </div>
+                                            </div> 
+                                        </p-accordion>
+                                        <template v-else><div></div></template>
+                                    </template>
+                                </ais-refinement-list>
+                                <h6 class="accordion__heading" v-if="refinement.type == 'location'">Location</h6>
+                                <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.city'" operator="or">
+                                    <template v-slot="{ items, canRefine, refine, sendEvent }">
+                                         <select
+                                            :disabled="!canRefine"
+                                            @change="refine($event.currentTarget.value)"
+                                            >
+                                            <option value="">Select City</option>
+                                            <option
+                                                v-for="item in items"
+                                                :key="item.value"
+                                                :value="item.value"
+                                                :selected="item.isRefined"
+                                            >
+                                                {{ item.label }}
+                                            </option>
+                                        </select>
+                                    </template>
+                                </ais-menu-select>
+                                <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="or">
+                                    <template v-slot="{ items, canRefine, refine, sendEvent }">
+                                        <select
+                                            :disabled="!canRefine"
+                                            @change="refine($event.currentTarget.value)"
+                                            >
+                                            <option value="">Select State</option>
+                                            <option
+                                                v-for="item in items"
+                                                :key="item.value"
+                                                :value="item.value"
+                                                :selected="item.isRefined"
+                                            >
+                                                {{ item.label }}
+                                            </option>
+                                        </select>
+                                    </template>
+                                </ais-menu-select>
+                                <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.country'" operator="or">
+                                    <template v-slot="{ items, canRefine, refine, sendEvent }">
+                                        <select
+                                            :disabled="!canRefine"
+                                            @change="refine($event.currentTarget.value)"
+                                            >
+                                            <option value="">Select Country</option>
+                                            <option
+                                                v-for="item in items"
+                                                :key="item.value"
+                                                :value="item.value"
+                                                :selected="item.isRefined"
+                                            >
+                                                {{ item.label }}
+                                            </option>
+                                        </select>
+                                    </template>
+                                </ais-menu-select>
+                            </template>
+                           
                             <!-- add locations here -->
-                            <ais-menu-select v-for="refinement in addlRefinements.filter((r) => r.type == 'dropdown')" :attribute="refinement.attribute" operator="and">
-
-                            </ais-menu-select>
+                            
                         </div>
                     </p-accordion>
                 </div>
@@ -556,13 +647,56 @@
 
                 <!-- Pagination -->
                 <nav class="eventsSearch__pagination">
-                <ais-pagination
-                    :show-first="true"
-                    :show-previous="true"
-                    :show-next="true"
-                    :show-last="true"
-                    class="eventsSearch__paginationComponent"
-                />
+                    <ais-stats>
+                        <template v-slot="{ hitsPerPage, nbHits, page }">
+                            {{ page * hitsPerPage + 1 }} - {{ (((page + 1) * hitsPerPage) - 1) < nbHits ? (((page + 1) * hitsPerPage) - 1) : nbHits }} of {{ nbHits }} Results
+                        </template>
+                    </ais-stats>
+                    <ais-pagination class="eventsSearch__paginationComponent">
+                        <template
+                            v-slot="{
+                            currentRefinement,
+                            nbPages,
+                            pages,
+                            isFirstPage,
+                            isLastPage,
+                            refine,
+                            createURL
+                            }"
+                        >
+                            <ul v-if="pages.length > 1">
+                                <li>
+                                    <a
+                                    :href="createURL(currentRefinement - 1)"
+                                    @click.prevent="refine(currentRefinement - 1)"
+                                    >
+                                    ‹
+                                    </a>
+                                </li>
+                                <li v-for="page in pages.slice(0, 5)" :key="page">
+                                    <a
+                                    :href="createURL(page)"
+                                    :style="{ fontWeight: page === currentRefinement ? 'bold' : '' }"
+                                    @click.prevent="refine(page)"
+                                    >
+                                    {{ page + 1 }}
+                                    </a>
+                                </li>
+                                <li v-if="pages.length > 5">...</li>
+                                <li v-if="pages.length > 5">{{ pages.length }}</li>
+                                <li>
+                                    <a
+                                    :href="createURL(currentRefinement + 1)"
+                                    @click.prevent="refine(currentRefinement + 1)"
+                                    >
+                                    ›
+                                    </a>
+                                </li>
+                            </ul>
+                            <div v-else></div>
+                        </template>
+
+                    </ais-pagination>
                 </nav>
             </section> 
         </div>

@@ -6,6 +6,7 @@ import { createApp } from 'vue'
 
 import Search from './components/Search.vue'
 import SearchDetail from './components/SearchDetail.vue'
+import SearchHistory from './components/SearchHistory.vue'
 
 export default {
 
@@ -17,4 +18,4 @@ export default {
 
 }
 
-export { Search, SearchDetail }
+export { Search, SearchDetail, SearchHistory }
