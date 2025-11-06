@@ -1,16 +1,40 @@
 <script setup>
 
 const searchHistory = JSON.parse(sessionStorage.getItem('searchHistory'))
+const performanceHistory = searchHistory.filter((item) => {
+    let returnItem = false
+    Object.entries(item.uiState).forEach(([k, v]) => {
+        if (k == 'archived_performances' && !returnItem) {
+            returnItem = true
+        }
+    })
+    return returnItem
+})
 
-// function formatItem(refinements) {
-
-// }
+function formatItem(state) {
+    console.log(state)
+    let searchName = state.query ? '"' + state.query + '"' : ""
+    if (state.refinementList) {
+        Object.entries(state.refinementList).forEach(([k1, v1]) => {
+            searchName += " " + v1 
+        })
+    }
+    if (state.menu) {
+        Object.entries(state.menu).forEach(([k1, v1]) => {
+            searchName += " " + v1 
+        })
+    }
+    
+    return searchName
+}
 
 </script>
 
 <template>
     <div class="performance__header"><h2>Search History</h2></div>
-    <div v-for="item in searchHistory">
-        {{ item }}
+    <h6>Performances</h6>
+    <div v-for="item in performanceHistory">
+        <a :href="item.link">{{ formatItem(item?.uiState['archived_performances']) }}</a><br/>
+        {{ item.date }}
     </div>
 </template>

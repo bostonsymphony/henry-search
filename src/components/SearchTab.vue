@@ -162,31 +162,33 @@
     function onStateChange({ uiState, setUiState }) {
         updateStateRefs(uiState)
         setUiState(uiState)
-        // console.log('uiState', uiState)
-        // let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
-        // searchHistory = searchHistory.map((item) => {
-        //     if (document.location.href.includes(item.link)) {
-        //         return {
-        //             date: new Date(),
-        //             uiState: uiState,
-        //             link: document.location.href
-        //         }
-        //     } else {
-        //         return item
-        //     }
-        // })
+        console.log('uiState', uiState)
+        let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
+        searchHistory = searchHistory.map((item) => {
+            if (uiState[props.indexName].query.includes(item.query) && uiState[props.indexName].query != item.query) {
+                return {
+                    date: new Date(),
+                    uiState: uiState,
+                    query: uiState[props.indexName].query,
+                    link: document.location.href
+                }
+            } else {
+                return item
+            }
+        })
         
-        // if (!(searchHistory.map((a) => a.link)).includes(document.location.href) && 
-        //         document.location.search != '') {
-        //      searchHistory.push({
-        //         date: new Date(),
-        //         uiState: uiState,
-        //         link: document.location.href
-        //     })
-        // }
+        if (!(searchHistory.map((a) => a.link)).includes(document.location.href) && 
+                document.location.search != '') {
+             searchHistory.push({
+                date: new Date(),
+                uiState: uiState,
+                query: uiState[props.indexName].query,
+                link: document.location.href
+            })
+        }
        
-        // console.log('searchHistory', searchHistory, typeof searchHistory)
-        // sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
+        console.log('searchHistory', searchHistory, typeof searchHistory)
+        sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
         
        
     }
