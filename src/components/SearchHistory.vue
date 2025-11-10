@@ -1,10 +1,17 @@
 <script setup>
 
+const props = defineProps({
+    performanceIndex: {
+      type: String,
+      default: "archived_performances"
+    }
+})
+
 const searchHistory = JSON.parse(sessionStorage.getItem('searchHistory'))
 const performanceHistory = searchHistory.filter((item) => {
     let returnItem = false
     Object.entries(item.uiState).forEach(([k, v]) => {
-        if (k == 'archived_performances' && !returnItem) {
+        if (k == props.performanceIndex && !returnItem) {
             returnItem = true
         }
     })
@@ -34,7 +41,7 @@ function formatItem(state) {
     <div class="performance__header"><h2>Search History</h2></div>
     <h6>Performances</h6>
     <div v-for="item in performanceHistory">
-        <a :href="item.link">{{ formatItem(item?.uiState['archived_performances']) }}</a><br/>
+        <a :href="item.link">{{ formatItem(item?.uiState[props.performanceIndex]) }}</a><br/>
         {{ item.date }}
     </div>
 </template>

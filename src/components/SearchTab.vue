@@ -37,7 +37,7 @@
         },
         queryByFields: {
             type: String,
-            default: "work, season, orchestra, venue, event_types, notes, event_title"
+            default: "works, season, venue, event_types, notes, event_title"
         },
         sortField: {
             type: String,
@@ -141,7 +141,7 @@
         let returnFilters = {}
         Object.entries(refinementList).forEach(([k, v]) => {
             if (k.includes('work')) {
-                let workAttribute = k.substring(k.indexOf('work.') + 5, k.length)
+                let workAttribute = k.substring(k.indexOf('works.') + 5, k.length)
                 const subFilter = {}
                 if (workAttribute.includes('.')) {
                     const workSubAttribute = workAttribute.substring(workAttribute.indexOf('.') + 1, workAttribute.length)
@@ -165,7 +165,7 @@
         console.log('uiState', uiState)
         let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
         searchHistory = searchHistory.map((item) => {
-            if (uiState[props.indexName].query.includes(item.query) && uiState[props.indexName].query != item.query) {
+            if (uiState[props.indexName].query?.includes(item.query) && uiState[props.indexName].query != item.query) {
                 return {
                     date: new Date(),
                     uiState: uiState,
@@ -215,11 +215,11 @@
 
     function formatRefinement(refinement) {
         const attributeMap = {
-            "work.composer" : "Composer",
-            "work.title" : "Work",
-            "conductor" : "Conductor",
-            "orchestra" : "Orchestra",
-            "work.artist.artist_name" : "Artist",
+            "works.composer" : "Composer",
+            "works.title" : "Work",
+            "conductors" : "Conductor",
+            "ensembles" : "Orchestra",
+            "works.artists.name" : "Artist",
             "query" : "Keyword",
             'location.city': 'City',
             'location.country': 'Country',
@@ -264,12 +264,13 @@
     }
 
     function filterItems(items) {
+        console.log('items', items)
         if (showByWorks) {
             let returnItems = items
             let itemIndex = 0
             returnItems.forEach((item) => {
                 let shownWorks = []
-                item?.work.forEach((work) => {
+                item?.works.forEach((work) => {
                     let workAdded = false
                     if (intersect(workFilters, work)?.length) {
                         shownWorks.push(work)
@@ -651,7 +652,7 @@
                 <nav class="eventsSearch__pagination">
                     <ais-stats>
                         <template v-slot="{ hitsPerPage, nbHits, page }">
-                            {{ page * hitsPerPage + 1 }} - {{ (((page + 1) * hitsPerPage) - 1) < nbHits ? (((page + 1) * hitsPerPage) - 1) : nbHits }} of {{ nbHits }} Results
+                            {{ page * hitsPerPage + 1 }} - {{ (((page + 1) * hitsPerPage)) < nbHits ? (((page + 1) * hitsPerPage)) : nbHits }} of {{ nbHits }} Results
                         </template>
                     </ais-stats>
                     <ais-pagination class="eventsSearch__paginationComponent">

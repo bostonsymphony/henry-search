@@ -15,9 +15,13 @@
   import formatDate from '../composables/formatDate'
 
   const props = defineProps({
-    indexName: {
+    performanceIndex: {
       type: String,
       default: "archived_performances"
+    },
+    artistIndex: {
+      type: String,
+      default: "dev_henry_artists"
     }
   })
   
@@ -39,25 +43,25 @@
   let modalCreated = false
 
   const mainRefinements = [
-    {attribute: 'work.composer', title: 'Composer', placeholder: 'Search Composers'},
-    {attribute: 'work.title', title: 'Work', placeholder: 'Search Works'},
-    {attribute: 'conductor', title: 'Conductor', placeholder: 'Search Conductors'},
-    {attribute: 'orchestra', title: 'Orchestra/Ensemble', placeholder: 'Search Orchestras/Ensembles'},
-    {attribute: 'work.artist.artist_name', title: 'Artist', placeholder: 'Search Artists'},
+    {attribute: 'works.composers', title: 'Composer', placeholder: 'Search Composers'},
+    {attribute: 'works.title', title: 'Work', placeholder: 'Search Works'},
+    {attribute: 'conductors', title: 'Conductor', placeholder: 'Search Conductors'},
+    {attribute: 'ensembles', title: 'Orchestra/Ensemble', placeholder: 'Search Orchestras/Ensembles'},
+    {attribute: 'works.artists.name', title: 'Artist', placeholder: 'Search Artists'},
   ]
 
   const addlRefinements = [
-    {attribute: 'work.artist.artist_role', title: 'Instrument', placeholder: 'Search Instruments', type: 'list'},
-    {attribute: 'work.creator.creator_name', title: 'Additional Creator', placeholder: 'Search Creators', type: 'list'},
-    {attribute: 'work.creator.creator_role', title: 'Additional Creator Role', placeholder: 'Search Creator Roles', type: 'list'},
+    {attribute: 'works.artists.role', title: 'Instrument', placeholder: 'Search Instruments', type: 'list'},
+    // {attribute: 'works.additional_creators.creator_name', title: 'Additional Creator', placeholder: 'Search Creators', type: 'list'},
+    // {attribute: 'works.additional_creators.creator_role', title: 'Additional Creator Role', placeholder: 'Search Creator Roles', type: 'list'},
     {attribute: 'season', title: 'Season', placeholder: 'Search Seasons', type: 'list'},
     {attribute: 'event_title', title: 'Event Title', placeholder: 'Search Event Titles', type: 'list'},
     {attribute: 'event_types', title: 'Series', placeholder: 'Search Event Types', type: 'list'},
     {attribute: 'venue', title: 'Venue', placeholder: 'Search Venues', type: 'list'},
-    {attribute: 'location', title: 'Location', type: 'location'},
+    // {attribute: 'location', title: 'Location', type: 'location'},
     {attribute: 'media', title: 'Media', placeholder: 'Select Media', type: 'list', hideSearch: 'false'},
     {attribute: 'premiere', title: 'Premiere', placeholder: 'Select Premiere', type: 'list', hideSearch: 'false'},
-    {attribute: 'work.commission', title: 'Commission', placeholder: 'Select Premiere', type: 'list', hideSearch: 'false'}
+    {attribute: 'works.commission', title: 'Commission', placeholder: 'Select Premiere', type: 'list', hideSearch: 'false'}
   ]
 
   const artistRefinements = [
@@ -132,39 +136,6 @@
     }
   })
 
-
-
-
-
-  function artistView(items) {
-    let artistItems = {}
-    items.forEach((item) => {
-      item.work.forEach((work) => {
-        work.artist.forEach((artist) => {
-          let artistFound = true
-          if (currentQuery.value) {
-            if (!artist.artist_name.toLowerCase().includes(currentQuery.value.toLowerCase())) {
-              console.log(artist.artist_name.toLowerCase(), currentQuery.value.toLowerCase(), artist.artist_name.toLowerCase().includes(currentQuery.value.toLowerCase()))
-              artistFound = false
-            }
-          }
-          if (artistFound) {
-            const workRoleArtist = slugify(`${artist.artist_name} ${artist.artist_role} ${work.composer} ${work.title}`)
-            if (workRoleArtist in artistItems) {
-              artistItems[workRoleArtist]['numPerformances']++
-            } else {
-              artistItems[workRoleArtist] = {}
-              artistItems[workRoleArtist]['artist'] = artist.artist_name
-              artistItems[workRoleArtist]['role'] = artist.artist_role
-              artistItems[workRoleArtist]['work'] = `${work.composer} / ${work.title}`
-              artistItems[workRoleArtist]['numPerformances'] = 1
-            }
-          }
-        })
-      })
-    })
-    return artistItems
-  }
 
   function setupPaginationScrollFix() {
     // Use event delegation to catch pagination clicks
@@ -555,37 +526,59 @@
     <p-tabs :titles="['Performances', 'Artists', 'Works']">
       <template #tabpanel-1>
         <search-tab
-          :index-name="'archived_performances'"
+          :index-name="props.performanceIndex"
           :main-refinements="mainRefinements"
           :addl-refinements="addlRefinements"
           :sort-field="'performance_date'"
-          :query-by-fields="'work, season, orchestra, venue, event_types, notes, event_title'"
-          search-placeholder="Search by composer, work, conductor, orchestra, and more"
+          :query-by-fields="'works, season, venue, ensembles, conductors, event_types, notes, event_title'"
+          search-placeholder="Search by composer, works, conductor, orchestra, and more"
           results-title="Performances"
         >
           <template v-slot="{ items, showByWorks }">
             <div class="eventsSearch__resultsGrid">
+              <!-- Header Row -->
+              <div class="eventsSearch__resultCell -header -first">Date/Season/Title</div>
+              <div class="eventsSearch__resultCell -header">Venue</div>
+              <div class="eventsSearch__resultCell -header">Orchestra</div>
+              <div class="eventsSearch__resultCell -header">Conductor</div>
+              <div class="eventsSearch__resultCell -header">Composer/Work</div>
+              <div class="eventsSearch__resultCell -header">Artist/Role</div>
+              <div class="eventsSearch__resultCell -header">View</div>
               <template v-for="item, index in items">
-                <template v-for="w, i in item.work.slice(0, 6)">
-                  <!-- Header Row -->
-                  <template v-if="index == 0 && i == 0">                  
-                    <div class="eventsSearch__resultCell -header -first">Date/Season/Title</div>
-                    <div class="eventsSearch__resultCell -header">Venue</div>
-                    <div class="eventsSearch__resultCell -header">Orchestra</div>
-                    <div class="eventsSearch__resultCell -header">Conductor</div>
-                    <div class="eventsSearch__resultCell -header">Composer/Work</div>
-                    <div class="eventsSearch__resultCell -header">Artist/Role</div>
-                    <div class="eventsSearch__resultCell -header">View</div>
-                  </template>
+                <template v-if="item.works && item.works.length" v-for="w, i in item.works.slice(0, 6)">
                   <!-- First row of an event -->
                   <template v-if="i == 0">
-                    <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ formatDate(item.performance_date) }} / {{ item.season + (item.event_title ? " / " + item.event_title : "")}}</div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${((index + 1 == items.length && (i + 1 == item.work.length || i == 5)) && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ item.venue }} {{ item.location.city }}, {{  item.location.state }}, {{ item.location.country }}</div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ item.orchestra.join('; ')}}</div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.composer }} / {{ w.title }}</div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).join('; ') }}</div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      {{ formatDate(item.performance_date) }} / {{ item.season + (item.event_title ? " / " + item.event_title : "")}}
+                    </div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${((index + 1 == items.length && (i + 1 == item.works.length || i == 5)) && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      {{ item.venue }} {{ item.location.city ?? "" }}, {{  item.location.state ?? "" }}, {{ item.location.country ?? "" }}
+                    </div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      {{ w.ensembles.join('; ')}}
+                    </div>
+                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      {{ w.conductors.join('; ') }}
+                    </div>
+                    <div :class="`eventsSearch__resultCell ${item.works.length > 1 ? '-work' : ''} ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      {{ w.composers.join("; ") }} / {{ w.titles.join("; ") }}
+                    </div>
+                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-if="w.artists.length < 3">
+                      {{ w.artists.map((artist) => artist.name + '/' + artist.role).join('; ') }}
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
+                        <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-else>
+                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') }}
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
+                        <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                       <br/><a :href="`/details?performanceId=${item.id}`">More...</a>
+                    </div>
+                    <div :class="`eventsSearch__resultCell -details ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       <a :href="`/details?performanceId=${item.id}`">Details</a>
                       <a v-if="item.program_link" :href="item.program_link">Program</a>
                       <a v-if="item.media && item.media.includes('Audio')">Audio</a>
@@ -593,34 +586,66 @@
                   </template>
                   <!-- Additional event rows -->
                   <template v-else-if="i > 0 && i <= 4">
-                    <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.artist.filter((artist) => artist.artist_role == 'Conductor').map((artist) => artist.artist_name).join('; ') }}</div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`">{{ w.composer }} / {{ w.title }}</div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`" v-if="w.artist.filter((artist) => artist.artist_role != 'Conductor').length < 3">{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).join('; ') }}
+                    <div :class="`eventsSearch__resultCell -empty -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      {{ w.ensembles.join('; ')}}
+                    </div>
+                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      {{ w.conductors.join('; ') }}
+                    </div>
+                    <div :class="`eventsSearch__resultCell -work ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      {{ w.composers.join("; ") }} / {{ w.titles.join("; ") }}
+                    </div>
+                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" 
+                      v-if="w.artists.length < 3">
+                      {{ w.artists.map((artist) => artist.name + '/' + artist.role).join('; ') }}
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
                         <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`" v-else>{{ w.artist.filter((artist) => artist.artist_role != 'Conductor').map((artist) => artist.artist_name + '/' + artist.artist_role).slice(0, 2).join('; ') }}
+                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-else>
+                      {{ w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') }}
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
                         <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                       <br/><a :href="`/details?performanceId=${item.id}`">More...</a></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                   </template>
                   <template v-else-if="i > 4">
-                    <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"><a :href="`/details?performanceId=${item.id}`">More...</a></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.work.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -empty -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      <a :href="`/details?performanceId=${item.id}`">More...</a>
+                    </div>
+                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                   </template>
+                </template>
+                <template v-if="!item.works || item.works.length == 0">
+                  <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                    {{ formatDate(item.performance_date) }} / {{ item.season + (item.event_title ? " / " + item.event_title : "")}}
+                  </div>
+                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                    {{ item.venue }} {{ item.location.city ?? "" }}, {{  item.location.state ?? "" }}, {{ item.location.country ?? "" }}
+                  </div>
+                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                    {{ item.ensembles.join('; ')}}
+                  </div>
+                  <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                    {{ item.conductors.join('; ') }}
+                  </div>
+                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
+                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
+                  <div :class="`eventsSearch__resultCell -details ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                      <a :href="`/details?performanceId=${item.id}`">Details</a>
+                      <a v-if="item.program_link" :href="item.program_link">Program</a>
+                      <a v-if="item.media && item.media.includes('Audio')">Audio</a>
+                    </div>
                 </template>
             </template>
             </div>
@@ -628,31 +653,30 @@
         </search-tab>  
       </template>
       <template #tabpanel-2>
-        <!-- <search-tab
-          :index-name="'archived_artists'"
+        <search-tab
+          :index-name="props.artistIndex"
           :main-refinements="artistRefinements"
           :sort-field="'last_performance_date'"
           :query-by-fields="'artist_name, artist_role, work_title'"
-          search-placeholder="Search by conductor, soloist, ensemble, instruument, or role"
+          search-placeholder="Search by conductor, soloist, ensemble, instrument, or role"
           results-title="Artists"
         >
           <template v-slot="{ items }">
-            <div class="eventsSearch__artistGrid">
-                <div>Artist</div>
-                <div>Instrument/Role</div>
-                <div>Composer/Work</div>
-                <div># of Performances</div>
-              </div>
-              <div v-for="item, index in items">
-                <div :class="`eventsSearch__artistGrid ${index % 2 == 0 ? '-even' : '-odd'}`">
-                  <div>{{ item.artist_name }}</div>
-                  <div>{{ item.artist_role }}</div>
-                  <div>{{ item.work_title }}</div>
-                  <div>{{ item.num_performances }}</div>
-                </div>
-              </div>
+            <div class="eventsSearch__artistsGrid">
+              <div class="eventsSearch__resultCell -header -first">Artist</div>
+              <div class="eventsSearch__resultCell -header">Instrument/Role</div>
+              <div class="eventsSearch__resultCell -header">Composer/Work</div>
+              <div class="eventsSearch__resultCell -header"># of Performances</div>
+
+              <template v-for="item, index in items">
+                <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">{{ item.artist_name }}</div>
+                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">{{ item.artist_role }}</div>
+                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">{{ item.work_title }}</div>
+                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">{{ item.num_performances }}</div>
+              </template>
+            </div>
           </template>
-        </search-tab>   -->
+        </search-tab>  
       </template>
 
       <template #tabpanel-3>
