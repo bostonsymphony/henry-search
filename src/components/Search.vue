@@ -21,10 +21,13 @@
     },
     artistIndex: {
       type: String,
-      default: "dev_henry_artists"
+      default: "performances"
+    },
+    workIndex: {
+      type: String,
+      default: "performances"
     }
   })
-  
   
   const displayDate = ref(null)
   const datepicker = ref(null)
@@ -34,9 +37,6 @@
 
   const today = Date.now()
   const date = ref([today, today])
-
-  
-  
 
   // Modal state management
   let isCreatingModal = false
@@ -69,6 +69,17 @@
     {attribute: 'artist_role', title: 'Instrument/Role', placeholder: 'Instruments/Roles'}
   ]
 
+  const addlArtistRefinements = [
+    {attribute: 'composer', title: 'Composer', placeholder: 'Search Composers', type: 'list'},
+    {attribute: 'work_title', title: 'Work', placeholder: 'Search Works', type: 'list'}
+  ]
+
+  const workRefinements = [
+    {attribute: 'composers', title: 'Composer', placeholder: 'Search Composers'},
+    {attribute: 'title', title: 'Work Title', placeholder: 'Search Work Titles'},
+    {attribute: 'commission', title: 'Commission', placeholder: 'Search Commissions'}
+  ]
+
   
 
   // Check if we're on mobile
@@ -82,6 +93,8 @@
   }
 
   onMounted(() => {  
+
+    console.log("props.workIndex", props.workIndex)
 
     // Disable browser scroll restoration
     if ('scrollRestoration' in history) {
@@ -165,37 +178,37 @@
     }
   }
 
-  const format = (date) => {
-    if (date && date.length > 1) {
-      const startDay = date[0].getDate();
-      const startMonth = date[0].getMonth() + 1;
-      const startYear = date[0].getFullYear();
-
-      const endDay = date[1].getDate();
-      const endMonth = date[1].getMonth() + 1;
-      const endYear = date[1].getFullYear();
-
-      return `${startMonth}/${startDay}/${startYear} - ${endMonth}/${endDay}/${endYear}`;
-    }
-    return ''
-
-  }
-
-  
-  function toValue(value, range) {
-      return [
-        typeof value.min === "number" ? value.min * 1000 : range.min * 1000,
-        typeof value.max === "number" ? value.max * 1000 : range.max * 1000,
-      ];
-  }
-
-  
-
   const setDate = (value) => {
     date.value = value
     displayDate.value = value
+  }
 
-    // Note: Modal closing is now handled by the Select button click handler
+  function createURL(facets) {
+    let returnUrl = "/?"
+    facets.forEach((facet, index) => {
+      if (facet.facet && facet.value) {
+        if (Array.isArray(facet.value)) {
+          if (returnUrl != "/?") {
+            returnUrl += '&'
+          }
+          facet.value.forEach((v, i) => {
+            returnUrl += `${ props.performanceIndex }[refinementList][${ facet.facet }][${ i }]=${ v }`
+            if (i < facet.value.length - 1) {
+              returnUrl += '&'
+            }
+          })
+        } else {
+          if (returnUrl != "/?") {
+            returnUrl += '&'
+          }
+          returnUrl += `${ props.performanceIndex }[refinementList][${ facet.facet }][0]=${ facet.value }`
+          if (index < facets.length - 1) {
+            returnUrl += '&'
+          }
+        }
+      }
+    })
+    return encodeURI(returnUrl)
   }
 
   // Generic mobile filter modal function
@@ -561,21 +574,17 @@
                       {{ w.conductors.join('; ') }}
                     </div>
                     <div :class="`eventsSearch__resultCell ${item.works.length > 1 ? '-work' : ''} ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      {{ w.composers.join("; ") }} / {{ w.titles.join("; ") }}
+                      {{ w?.composers?.join("; ") }} / {{ w?.titles?.join("; ") }}
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
+                        <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
                     </div>
                     <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-if="w.artists.length < 3">
                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).join('; ') }}
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
-                        <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
                     </div>
                     <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-else>
                        {{ w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') }}
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
-                        <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
                        <br/><a :href="`/details?performanceId=${item.id}`">More...</a>
                     </div>
                     <div :class="`eventsSearch__resultCell -details ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
@@ -595,22 +604,18 @@
                       {{ w.conductors.join('; ') }}
                     </div>
                     <div :class="`eventsSearch__resultCell -work ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      {{ w.composers.join("; ") }} / {{ w.titles.join("; ") }}
+                      {{ w?.composers?.join("; ") }} / {{ w?.titles?.join("; ") }}
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
+                        <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
                     </div>
                     <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" 
                       v-if="w.artists.length < 3">
                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).join('; ') }}
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
-                        <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
                     </div>
                     <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-else>
                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') }}
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
-                        <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
                       <br/><a :href="`/details?performanceId=${item.id}`">More...</a></div>
                     <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                   </template>
@@ -656,6 +661,7 @@
         <search-tab
           :index-name="props.artistIndex"
           :main-refinements="artistRefinements"
+          :addl-refinements="addlArtistRefinements"
           :sort-field="'last_performance_date'"
           :query-by-fields="'artist_name, artist_role, work_title'"
           search-placeholder="Search by conductor, soloist, ensemble, instrument, or role"
@@ -669,10 +675,29 @@
               <div class="eventsSearch__resultCell -header"># of Performances</div>
 
               <template v-for="item, index in items">
-                <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">{{ item.artist_name }}</div>
-                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">{{ item.artist_role }}</div>
-                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">{{ item.work_title }}</div>
-                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">{{ item.num_performances }}</div>
+                <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <a :href="createURL([{ facet: 'works.artists.name', value: item.artist_name}])">
+                    {{ item.artist_name }}
+                  </a>
+                </div>
+                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <a :href="createURL([{ facet: 'works.artists.role', value: item.artist_role }])">
+                    {{ item.artist_role }}
+                  </a>
+                </div>
+                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <a :href="createURL([{ facet: 'works.title', value: item.work_title }])">
+                    {{ item.work_title }}
+                  </a>
+                </div>
+                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <a :href="createURL([{ facet: 'works.artists.name', value: item.artist_name},
+                    { facet: 'works.artists.role', value: item.artist_role },
+                    { facet: 'works.title', value: item.work_title }
+                  ])">
+                    {{ item.num_performances }}
+                  </a>                  
+                </div>
               </template>
             </div>
           </template>
@@ -680,8 +705,54 @@
       </template>
 
       <template #tabpanel-3>
-        <h3>Consectetur odit distinctio beatae!</h3>
-        <p>Ipsum eaque ipsam asperiores consequatur est libero. Incidunt distinctio non quae veniam illum Laborum est harum sapiente vel suscipit maiores? Dicta quo velit eos ab distinctio, delectus! Autem sunt aperiam!</p>
+        <!-- add search by creators -->
+        <search-tab
+          :index-name="props.workIndex"
+          :main-refinements="workRefinements"
+          :sort-field="'last_performance_date'"
+          :query-by-fields="'commission, composers, title'"
+          search-placeholder="Search by composer, work, or commission"
+          results-title="Works"
+        >
+          <template v-slot="{ items }">
+            <div class="eventsSearch__worksGrid">
+              <div class="eventsSearch__resultCell -header -first">Composer</div>
+              <div class="eventsSearch__resultCell -header">Work</div>
+              <div class="eventsSearch__resultCell -header">Additional Creator</div>
+              <div class="eventsSearch__resultCell -header"># of times Performed</div>
+               <template v-for="item, index in items">
+                <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <a v-for="composer, index in item.composers"
+                    :href="createURL([{ facet: 'works.composers', value: composer}])">
+                    {{ `${composer}${index < item.composers.length && item.composers.length > 1 ? '; ' : ''}` }}
+                  </a>
+                </div>
+                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                   <a v-for="title, index in item.title"
+                    :href="createURL([{ facet: 'works.title', value: title}])">
+                    {{ `${title}${index < item.title.length && item.title.length > 1 ? '; ' : ''}` }}
+                  </a>
+                </div>
+                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <a v-for="creator, index in item.creators"
+                    :href="createURL([{ facet: 'works.creators', value: creator}])">
+                    {{ `${creator}${index < item.creator.length && item.creator.length > 1 ? '; ' : ''}` }}
+                  </a>
+                </div>
+                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <a :href="createURL([{ facet: 'works.composers', value: item.composers},
+                    { facet: 'works.creators', value: item.creators},
+                    { facet: 'works.title', value: item.title}
+                  ])">
+                    {{ item.num_performances }}
+                  </a>
+                </div>
+              </template>
+            </div>
+          </template>
+
+        </search-tab>
+
       </template>
     </p-tabs>
   </div>

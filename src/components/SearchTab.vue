@@ -105,10 +105,10 @@
     let currentQuery = null
 
     function toggleFilters() {
-        const wrapper = document.querySelector('.eventsSearch__filterRail')
-        const tabContent = document.querySelector('.tabs__content')
-        const leftPane = document.querySelector('.eventsSearch__results')
-        const toggleOnButton = document.getElementById(`${props.resultsTitle.toLowerCase()}_filterToggleOn`)
+        const wrapper = document.getElementById(`${props.indexName}_filterRail`)
+        const tabContent = document.getElementById(`${props.indexName}_tabs__content`)
+        const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
+        const toggleOnButton = document.getElementById(`${props.indexName}_filterToggleOn`)
         if (toggleOnButton) {
             toggleOnButton.classList.toggle('closed')
         }
@@ -140,8 +140,8 @@
     function getWorkFilters(refinementList) {
         let returnFilters = {}
         Object.entries(refinementList).forEach(([k, v]) => {
-            if (k.includes('work')) {
-                let workAttribute = k.substring(k.indexOf('works.') + 5, k.length)
+            if (k.includes('works')) {
+                let workAttribute = k.substring(k.indexOf('works.') + 6, k.length)
                 const subFilter = {}
                 if (workAttribute.includes('.')) {
                     const workSubAttribute = workAttribute.substring(workAttribute.indexOf('.') + 1, workAttribute.length)
@@ -162,9 +162,16 @@
     function onStateChange({ uiState, setUiState }) {
         updateStateRefs(uiState)
         setUiState(uiState)
-        console.log('uiState', uiState)
+        //console.log('uiState', uiState)
+
+        // update search history
         let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
+        // if only pagination, don't add to search history
+        if (uiState[props.indexName].page && !uiState[props.indexName].query && !uiState[props.indexName].refinementList && !uiState[props.indexName].menu) {
+            return
+        }
         searchHistory = searchHistory.map((item) => {
+            // make sure that all queries aren't entered into the history as a user types each letter
             if (uiState[props.indexName].query?.includes(item.query) && uiState[props.indexName].query != item.query) {
                 return {
                     date: new Date(),
@@ -176,8 +183,18 @@
                 return item
             }
         })
+
+        //make sure we're not just adding pagination
+        let addState = true
+        searchHistory.forEach((item) => {
+            if (item.link.replace(/\&page=\d*/, "") == document.location.href.replace(/\&page=\d*/, "")) {
+                addState = false
+                return
+            }
+        })
         
-        if (!(searchHistory.map((a) => a.link)).includes(document.location.href) && 
+        
+        if (addState && !(searchHistory.map((a) => a.link)).includes(document.location.href) && 
                 document.location.search != '') {
              searchHistory.push({
                 date: new Date(),
@@ -187,7 +204,7 @@
             })
         }
        
-        console.log('searchHistory', searchHistory, typeof searchHistory)
+        //console.log('searchHistory', searchHistory, typeof searchHistory)
         sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
         
        
@@ -215,15 +232,26 @@
 
     function formatRefinement(refinement) {
         const attributeMap = {
-            "works.composer" : "Composer",
+            "works.composers" : "Composer",
             "works.title" : "Work",
             "conductors" : "Conductor",
             "ensembles" : "Orchestra",
             "works.artists.name" : "Artist",
             "query" : "Keyword",
+            'works.artists.role': 'Instrument/Role',
+            'season': 'Season',
+            'event_title': 'Event Title',
+            'event_types': 'Series',
+            'venue': 'Venue',
+            'works.commission': 'Commission',
             'location.city': 'City',
             'location.country': 'Country',
-            'location.state': 'State'
+            'location.state': 'State',
+            'artist_name': 'Artist',
+            'artist_role': 'Instrument/Role',
+            'title': 'Work Title',
+            'composers': 'Composer',
+            'composer': 'Composer'
         }
         if (refinement.attribute == 'performance_date' || refinement.attribute == 'last_performance_date') {
             return 'Date: ' + refinement.label[0] + ' ' + formatDate(refinement.value) + ' ×'
@@ -264,8 +292,7 @@
     }
 
     function filterItems(items) {
-        console.log('items', items)
-        if (showByWorks) {
+        if (showByWorks && props.indexName == "dev_henry_perfs") {
             let returnItems = items
             let itemIndex = 0
             returnItems.forEach((item) => {
@@ -280,12 +307,14 @@
                         shownWorks.push(work)
                     }  
                 })
-                returnItems[itemIndex].work = shownWorks
+                returnItems[itemIndex].works = shownWorks
                 itemIndex++
             })
             return returnItems
+        } else {
+            return items
         }
-        return items
+        
 
     }
 
@@ -332,7 +361,7 @@
         
     >
     <!-- :key="sortView" -->
-        <div class="tabs__content open">
+        <div class="tabs__content open" :id="`${props.indexName}_tabs__content`">
             <!-- Header and Search Section -->
             <div class="eventsSearch__topSection">
                 <!-- Search Filters Section -->
@@ -406,7 +435,7 @@
             </div>
 
                 <!-- View Toggle and Active Filters -->
-            <section class="eventsSearch__filterRail">
+            <section class="eventsSearch__filterRail" :id="`${props.indexName}_filterRail`">
                 
                 <div class="eventsSearch__filterWrapper">
                     <div class="eventsSearch__filterHeader">
@@ -444,7 +473,7 @@
                                             <div class="eventSearch__checkBox">
                                                 <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
                                             </div>
-                                            <span>{{ item.value }}</span><span>{{ item.count }}</span>
+                                            <span>{{ item.value }}</span><span class="eventsSearch__refinementCount">{{ item.count }}</span>
                                         </label>
                                     </div>
                                 </div> 
@@ -452,12 +481,12 @@
                             <template v-else><div></div></template>
                         </template>
                     </ais-refinement-list>
-                    <p-accordion v-if="addlRefinements" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
+                    <p-accordion v-if="props.addlRefinements" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
                         <summary class="accordion__summary">
                             <h6 class="accordion__heading -thin">More Filters</h6>
                         </summary>
                         <div class="accordion__content">
-                            <template v-for="refinement in addlRefinements">
+                            <template v-for="refinement in props.addlRefinements">
                                 <ais-refinement-list v-if="refinement.type == 'list'" :attribute="refinement.attribute" operator="and">
                                     <template v-slot="{items, refine, searchForItems}">
                                         <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 1" :start-open="false">
@@ -551,13 +580,13 @@
             </section>
 
             <!-- Search Results Section -->
-            <section class="eventsSearch__results">
+            <section class="eventsSearch__results" :id="`${props.indexName}_eventsSearch__results`">
                 
                 <ais-hits :key="updateNow" class="eventsSearch__hits" :transform-items="filterItems">
                     <template v-slot="{ items }">
                         <div class="eventsSearch__resultsHeader">
                             <div class="eventsSearch__resultsTitle">
-                                <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.resultsTitle.toLowerCase()}_filterToggleOn`" class="eventsSearch__filterToggleOn" @click="toggleFilters()">
+                                <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" class="eventsSearch__filterToggleOn" @click="toggleFilters()">
                                     <rect width="24" height="24" rx="4" fill="#01ABE6"/>
                                     <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
                                     <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
@@ -566,7 +595,13 @@
                                     <circle cx="14.8633" cy="12.5" r="1.54545" fill="#01ABE6" stroke="white"/>
                                     <circle cx="10.7725" cy="7.04545" r="1.54545" fill="#01ABE6" stroke="white"/>
                                 </svg> 
-                                <h3 v-if="showNumHits">{{ items.length }} Results</h3>
+                                <h3 v-if="showNumHits">
+                                    <ais-stats>
+                                        <template v-slot="{ nbHits }">
+                                            {{ nbHits }} {{ nbHits > 1 ? 'Results' : 'Result' }}
+                                        </template>
+                                    </ais-stats>
+                                </h3>
                                 <h3 v-else>{{ props.resultsTitle }}</h3>
 
                             </div>
@@ -655,7 +690,7 @@
                             {{ page * hitsPerPage + 1 }} - {{ (((page + 1) * hitsPerPage)) < nbHits ? (((page + 1) * hitsPerPage)) : nbHits }} of {{ nbHits }} Results
                         </template>
                     </ais-stats>
-                    <ais-pagination class="eventsSearch__paginationComponent">
+                    <ais-pagination>
                         <template
                             v-slot="{
                             currentRefinement,
@@ -667,8 +702,8 @@
                             createURL
                             }"
                         >
-                            <ul v-if="pages.length > 1">
-                                <li>
+                            <ul class="eventsSearch__paginationComponent" v-if="pages.length > 1">
+                                <li v-if="currentRefinement + 1 > 1">
                                     <a
                                     :href="createURL(currentRefinement - 1)"
                                     @click.prevent="refine(currentRefinement - 1)"
@@ -686,11 +721,16 @@
                                     </a>
                                 </li>
                                 <li v-if="pages.length > 5">...</li>
-                                <li v-if="pages.length > 5">{{ pages.length }}</li>
-                                <li>
+                                <li v-if="pages.length > 5">
+                                    <a :href="createURL(nbPages)">
+                                        {{ nbPages }}
+                                    </a>
+                                </li>
+                                <li v-if="currentRefinement + 1 < nbPages">
                                     <a
                                     :href="createURL(currentRefinement + 1)"
                                     @click.prevent="refine(currentRefinement + 1)"
+                                    :style="{ fontWeight: nbPages === currentRefinement + 1 ? 'bold' : '' }"
                                     >
                                     ›
                                     </a>
