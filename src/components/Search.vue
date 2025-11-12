@@ -58,7 +58,7 @@
     {attribute: 'event_title', title: 'Event Title', placeholder: 'Search Event Titles', type: 'list'},
     {attribute: 'event_types', title: 'Series', placeholder: 'Search Event Types', type: 'list'},
     {attribute: 'venue', title: 'Venue', placeholder: 'Search Venues', type: 'list'},
-    // {attribute: 'location', title: 'Location', type: 'location'},
+    {attribute: 'location', title: 'Location', type: 'location'},
     {attribute: 'media', title: 'Media', placeholder: 'Select Media', type: 'list', hideSearch: 'false'},
     {attribute: 'premiere', title: 'Premiere', placeholder: 'Select Premiere', type: 'list', hideSearch: 'false'},
     {attribute: 'works.commission', title: 'Commission', placeholder: 'Select Premiere', type: 'list', hideSearch: 'false'}
@@ -687,7 +687,7 @@
                 </div>
                 <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
                   <a :href="createURL([{ facet: 'works.title', value: item.work_title }])">
-                    {{ item.work_title }}
+                    {{ item.composer }} / {{ item.work_title }}
                   </a>
                 </div>
                 <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
@@ -734,9 +734,11 @@
                   </a>
                 </div>
                 <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                  <a v-for="creator, index in item.creators"
-                    :href="createURL([{ facet: 'works.creators', value: creator}])">
-                    {{ `${creator}${index < item.creator.length && item.creator.length > 1 ? '; ' : ''}` }}
+                  <a v-if="item.creators.length" v-for="creator, index in item.creators"
+                    :href="createURL([{ facet: 'works.creators.name', value: creator.name}])">
+                    <template v-if="(typeof creator !== 'undefined' && creator && typeof creator.name !== 'undefined' && typeof creator.role !== 'undefined')">
+                      {{ `${creator.name} / ${creator.role}${index < item?.creators?.length && items?.creators?.length > 1 ? '; ' : ''}` }}
+                    </template>
                   </a>
                 </div>
                 <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
