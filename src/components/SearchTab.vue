@@ -134,6 +134,48 @@
             workFilters =  uiState[props.indexName].refinementList && Object.keys(uiState[props.indexName].refinementList).length !== 0 ? getWorkFilters(uiState[props.indexName].refinementList) : []
             showByWorks = Object.keys(workFilters).length !== 0
 
+            // update search history
+            let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
+            // if only pagination, don't add to search history
+            if (uiState[props.indexName].page && !uiState[props.indexName].query && !uiState[props.indexName].refinementList && !uiState[props.indexName].menu) {
+                return
+            }
+            searchHistory = searchHistory.map((item) => {
+                // make sure that all queries aren't entered into the history as a user types each letter
+                if (uiState[props.indexName].query?.includes(item.query) && uiState[props.indexName].query != item.query) {
+                    return {
+                        date: new Date(),
+                        uiState: uiState,
+                        query: uiState[props.indexName].query,
+                        link: document.location.href
+                    }
+                } else {
+                    return item
+                }
+            })
+
+            //make sure we're not just adding pagination
+            let addState = true
+            searchHistory.forEach((item) => {
+                if (item.link.replace(/\&page=\d*/, "") == document.location.href.replace(/\&page=\d*/, "")) {
+                    addState = false
+                    return
+                }
+            })
+            
+            
+            if (addState && !(searchHistory.map((a) => a.link)).includes(document.location.href) && 
+                    document.location.search != '') {
+                searchHistory.push({
+                    date: new Date(),
+                    uiState: uiState,
+                    query: uiState[props.indexName].query,
+                    link: document.location.href
+                })
+            }
+        
+            //console.log('searchHistory', searchHistory, typeof searchHistory)
+            sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
         }
     }
 
@@ -162,52 +204,7 @@
     function onStateChange({ uiState, setUiState }) {
         updateStateRefs(uiState)
         setUiState(uiState)
-        //console.log('uiState', uiState)
-
-        // update search history
-        let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
-        // if only pagination, don't add to search history
-        if (uiState[props.indexName].page && !uiState[props.indexName].query && !uiState[props.indexName].refinementList && !uiState[props.indexName].menu) {
-            return
-        }
-        searchHistory = searchHistory.map((item) => {
-            // make sure that all queries aren't entered into the history as a user types each letter
-            if (uiState[props.indexName].query?.includes(item.query) && uiState[props.indexName].query != item.query) {
-                return {
-                    date: new Date(),
-                    uiState: uiState,
-                    query: uiState[props.indexName].query,
-                    link: document.location.href
-                }
-            } else {
-                return item
-            }
-        })
-
-        //make sure we're not just adding pagination
-        let addState = true
-        searchHistory.forEach((item) => {
-            if (item.link.replace(/\&page=\d*/, "") == document.location.href.replace(/\&page=\d*/, "")) {
-                addState = false
-                return
-            }
-        })
-        
-        
-        if (addState && !(searchHistory.map((a) => a.link)).includes(document.location.href) && 
-                document.location.search != '') {
-             searchHistory.push({
-                date: new Date(),
-                uiState: uiState,
-                query: uiState[props.indexName].query,
-                link: document.location.href
-            })
-        }
-       
-        //console.log('searchHistory', searchHistory, typeof searchHistory)
-        sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
-        
-       
+        //console.log('uiState', uiState)      
     }
 
     function setView() {
@@ -455,7 +452,7 @@
                     </div>
                     <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
                         <template v-slot="{items, refine, searchForItems}">
-                            <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 1" :start-open="true">
+                            <p-accordion :name="refinement.title" class="accordion" :start-open="true">
                                 <summary class="accordion__summary">
                                     <h6 class="accordion__heading">{{ refinement.title }}</h6>
                                     <div class="accordion__iconWrapper">
@@ -478,7 +475,7 @@
                                     </div>
                                 </div> 
                             </p-accordion>
-                            <template v-else><div></div></template>
+                            <!-- <template v-else><div></div></template> -->
                         </template>
                     </ais-refinement-list>
                     <p-accordion v-if="props.addlRefinements" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
@@ -489,7 +486,7 @@
                             <template v-for="refinement in props.addlRefinements">
                                 <ais-refinement-list v-if="refinement.type == 'list'" :attribute="refinement.attribute" operator="and">
                                     <template v-slot="{items, refine, searchForItems}">
-                                        <p-accordion :name="refinement.title" class="accordion" v-if="items.length > 1" :start-open="false">
+                                        <p-accordion :name="refinement.title" class="accordion" :start-open="false">
                                             <summary class="accordion__summary">
                                                 <h6 class="accordion__heading">{{ refinement.title }}</h6>
                                                 <div class="accordion__iconWrapper">
@@ -512,7 +509,7 @@
                                                 </div>
                                             </div> 
                                         </p-accordion>
-                                        <template v-else><div></div></template>
+                                        <!-- <template v-else><div></div></template> -->
                                     </template>
                                 </ais-refinement-list>
                                 <h6 class="accordion__heading" v-if="refinement.type == 'location'">Location</h6>

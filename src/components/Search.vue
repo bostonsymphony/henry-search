@@ -574,7 +574,7 @@
                       {{ w.conductors.join('; ') }}
                     </div>
                     <div :class="`eventsSearch__resultCell ${item.works.length > 1 ? '-work' : ''} ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      {{ w?.composers?.join("; ") }} / {{ w?.titles?.join("; ") }}
+                      {{ w?.composers?.join("; ") }} / {{ w?.title }}
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
                         <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -588,9 +588,31 @@
                        <br/><a :href="`/details?performanceId=${item.id}`">More...</a>
                     </div>
                     <div :class="`eventsSearch__resultCell -details ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      <a :href="`/details?performanceId=${item.id}`">Details</a>
-                      <a v-if="item.program_link" :href="item.program_link">Program</a>
-                      <a v-if="item.media && item.media.includes('Audio')">Audio</a>
+                      <div class="eventsSearch__perfDetails">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="9" cy="9" r="9" fill="#01ABE6"/>
+                          <path d="M5 9H13" stroke="white" stroke-width="1.5"/>
+                          <path d="M9 5L13 9L9 13" stroke="white" stroke-width="1.5"/>
+                        </svg>
+                        <a :href="`/details?performanceId=${item.id}`">Details</a>
+                      </div>
+                      <div v-if="item.program_link" class="eventsSearch__perfDetails">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="9" cy="9" r="8.25" fill="white" stroke="#01ABE6" stroke-width="1.5"/>
+                          <path d="M6.22876 12.0713L11.8854 6.41469" stroke="#01ABE6" stroke-width="1.5"/>
+                          <path d="M6.22864 6.41382L11.8854 6.41395L11.8855 12.0707" stroke="#01ABE6" stroke-width="1.5"/>
+                        </svg>
+                        <a :href="item.program_link">Program</a>
+                      </div>
+                      <div v-if="item.media && item.media.includes('audio')" class="eventsSearch__perfDetails">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="9" cy="9" r="8.25" fill="white" stroke="#01ABE6" stroke-width="1.5"/>
+                          <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" fill="white" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" fill="white"/>
+                          <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <a>Audio</a>
+                      </div>
                     </div>
                   </template>
                   <!-- Additional event rows -->
@@ -604,7 +626,7 @@
                       {{ w.conductors.join('; ') }}
                     </div>
                     <div :class="`eventsSearch__resultCell -work ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      {{ w?.composers?.join("; ") }} / {{ w?.titles?.join("; ") }}
+                      {{ w?.composers?.join("; ") }} / {{ w?.title?.join("; ") }}
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
                         <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -647,10 +669,32 @@
                   <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
                   <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
                   <div :class="`eventsSearch__resultCell -details ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                    <div class="eventsSearch__perfDetails">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="9" cy="9" r="9" fill="#01ABE6"/>
+                        <path d="M5 9H13" stroke="white" stroke-width="1.5"/>
+                        <path d="M9 5L13 9L9 13" stroke="white" stroke-width="1.5"/>
+                      </svg>
                       <a :href="`/details?performanceId=${item.id}`">Details</a>
-                      <a v-if="item.program_link" :href="item.program_link">Program</a>
-                      <a v-if="item.media && item.media.includes('Audio')">Audio</a>
                     </div>
+                    <div v-if="item.program_link" class="eventsSearch__perfDetails">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="9" cy="9" r="8.25" fill="white" stroke="#01ABE6" stroke-width="1.5"/>
+                        <path d="M6.22876 12.0713L11.8854 6.41469" stroke="#01ABE6" stroke-width="1.5"/>
+                        <path d="M6.22864 6.41382L11.8854 6.41395L11.8855 12.0707" stroke="#01ABE6" stroke-width="1.5"/>
+                      </svg>
+                      <a :href="item.program_link">Program</a>
+                    </div>
+                    <div v-if="item.media && item.media.includes('audio')" class="eventsSearch__perfDetails">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="9" cy="9" r="8.25" fill="white" stroke="#01ABE6" stroke-width="1.5"/>
+                        <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" fill="white" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" fill="white"/>
+                        <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <a>Audio</a>
+                    </div>
+                  </div>
                 </template>
             </template>
             </div>
