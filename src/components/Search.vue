@@ -4,7 +4,6 @@
   
   import VueDatePicker from '@vuepic/vue-datepicker';
   import '@vuepic/vue-datepicker/dist/main.css'
-  import VueSelect from 'vue-select'
 
   import Typesense from 'typesense'
 
@@ -548,7 +547,7 @@
           results-title="Performances"
         >
           <template v-slot="{ items, showByWorks }">
-            <div class="eventsSearch__resultsGrid">
+            <div class="eventsSearch__resultsGrid" v-if="items && items.length">
               <!-- Header Row -->
               <div class="eventsSearch__resultCell -header -first">Date/Season/Title</div>
               <div class="eventsSearch__resultCell -header">Venue</div>
@@ -626,7 +625,7 @@
                       {{ w.conductors.join('; ') }}
                     </div>
                     <div :class="`eventsSearch__resultCell -work ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      {{ w?.composers?.join("; ") }} / {{ w?.title?.join("; ") }}
+                      {{ w?.composers?.join("; ") }} / {{ w?.title }}
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
                         <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -698,6 +697,7 @@
                 </template>
             </template>
             </div>
+            <div v-else>No results</div>
           </template>
         </search-tab>  
       </template>

@@ -20,7 +20,7 @@
     import VueDatePicker from '@vuepic/vue-datepicker'
     import slugify from '../composables/slugify'
     import formatDate from '../composables/formatDate'
-    import vSelect from 'vue-select'
+    import pSelect from '@vueform/multiselect'
  
     const props = defineProps({
         indexName: {
@@ -347,6 +347,10 @@
       return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxRange
     }
 
+    const handleChange = (newValue, oldValue, form$) => {
+        console.log(newValue, oldValue, form$)
+    } 
+
 </script>
 
 <template>
@@ -512,61 +516,40 @@
                                         <!-- <template v-else><div></div></template> -->
                                     </template>
                                 </ais-refinement-list>
-                                <h6 class="accordion__heading" v-if="refinement.type == 'location'">Location</h6>
-                                <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.city'" operator="or">
-                                    <template v-slot="{ items, canRefine, refine, sendEvent }">
-                                         <select
-                                            :disabled="!canRefine"
-                                            @change="refine($event.currentTarget.value)"
-                                            >
-                                            <option value="">Select City</option>
-                                            <option
-                                                v-for="item in items"
-                                                :key="item.value"
-                                                :value="item.value"
-                                                :selected="item.isRefined"
-                                            >
-                                                {{ item.label }}
-                                            </option>
-                                        </select>
-                                    </template>
-                                </ais-menu-select>
-                                <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="or">
-                                    <template v-slot="{ items, canRefine, refine, sendEvent }">
-                                        <select
-                                            :disabled="!canRefine"
-                                            @change="refine($event.currentTarget.value)"
-                                            >
-                                            <option value="">Select State</option>
-                                            <option
-                                                v-for="item in items"
-                                                :key="item.value"
-                                                :value="item.value"
-                                                :selected="item.isRefined"
-                                            >
-                                                {{ item.label }}
-                                            </option>
-                                        </select>
-                                    </template>
-                                </ais-menu-select>
-                                <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.country'" operator="or">
-                                    <template v-slot="{ items, canRefine, refine, sendEvent }">
-                                        <select
-                                            :disabled="!canRefine"
-                                            @change="refine($event.currentTarget.value)"
-                                            >
-                                            <option value="">Select Country</option>
-                                            <option
-                                                v-for="item in items"
-                                                :key="item.value"
-                                                :value="item.value"
-                                                :selected="item.isRefined"
-                                            >
-                                                {{ item.label }}
-                                            </option>
-                                        </select>
-                                    </template>
-                                </ais-menu-select>
+                                <p-accordion v-if="refinement.type == 'location'" name="location" class="accordion" :start-open="false">
+                                    <summary class="accordion__summary">
+                                        <h6 class="accordion__heading">Location</h6>
+                                        <div class="accordion__iconWrapper">
+                                            <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
+                                                <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </div>
+                                    </summary>
+                                    <div class="accordion__content">
+                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.country'" operator="and">
+                                            <template v-slot="{ items, canRefine, refine, sendEvent }">
+                                                <p-select :options="items" @change="(newValue) => { refine(newValue) }"
+                                                    placeholder="Select Country">
+                                                </p-select>
+                                            </template>
+                                        </ais-menu-select>
+                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="and">
+                                            <template v-slot="{ items, canRefine, refine, sendEvent }">
+                                                <p-select :options="items" @change="(newValue) => { refine(newValue) }"
+                                                    placeholder="Select State">
+                                                </p-select>
+                                            </template>
+                                        </ais-menu-select>
+                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.city'" operator="and">
+                                            <template v-slot="{ items, canRefine, refine, sendEvent }">
+                                                <p-select :options="items" @change="(newValue) => { refine(newValue) }"
+                                                    placeholder="Select City">
+                                                </p-select>
+                                            </template>
+                                        </ais-menu-select>
+                                    </div>
+                                </p-accordion>                                
+                               
                             </template>
                            
                             <!-- add locations here -->
