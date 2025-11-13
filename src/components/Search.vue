@@ -210,6 +210,25 @@
     return encodeURI(returnUrl)
   }
 
+  function formatLocation(location) {
+    let returnLocation = "";
+    if (location.city) {
+      returnLocation += location.city
+    }
+    if (location.state) {
+      if (returnLocation != "") {
+        returnLocation += ", "
+      }
+      returnLocation += location.state
+    }
+    if (location.country) {
+      if (returnLocation != "") {
+        returnLocation += ", "
+      }
+      returnLocation += location.country
+    }
+  }
+
   // Generic mobile filter modal function
   function createMobileFilterModal(filterType, displayName, items, refineFunction) {
     const modalHTML = createMultiSelectModalHTML({
@@ -561,18 +580,27 @@
                   <!-- First row of an event -->
                   <template v-if="i == 0">
                     <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      <span class="mobileHeader">Date/Season/Title</span>
                       {{ formatDate(item.performance_date) }} / {{ item.season + (item.event_title ? " / " + item.event_title : "")}}
                     </div>
                     <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${((index + 1 == items.length && (i + 1 == item.works.length || i == 5)) && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      {{ item.venue }} {{ item.location.city ?? "" }}, {{  item.location.state ?? "" }}, {{ item.location.country ?? "" }}
+                      <span class="mobileHeader">Venue</span>
+                      {{ item.venue }} {{ formatLocation(item.location) }}
                     </div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} 
+                      ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}
+                      ${ w.ensembles.length < 1 ? '-hideMobile' : '' }`">
+                      <span class="mobileHeader">Ensemble</span>
                       {{ w.ensembles.join('; ')}}
                     </div>
-                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`eventsSearch__resultCell 
+                      ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}
+                      ${ w.conductors.lenght < 1 ? '-hideMobile' : ''}`">
+                      <span class="mobileHeader">Conductor</span>
                       {{ w.conductors.join('; ') }}
                     </div>
-                    <div :class="`eventsSearch__resultCell ${item.works.length > 1 ? '-work' : ''} ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`eventsSearch__resultCell ${item.works.length > 1 ? '-work -left' : ''} ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                       <span class="mobileHeader">Composer/Work</span>
                       {{ w?.composers?.join("; ") }} / {{ w?.title }}
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
                         <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -586,7 +614,10 @@
                        {{ w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') }}
                        <br/><a :href="`/details?performanceId=${item.id}`">More...</a>
                     </div>
-                    <div :class="`eventsSearch__resultCell -details ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`eventsSearch__resultCell -detailsMobile
+                      ${item.works.length > 1 ? '-details' : '' }
+                      ${index % 2 == 0 ? '-even' : '-odd'} 
+                      ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last -lastMobile' : ''}`">
                       <div class="eventsSearch__perfDetails">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <circle cx="9" cy="9" r="9" fill="#01ABE6"/>
@@ -618,13 +649,18 @@
                   <template v-else-if="i > 0 && i <= 4">
                     <div :class="`eventsSearch__resultCell -empty -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                     <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`eventsSearch__resultCell -artist
+                      ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       {{ w.ensembles.join('; ')}}
                     </div>
                     <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       {{ w.conductors.join('; ') }}
                     </div>
-                    <div :class="`eventsSearch__resultCell -work ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`eventsSearch__resultCell -work 
+                    ${ i % 2 == 1 ? '-right' : '-left' }
+                    ${index % 2 == 0 ? '-even' : '-odd'} 
+                    ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      <span class="mobileHeader" v-if="i == 1">Composer/Work</span>
                       {{ w?.composers?.join("; ") }} / {{ w?.title }}
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
                         <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -638,7 +674,38 @@
                     <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-else>
                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') }}
                       <br/><a :href="`/details?performanceId=${item.id}`">More...</a></div>
-                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -detailsMobile
+                      ${index % 2 == 0 ? '-even' : '-odd'} 
+                      ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last -lastMobile' : ''}
+                      ${ !(i + 1 == item.works.length || i == 5) ? '-empty' : ''}`">
+                      <template  v-if="(i + 1 == item.works.length || i == 5)">
+                        <div class="eventsSearch__perfDetails -detailsMobile">
+                          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="9" cy="9" r="9" fill="#01ABE6"/>
+                            <path d="M5 9H13" stroke="white" stroke-width="1.5"/>
+                            <path d="M9 5L13 9L9 13" stroke="white" stroke-width="1.5"/>
+                          </svg>
+                          <a :href="`/details?performanceId=${item.id}`">Details</a>
+                        </div>
+                        <div v-if="item.program_link" class="eventsSearch__perfDetails -detailsMobile">
+                          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="9" cy="9" r="8.25" fill="white" stroke="#01ABE6" stroke-width="1.5"/>
+                            <path d="M6.22876 12.0713L11.8854 6.41469" stroke="#01ABE6" stroke-width="1.5"/>
+                            <path d="M6.22864 6.41382L11.8854 6.41395L11.8855 12.0707" stroke="#01ABE6" stroke-width="1.5"/>
+                          </svg>
+                          <a :href="item.program_link">Program</a>
+                        </div>
+                        <div v-if="item.media && item.media.includes('audio')" class="eventsSearch__perfDetails -detailsMobile">
+                          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="9" cy="9" r="8.25" fill="white" stroke="#01ABE6" stroke-width="1.5"/>
+                            <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" fill="white" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" fill="white"/>
+                            <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          <a>Audio</a>
+                        </div>
+                       </template>
+                    </div>
                   </template>
                   <template v-else-if="i > 4">
                     <div :class="`eventsSearch__resultCell -empty -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
@@ -654,20 +721,29 @@
                 </template>
                 <template v-if="!item.works || item.works.length == 0">
                   <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                    <span class="mobileHeader">Date/Season/Title</span>
                     {{ formatDate(item.performance_date) }} / {{ item.season + (item.event_title ? " / " + item.event_title : "")}}
                   </div>
                   <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                    {{ item.venue }} {{ item.location.city ?? "" }}, {{  item.location.state ?? "" }}, {{ item.location.country ?? "" }}
+                     <span class="mobileHeader">Venue</span>
+                    {{ item.venue }} {{ formatLocation(item.location) }}
                   </div>
-                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <div :class="`eventsSearch__resultCell
+                    ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}
+                    ${ item.ensembles.length < 1 ? '-hideMobile' : '' }
+                    `">
+                    <span class="mobileHeader">Ensemble</span>
                     {{ item.ensembles.join('; ')}}
                   </div>
-                  <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} 
+                    ${(index + 1 == items.length) ? '-last' : ''}
+                    ${ item.conductors.length < 1 ? '-hideMobile' : '' }`">
+                    <span class="mobileHeader">Conductor</span>
                     {{ item.conductors.join('; ') }}
                   </div>
-                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
-                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
-                  <div :class="`eventsSearch__resultCell -details ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <div :class="`eventsSearch__resultCell -hideMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
+                  <div :class="`eventsSearch__resultCell -hideMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
+                  <div :class="`eventsSearch__resultCell -detailsMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
                     <div class="eventsSearch__perfDetails">
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="9" cy="9" r="9" fill="#01ABE6"/>

@@ -428,8 +428,14 @@
                                 </template>
                             </ais-range-input>
                         </div>
-                        <div class="eventsSearch__filterGroup">
-                            <button class="button info">Search</button>
+                        <div class="eventsSearch__filterGroup--button">
+                            <button class="button info">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" class="mobileSearch">
+                                    <path d="M6.00037 11.2504C8.90007 11.2504 11.2507 8.89978 11.2507 6.00018C11.2507 3.10059 8.90007 0.75 6.00037 0.75C3.10067 0.75 0.75 3.10059 0.75 6.00018C0.75 8.89978 3.10067 11.2504 6.00037 11.2504Z" stroke="#14284E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M9.7124 9.71265L12.7502 12.7503" stroke="#14284E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="searchButton">Search</span>
+                            </button>
                         </div>
                     </div>
                 </section>
@@ -564,6 +570,29 @@
                 
                 <ais-hits :key="updateNow" class="eventsSearch__hits" :transform-items="filterItems">
                     <template v-slot="{ items }">
+                        <div class="eventsSearch__resultsHeader -mobile">
+                            <div class="eventsSearch__filterToggle">
+                                <div class="filterButton">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" >
+                                        <rect width="24" height="24" rx="4" fill="#01ABE6"/>
+                                        <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
+                                        <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
+                                        <path d="M6 17.75H18.8864" stroke="white" stroke-linecap="round"/>
+                                        <circle cx="8.72709" cy="17.9544" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                        <circle cx="14.8633" cy="12.5" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                        <circle cx="10.7725" cy="7.04545" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                    </svg> 
+                                    Filters
+                                </div>
+                                <div class="eventsSearch__resultsSort">Sort by: 
+                                    <select v-model="sortView" @change="setView">
+                                    <option value="Most Recent">Most Recent</option>
+                                    <option value="Most Relevant">Most Relevant</option>
+                                    <option value="Oldest First">Oldest First</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="eventsSearch__resultsHeader">
                             <div class="eventsSearch__resultsTitle">
                                 <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" class="eventsSearch__filterToggleOn" @click="toggleFilters()">
