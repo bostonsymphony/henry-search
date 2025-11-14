@@ -406,6 +406,8 @@
                                         :clearable="false"
                                         :multi-calendars="false"
                                         :enable-time-picker="false"
+                                        :enter-submit="true"
+                                        :tab-submit="true"
                                         :text-input="true"
                                         placeholder="Start"
                                         class="eventsSearch__datePicker"
@@ -419,6 +421,8 @@
                                         })}"
                                         :clearable="false"
                                         :text-input="true"
+                                        :enter-submit="true"
+                                        :tab-submit="true"
                                         :multi-calendars="false"
                                         :enable-time-picker="false"
                                         placeholder="End"
@@ -696,7 +700,7 @@
                 <nav class="eventsSearch__pagination">
                     <ais-stats>
                         <template v-slot="{ hitsPerPage, nbHits, page }">
-                            {{ page * hitsPerPage + 1 }} - {{ (((page + 1) * hitsPerPage)) < nbHits ? (((page + 1) * hitsPerPage)) : nbHits }} of {{ nbHits }} Results
+                            {{ nbHits == 0 ? nbHits : page * hitsPerPage + 1 }} - {{ (((page + 1) * hitsPerPage)) < nbHits ? (((page + 1) * hitsPerPage)) : nbHits }} of {{ nbHits }} Results
                         </template>
                     </ais-stats>
                     <ais-pagination>

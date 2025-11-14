@@ -10,6 +10,6 @@ export default function formatDate(unix_timestamp, detail = false) {
     if (detail) {
         return `${days[date.getDate()]}, ${(months[date.getMonth()]).substring(0, 3)} ${date.getDate()}, ${hour}:${minutes.substr(-2)}${amPm} EDT`
     } else {
-        return `${date.getMonth() + 1}-${date.getDate() + 1}-${date.getFullYear()}`
+        return `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`
     }
 }
