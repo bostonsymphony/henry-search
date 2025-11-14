@@ -42,7 +42,6 @@
   function setInitActiveItem () {
       if (location.hash) {
           tabs.value.every((el, index) => {
-            console.log('el, index', el, index)
             if (location.hash.substring(1) == el.title) {
                 visibleTab.value = index
                 return true

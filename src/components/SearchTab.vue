@@ -21,6 +21,7 @@
     import slugify from '../composables/slugify'
     import formatDate from '../composables/formatDate'
     import pSelect from '@vueform/multiselect'
+import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/utils'
  
     const props = defineProps({
         indexName: {
@@ -116,6 +117,48 @@
         leftPane.classList.toggle('closed')
         tabContent.classList.toggle('open')
         tabContent.classList.toggle('closed')
+    }
+
+    function toggleFiltersMobile() {
+        const wrapper = document.getElementById(`${props.indexName}_filterRail`)
+        const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
+        const containers = document.querySelectorAll('.container')
+        console.log("containers", containers)
+        wrapper.classList.toggle('openMobile')
+        leftPane.classList.toggle('openMobile')
+        containers.forEach((el) => {
+            if (el.style.display != "none") {
+                el.style.display = "none"
+            } else {
+                el.style.display = "grid"
+            }
+            
+        })
+        const detailsEls = document.querySelectorAll('details')
+        console.log("detailsEls", detailsEls)
+        detailsEls.forEach((el) => {
+            const summary = el.querySelector('summary:first-of-type')
+            const summaryHeight = summary?.clientHeight
+            //if (el.open) {
+                el.classList.add('-closing')
+                el.style.setProperty('--accordion-height-closed', `${summaryHeight}px`)
+
+                setTimeout(() => {
+                el.open = false
+                el.classList.remove('-closing')
+                el.style.setProperty('--accordion-height-closed', 'auto')
+                }, 0)
+
+            //} else {
+            //     el.style.transitionDuration = '0s'
+            //     el.style.setProperty('--accordion-height-closed', `${summaryHeight}px`)
+
+            //     requestAnimationFrame(() => {
+            //     el.style.transitionDuration = ''
+            //     el.open = true
+            //     })
+            // }
+        })
     }
 
     function updateStateRefs(uiState) {
@@ -451,7 +494,7 @@
                 <div class="eventsSearch__filterWrapper">
                     <div class="eventsSearch__filterHeader">
                         <div class="eventsSearch__filterToggle">
-                            <svg width="24" height="24" viewBox="0 0 24 24" >
+                            <svg width="24" height="24" viewBox="0 0 24 24" class="filterIcon">
                                 <rect width="24" height="24" rx="4" fill="#01ABE6"/>
                                 <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
                                 <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
@@ -462,7 +505,15 @@
                             </svg> 
                             <span class="label">Filters</span>
                         </div>
-                        <div><a :id="`${props.resultsTitle.toLowerCase()}_filterToggle`" @click="toggleFilters()">Hide</a></div>
+                        <div>
+                            <a class="hideButton" :id="`${props.resultsTitle.toLowerCase()}_filterToggle`" @click="toggleFilters()">Hide</a>
+                            <a class="hideMobile"  @click="toggleFiltersMobile()">
+                                <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <line x1="1.06058" y1="0.353539" x2="17.0606" y2="16.3535" stroke="#686F73"/>
+                                    <line x1="0.353478" y1="16.3535" x2="16.3535" y2="0.353539" stroke="#686F73"/>
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                     <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
                         <template v-slot="{items, refine, searchForItems}">
@@ -492,7 +543,7 @@
                             <!-- <template v-else><div></div></template> -->
                         </template>
                     </ais-refinement-list>
-                    <p-accordion v-if="props.addlRefinements" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
+                    <p-accordion class="ais-RefinementList" v-if="props.addlRefinements" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
                         <summary class="accordion__summary">
                             <h6 class="accordion__heading -thin">More Filters</h6>
                         </summary>
@@ -526,7 +577,7 @@
                                         <!-- <template v-else><div></div></template> -->
                                     </template>
                                 </ais-refinement-list>
-                                <p-accordion v-if="refinement.type == 'location'" name="location" class="accordion" :start-open="false">
+                                <p-accordion v-if="refinement.type == 'location'" name="location" class="accordion location" :start-open="false">
                                     <summary class="accordion__summary">
                                         <h6 class="accordion__heading">Location</h6>
                                         <div class="accordion__iconWrapper">
@@ -567,6 +618,10 @@
                         </div>
                     </p-accordion>
                 </div>
+                <div class="actionBar">
+                    <button>Clear</button>
+                    <button>Apply</button>
+                </div>
             </section>
 
             <!-- Search Results Section -->
@@ -576,7 +631,7 @@
                     <template v-slot="{ items }">
                         <div class="eventsSearch__resultsHeader -mobile">
                             <div class="eventsSearch__filterToggle">
-                                <div class="filterButton">
+                                <div class="filterButton" @click="toggleFiltersMobile()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" >
                                         <rect width="24" height="24" rx="4" fill="#01ABE6"/>
                                         <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
