@@ -1,4 +1,4 @@
-export default function formatDate(unix_timestamp, detail = false) {
+export default function formatDate(unix_timestamp, detail = false, showTimezone = true) {
     // multiplied by 1000 so that the argument is in milliseconds, not seconds
     const date = new Date(unix_timestamp * 1000)
     const days = ["Sun", "Mon", "Tues", "Weds", "Thurs", "Fri", "Sat"]
@@ -8,7 +8,7 @@ export default function formatDate(unix_timestamp, detail = false) {
     const minutes = "0" + date.getMinutes()
 
     if (detail) {
-        return `${days[date.getDate()]}, ${(months[date.getMonth()]).substring(0, 3)} ${date.getDate()}, ${hour}:${minutes.substr(-2)}${amPm} EDT`
+        return `${days[date.getDay()]}, ${(months[date.getMonth()]).substring(0, 3)} ${date.getDate()}, ${hour}:${minutes.substr(-2)}${amPm}${ showTimezone ? ' EDT' : '' }`
     } else {
         return `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`
     }

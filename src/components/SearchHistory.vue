@@ -1,5 +1,7 @@
 <script setup>
 
+import formatDate from '../composables/formatDate'
+
 const props = defineProps({
     performanceIndex: {
       type: String,
@@ -40,7 +42,9 @@ function formatItem(state) {
     let searchName = state.query ? '"' + state.query + '"' : ""
     if (state.refinementList) {
         Object.entries(state.refinementList).forEach(([k1, v1]) => {
-            console.log("v1", v1)
+            if (searchName != "") {
+                searchName += "; "
+            }
             if (Array.isArray(v1)) {
                 searchName += " " + v1.join(", ") 
             } else {
@@ -51,6 +55,9 @@ function formatItem(state) {
     }
     if (state.menu) {
         Object.entries(state.menu).forEach(([k1, v1]) => {
+            if (searchName != "") {
+                searchName += "; "
+            }
             if (Array.isArray(v1)) {
                 searchName += " " + v1.join(", ") 
             } else {
@@ -58,33 +65,54 @@ function formatItem(state) {
             }
         })
     }
+    if (state.range) {
+        Object.entries(state.range).forEach(([k1, v1]) => {
+            const dateRange = v1.split(':');
+            if (searchName != "") {
+                searchName += "; "
+            }
+            searchName += " " + formatDate(dateRange[0]) + " to " + formatDate(dateRange[1]);
+        })
+    }
     
-    return searchName
+    return searchName.trim()
 }
 
 </script>
 
 <template>
     <div class="performance__header"><h2>Search History</h2></div>
-    <template v-if="searchHistory">
-        <div v-for="item, index in filterHistory(props.performanceIndex)">
-            <h6 v-if="index == 0">Performances</h6>
-            <a :href="item.link">{{ formatItem(item?.uiState[props.performanceIndex]) }}</a><br/>
-            {{ item.date }}
+    <div v-if="searchHistory" class="history__grid">
+        <div class="history__performances">
+            <div v-for="item, index in filterHistory(props.performanceIndex)">
+                <h4 v-if="index == 0">Performances</h4>
+                <template  v-if="formatItem(item?.uiState[props.performanceIndex]).length">
+                    <a :href="item.link">{{ formatItem(item?.uiState[props.performanceIndex]) }}</a><br/>
+                    {{ formatDate((new Date(item.date)).getTime() / 1000, true, false) }}
+                </template>
+            </div>
         </div>
-        <div v-for="item, index in filterHistory(props.artistIndex)">
-            <h6 v-if="index == 0">Artists</h6>
-            <a :href="item.link">{{ formatItem(item?.uiState[props.artistIndex]) }}</a><br/>
-            {{ item.date }}
+        <div class="history__artists">
+            <div v-for="item, index in filterHistory(props.artistIndex)">
+                <h4 v-if="index == 0">Artists</h4>
+                <template v-if="formatItem(item?.uiState[props.artistIndex]).length">
+                    <a :href="item.link">{{ formatItem(item?.uiState[props.artistIndex]) }}</a><br/>
+                    {{ formatDate((new Date(item.date)).getTime() / 1000, true, false) }}
+                </template>
+            </div>
         </div>
-        <div v-for="item, index in filterHistory(props.workIndex)">
-            <h6 v-if="index == 0">Works</h6>
-            <a :href="item.link">{{ formatItem(item?.uiState[props.workIndex]) }}</a><br/>
-            {{ item.date }}
+        <div class="history__works">
+            <div v-for="item, index in filterHistory(props.workIndex)">
+                <h4 v-if="index == 0">Works</h4>
+                <template v-if="formatItem(item?.uiState[props.workIndex]).length">
+                    <a :href="item.link">{{ formatItem(item?.uiState[props.workIndex]) }}</a><br/>
+                    {{ formatDate((new Date(item.date)).getTime() / 1000, true, false) }}
+                </template>
+            </div>
         </div>
-    </template>
+    </div>
     <div v-else>
-        No current search history
+        <h5>No current search history</h5>
     </div>
 
 </template>

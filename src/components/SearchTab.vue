@@ -21,7 +21,6 @@
     import slugify from '../composables/slugify'
     import formatDate from '../composables/formatDate'
     import pSelect from '@vueform/multiselect'
-import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/utils'
  
     const props = defineProps({
         indexName: {
@@ -38,7 +37,11 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
         },
         queryByFields: {
             type: String,
-            default: "works, season, venue, event_types, notes, event_title"
+            default: "works, season, venue, event_types, notes, event_title, ensembles, conductors"
+        },
+        includeFields: {
+            type: String,
+            default:  "works, season, venue, event_types, notes, event_title, orchestras, conductors"
         },
         sortField: {
             type: String,
@@ -95,6 +98,8 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
         additionalSearchParameters: {
             query_by: props.queryByFields,
             sort_by: `${props.sortField}:desc`,
+            include_fields: props.includeFields,
+            highlight_fields: 'none'
         },
     })
 
@@ -123,7 +128,6 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
         const wrapper = document.getElementById(`${props.indexName}_filterRail`)
         const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
         const containers = document.querySelectorAll('.container')
-        console.log("containers", containers)
         wrapper.classList.toggle('openMobile')
         leftPane.classList.toggle('openMobile')
         containers.forEach((el) => {
@@ -135,7 +139,6 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
             
         })
         const detailsEls = document.querySelectorAll('details')
-        console.log("detailsEls", detailsEls)
         detailsEls.forEach((el) => {
             const summary = el.querySelector('summary:first-of-type')
             const summaryHeight = summary?.clientHeight
@@ -246,8 +249,7 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
 
     function onStateChange({ uiState, setUiState }) {
         updateStateRefs(uiState)
-        setUiState(uiState)
-        //console.log('uiState', uiState)      
+        setUiState(uiState)    
     }
 
     function setView() {
@@ -309,11 +311,19 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
         let intersectArray = []
         intersectKeys.forEach((key) => {
             if (typeof filters[key] == 'object' && typeof work[key] == 'object') {
-                if (Array.isArray(work[key])) {
+                if (Array.isArray(work[key]) && Array.isArray(filters[key])) {
+                    work[key].forEach((w) => {
+                        filters[key].forEach((f) => {
+                            if (w == f) {
+                                intersectArray.push(w)
+                            }
+                        })
+                    })
+                } else if (Array.isArray(work[key])) {
                     Object.entries(filters[key])?.forEach(([k1, v1]) => {
                         work[key]?.forEach((workvalue) => {
                             if (typeof workvalue == 'object') {
-                                Object.entries(workvalue).forEach(([k2, v2]) => {
+                                Object.entries(workvalue).forEach(([k2, v2]) => {                                    
                                     if (k1 == k2 && v1.includes(v2)) {
                                         intersectArray.push(workvalue[k2])
                                     }
@@ -332,7 +342,9 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
     }
 
     function filterItems(items) {
+        console.log(props.indexName, items)
         if (showByWorks && props.indexName == "dev_henry_perfs") {
+            
             let returnItems = items
             let itemIndex = 0
             returnItems.forEach((item) => {
@@ -358,22 +370,6 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
 
     }
 
-    const format = (date) => {
-        if (date && date.length > 1) {
-            const startDay = date[0].getDate();
-            const startMonth = date[0].getMonth() + 1;
-            const startYear = date[0].getFullYear();
-
-            const endDay = date[1].getDate();
-            const endMonth = date[1].getMonth() + 1;
-            const endYear = date[1].getFullYear();
-
-            return `${startMonth}/${startDay}/${startYear} - ${endMonth}/${endDay}/${endYear}`;
-        }
-        return ''
-
-    }
-
     function toMinValue(value, range) {
         return typeof value.min === "number" && value.min != 0 ? value.min * 1000 : range.min * 1000
     }
@@ -389,10 +385,6 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
     function formatMaxValue(maxValue, maxRange) {
       return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxRange
     }
-
-    const handleChange = (newValue, oldValue, form$) => {
-        console.log(newValue, oldValue, form$)
-    } 
 
 </script>
 
@@ -619,8 +611,18 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
                     </p-accordion>
                 </div>
                 <div class="actionBar">
-                    <button>Clear</button>
-                    <button>Apply</button>
+                    <ais-clear-refinements :excluded-attributes="[]">
+                        <template v-slot="{ canRefine, refine, createURL }">
+                        <a
+                            :href="createURL()"
+                            @click.prevent="refine"
+                        >
+                            <button>Clear</button>
+                            <button @click="toggleFiltersMobile()" class="filterApply">Apply</button>
+                        </a>
+                        </template>
+                    </ais-clear-refinements>
+                    
                 </div>
             </section>
 
@@ -771,7 +773,12 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
                             }"
                         >
                             <ul class="eventsSearch__paginationComponent" v-if="pages.length > 1">
-                                <li v-if="currentRefinement + 1 > 1">
+                                <li v-if="!isFirstPage && nbPages > 4" class="arrow">
+                                    <a :href="createURL(0)" @click.prevent="refine(0)">
+                                    ‹‹
+                                    </a>
+                                </li>
+                                <li v-if="!isFirstPage && nbPages > 4" class="arrow">
                                     <a
                                     :href="createURL(currentRefinement - 1)"
                                     @click.prevent="refine(currentRefinement - 1)"
@@ -779,28 +786,47 @@ import { createDocumentationMessageGenerator } from 'instantsearch.js/es/lib/uti
                                     ‹
                                     </a>
                                 </li>
-                                <li v-for="page in pages.slice(0, 5)" :key="page">
-                                    <a
-                                    :href="createURL(page)"
-                                    :style="{ fontWeight: page === currentRefinement ? 'bold' : '' }"
-                                    @click.prevent="refine(page)"
-                                    >
-                                    {{ page + 1 }}
-                                    </a>
-                                </li>
-                                <li v-if="pages.length > 5">...</li>
-                                <li v-if="pages.length > 5">
-                                    <a :href="createURL(nbPages)">
-                                        {{ nbPages }}
-                                    </a>
-                                </li>
-                                <li v-if="currentRefinement + 1 < nbPages">
+                                <template v-if="nbPages - 5 > currentRefinement + 1">
+                                    <li v-for="page in pages.slice(0, 5)" :key="page">
+                                        <a
+                                        :href="createURL(page)"
+                                        :style="{ fontWeight: page === currentRefinement ? 'bold' : '' }"
+                                        @click.prevent="refine(page)"
+                                        >
+                                        {{ page + 1 }}
+                                        </a>
+                                    </li>
+                                    <li v-if="pages.length > 5">...</li>
+                                    <li v-if="pages.length > 5">
+                                        <a :href="createURL(nbPages - 1)">
+                                            {{ nbPages }}
+                                        </a>
+                                    </li>
+                                </template>
+                                <template v-else>
+                                    <li>
+                                        <a :href="createURL(0)" @click.prevent="refine(0)">
+                                        1
+                                        </a>
+                                    </li>
+                                    <li v-if="pages.length > 5">...</li>
+                                    <li  v-for="page in 5" :key="page" v-if="pages.length > 5">
+                                        <a :href="createURL(nbPages - (5 - page + 1))" :style="{ fontWeight: nbPages - (5 - page) === currentRefinement + 1 ? 'bold' : '' }">
+                                            {{ nbPages - (5 - page) }}
+                                        </a>
+                                    </li>
+                                </template>
+                                <li v-if="!isLastPage && nbPages > 4" class="arrow">
                                     <a
                                     :href="createURL(currentRefinement + 1)"
                                     @click.prevent="refine(currentRefinement + 1)"
-                                    :style="{ fontWeight: nbPages === currentRefinement + 1 ? 'bold' : '' }"
                                     >
                                     ›
+                                    </a>
+                                </li>
+                                <li v-if="!isLastPage && nbPages > 4" class="arrow">
+                                    <a :href="createURL(nbPages)" @click.prevent="refine(nbPages)">
+                                    ››
                                     </a>
                                 </li>
                             </ul>

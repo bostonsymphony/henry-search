@@ -109,29 +109,29 @@
       window.addEventListener('resize', checkMobile)
     }
 
-    // Fallback: Watch for date picker menu to appear/disappear using MutationObserver
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        // Watch for added nodes (menu opening)
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === 1 && node.classList) {
-            // Only trigger for the main menu, not wrapper elements or our modal
-            if (node.classList.contains('dp__menu') &&
-                !node.classList.contains('dp__mobile_modal') &&
-                !modalCreated && !isCreatingModal) {
-              if (typeof window !== 'undefined' && window.innerWidth <= 767) {
-                onDatePickerOpened()
-              }
-            }
-          }
-        })
-      })
-    })
+    // // Fallback: Watch for date picker menu to appear/disappear using MutationObserver
+    // const observer = new MutationObserver((mutations) => {
+    //   mutations.forEach((mutation) => {
+    //     // Watch for added nodes (menu opening)
+    //     mutation.addedNodes.forEach((node) => {
+    //       if (node.nodeType === 1 && node.classList) {
+    //         // Only trigger for the main menu, not wrapper elements or our modal
+    //         if (node.classList.contains('dp__menu') &&
+    //             !node.classList.contains('dp__mobile_modal') &&
+    //             !modalCreated && !isCreatingModal) {
+    //           if (typeof window !== 'undefined' && window.innerWidth <= 767) {
+    //             onDatePickerOpened()
+    //           }
+    //         }
+    //       }
+    //     })
+    //   })
+    // })
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    })
+    // observer.observe(document.body, {
+    //   childList: true,
+    //   subtree: true
+    // })
 
   })
 
@@ -212,21 +212,26 @@
 
   function formatLocation(location) {
     let returnLocation = "";
-    if (location.city) {
-      returnLocation += location.city
-    }
-    if (location.state) {
-      if (returnLocation != "") {
-        returnLocation += ", "
+    if (location) {
+       if (location?.city) {
+        returnLocation += location.city
       }
-      returnLocation += location.state
-    }
-    if (location.country) {
-      if (returnLocation != "") {
-        returnLocation += ", "
+      if (location?.state) {
+        if (returnLocation != "") {
+          returnLocation += ", "
+        }
+        returnLocation += location.state
       }
-      returnLocation += location.country
+      if (location?.country) {
+        if (returnLocation != "") {
+          returnLocation += ", "
+        }
+        returnLocation += location.country
+      }
     }
+    return returnLocation;
+    
+   
   }
 
   // Generic mobile filter modal function
@@ -561,7 +566,8 @@
           :main-refinements="mainRefinements"
           :addl-refinements="addlRefinements"
           :sort-field="'performance_date'"
-          :query-by-fields="'works, season, venue, ensembles, conductors, event_types, notes, event_title'"
+          :query-by-fields="'works, works.composers, works.title, works.artists, season, venue, event_types, notes, event_title, ensembles, conductors'"
+          :include-fields="'works, works.composers, works.title, works.artists, season, venue, event_types, notes, event_title, ensembles, conductors, id, performance_date'"
           search-placeholder="Search by composer, works, conductor, orchestra, and more"
           results-title="Performances"
         >
@@ -588,18 +594,18 @@
                       {{ item.venue }} {{ formatLocation(item.location) }}
                     </div>
                     <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} 
-                      ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}
-                      ${ w.ensembles.length < 1 ? '-hideMobile' : '' }`">
+                      ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       <span class="mobileHeader">Ensemble</span>
                       {{ w.ensembles.join('; ')}}
                     </div>
                     <div :class="`eventsSearch__resultCell 
-                      ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}
-                      ${ w.conductors.length < 1 ? '-hideMobile' : ''}`">
+                      ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       <span class="mobileHeader">Conductor</span>
                       {{ w.conductors.join('; ') }}
                     </div>
-                    <div :class="`eventsSearch__resultCell ${item.works.length > 1 ? '-work -left' : ''} ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`eventsSearch__resultCell 
+                        ${item.works.length > 1 ? '-work -left' : ''} ${index % 2 == 0 ? '-even' : '-odd'} 
+                        ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                        <span class="mobileHeader">Composer/Work</span>
                       {{ w?.composers?.join("; ") }} / {{ w?.title }}
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
@@ -607,12 +613,12 @@
                         <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </div>
-                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-if="w.artists.length < 3">
+                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-if="w.artists && w.artists.length < 3">
                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).join('; ') }}
                     </div>
                     <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-else>
-                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') }}
-                       <br/><a :href="`/details?performanceId=${item.id}`">More...</a>
+                       {{ w.artists ? w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') : ""}}
+                       <br/><a v-if="w.artists" :href="`/details?performanceId=${item.id}`">More...</a>
                     </div>
                     <div :class="`eventsSearch__resultCell -detailsMobile
                       ${item.works.length > 1 ? '-details' : '' }
@@ -667,13 +673,20 @@
                         <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </div>
-                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" 
-                      v-if="w.artists.length < 3">
+                    <div v-if="(i + 1 == item.works.length && i % 2 == 0)" :class="`eventsSearch__resultCell -emptyMobile -work -right ${index % 2 == 0 ? '-even' : '-odd'}`"></div>
+                    <div :class="`eventsSearch__resultCell -artist 
+                      ${index % 2 == 0 ? '-even' : '-odd'} 
+                      ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" 
+                      v-if="w.artists && w.artists.length < 3">
                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).join('; ') }}
                     </div>
-                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-else>
-                      {{ w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') }}
-                      <br/><a :href="`/details?performanceId=${item.id}`">More...</a></div>
+                    <div :class="`eventsSearch__resultCell -artist 
+                      ${index % 2 == 0 ? '-even' : '-odd'} 
+                      ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" 
+                      v-else>
+                      {{ w.artists ? w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') : ""}}
+                      <br/><a v-if="w.artists" :href="`/details?performanceId=${item.id}`">More...</a>
+                    </div>
                     <div :class="`eventsSearch__resultCell -detailsMobile
                       ${index % 2 == 0 ? '-even' : '-odd'} 
                       ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last -lastMobile' : ''}
@@ -729,19 +742,16 @@
                     {{ item.venue }} {{ formatLocation(item.location) }}
                   </div>
                   <div :class="`eventsSearch__resultCell
-                    ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}
-                    ${ item.ensembles.length < 1 ? '-hideMobile' : '' }
-                    `">
+                    ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
                     <span class="mobileHeader">Ensemble</span>
-                    {{ item.ensembles.join('; ')}}
+                    {{ item.ensembles ? item.ensembles.join('; ') : ""}}
                   </div>
                   <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} 
-                    ${(index + 1 == items.length) ? '-last' : ''}
-                    ${ item.conductors.length < 1 ? '-hideMobile' : '' }`">
+                    ${(index + 1 == items.length) ? '-last' : ''}`">
                     <span class="mobileHeader">Conductor</span>
                     {{ item.conductors.join('; ') }}
                   </div>
-                  <div :class="`eventsSearch__resultCell -hideMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
+                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"><span class="mobileHeader">Composer/Work</span></div>
                   <div :class="`eventsSearch__resultCell -hideMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
                   <div :class="`eventsSearch__resultCell -detailsMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
                     <div class="eventsSearch__perfDetails">
@@ -783,7 +793,8 @@
           :main-refinements="artistRefinements"
           :addl-refinements="addlArtistRefinements"
           :sort-field="'last_performance_date'"
-          :query-by-fields="'artist_name, artist_role, work_title'"
+          :query-by-fields="'artist_name, artist_role, work_title, composer'"
+          :include-fields="'artist_name, artist_role, work_title, composer, num_performances'"
           search-placeholder="Search by conductor, soloist, ensemble, instrument, or role"
           results-title="Artists"
         >
@@ -819,7 +830,8 @@
                     { facet: 'works.artists.role', value: item.artist_role },
                     { facet: 'works.title', value: item.work_title }
                   ])">
-                    {{ item.num_performances }}
+                    <span class="eventsSearch__lightLink">{{ item.num_performances }} Performances</span>
+                    
                   </a>                  
                 </div>
               </template>
@@ -835,6 +847,7 @@
           :main-refinements="workRefinements"
           :sort-field="'last_performance_date'"
           :query-by-fields="'commission, composers, title'"
+          :include-fields="'commission, composers, title, num_performances'"
           search-placeholder="Search by composer, work, or commission"
           results-title="Works"
         >
@@ -861,7 +874,7 @@
                 </div>
                 <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
                   <span class="mobileHeader">Additional Creator</span>
-                  <a v-if="item.creators.length" v-for="creator, index in item.creators"
+                  <a v-if="item.creators && item.creators.length" v-for="creator, index in item.creators"
                     :href="createURL([{ facet: 'works.creators.name', value: creator.name}])">
                     <template v-if="(typeof creator !== 'undefined' && creator && typeof creator.name !== 'undefined' && typeof creator.role !== 'undefined')">
                       {{ `${creator.name} / ${creator.role}${index < item?.creators?.length && items?.creators?.length > 1 ? '; ' : ''}` }}
@@ -874,7 +887,7 @@
                     { facet: 'works.creators', value: item.creators},
                     { facet: 'works.title', value: item.title}
                   ])">
-                    {{ item.num_performances }}
+                    <span class="eventsSearch__lightLink">{{ item.num_performances }} Performances</span>
                   </a>
                 </div>
               </template>
