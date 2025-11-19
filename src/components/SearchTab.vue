@@ -396,7 +396,6 @@
         :on-state-change="onStateChange"
         
     >
-    <!-- :key="sortView" -->
         <div class="tabs__content open" :id="`${props.indexName}_tabs__content`">
             <!-- Header and Search Section -->
             <div class="eventsSearch__topSection">
@@ -427,7 +426,7 @@
                         </div>
                         <div class="eventsSearch__filterGroup eventsSearch__filterGroup--date">
                             <ais-range-input :attribute="props.sortField">
-                                <template v-slot="{ currentRefinement, range, canRefine, refine, sendEvent }" >
+                                <template v-slot="{ currentRefinement, range, refine }" >
                                     <vue-date-picker
                                         :model-value="toMinValue(currentRefinement, range)"
                                         @update:model-value="(modelValue) => {
@@ -511,14 +510,14 @@
                         <template v-slot="{items, refine, searchForItems}">
                             <p-accordion :name="refinement.title" class="accordion" :start-open="true">
                                 <summary class="accordion__summary">
-                                    <h6 class="accordion__heading">{{ refinement.title }}</h6>
-                                    <div class="accordion__iconWrapper">
-                                    <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
-                                        <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
+                                    <h6 :class="`accordion__heading ${ !items.length ? '-gray' : ''}`">{{ refinement.title }}</h6>
+                                    <div class="accordion__iconWrapper" v-if="items.length">
+                                        <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
+                                            <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
                                     </div>
                                 </summary>
-                                <div class="accordion__content">
+                                <div class="accordion__content" v-if="items.length">
                                     <div class="ais-SearchBox eventsSearch__searchBox -filter">
                                         <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
                                     </div>
@@ -545,14 +544,14 @@
                                     <template v-slot="{items, refine, searchForItems}">
                                         <p-accordion :name="refinement.title" class="accordion" :start-open="false">
                                             <summary class="accordion__summary">
-                                                <h6 class="accordion__heading">{{ refinement.title }}</h6>
-                                                <div class="accordion__iconWrapper">
+                                                <h6 :class="`accordion__heading ${ !items.length ? '-gray' : ''}`">{{ refinement.title }}</h6>
+                                                <div class="accordion__iconWrapper" v-if="items.length">
                                                 <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
                                                     <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
                                                 </div>
                                             </summary>
-                                            <div class="accordion__content">
+                                            <div class="accordion__content" v-if="items.length">
                                                 <div class="ais-SearchBox eventsSearch__searchBox -filter" v-if="!refinement.hideSearch">
                                                     <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
                                                 </div>
@@ -561,12 +560,11 @@
                                                         <div class="eventSearch__checkBox">
                                                             <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
                                                         </div>
-                                                        <span>{{ item.value }}</span><span>{{ item.count }}</span>
+                                                        <span>{{ item.value }}</span><span class="itemCount">{{ item.count }}</span>
                                                     </label>
                                                 </div>
                                             </div> 
                                         </p-accordion>
-                                        <!-- <template v-else><div></div></template> -->
                                     </template>
                                 </ais-refinement-list>
                                 <p-accordion v-if="refinement.type == 'location'" name="location" class="accordion location" :start-open="false">
@@ -580,21 +578,21 @@
                                     </summary>
                                     <div class="accordion__content">
                                         <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.country'" operator="and">
-                                            <template v-slot="{ items, canRefine, refine, sendEvent }">
+                                            <template v-slot="{ items, refine }">
                                                 <p-select :options="items" @change="(newValue) => { refine(newValue) }"
                                                     placeholder="Select Country">
                                                 </p-select>
                                             </template>
                                         </ais-menu-select>
                                         <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="and">
-                                            <template v-slot="{ items, canRefine, refine, sendEvent }">
+                                           <template v-slot="{ items, refine }">
                                                 <p-select :options="items" @change="(newValue) => { refine(newValue) }"
                                                     placeholder="Select State">
                                                 </p-select>
                                             </template>
                                         </ais-menu-select>
                                         <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.city'" operator="and">
-                                            <template v-slot="{ items, canRefine, refine, sendEvent }">
+                                            <template v-slot="{ items, refine }">
                                                 <p-select :options="items" @change="(newValue) => { refine(newValue) }"
                                                     placeholder="Select City">
                                                 </p-select>
@@ -603,16 +601,13 @@
                                     </div>
                                 </p-accordion>                                
                                
-                            </template>
-                           
-                            <!-- add locations here -->
-                            
+                            </template>                            
                         </div>
                     </p-accordion>
                 </div>
                 <div class="actionBar">
                     <ais-clear-refinements :excluded-attributes="[]">
-                        <template v-slot="{ canRefine, refine, createURL }">
+                        <template v-slot="{ refine, createURL }">
                         <a
                             :href="createURL()"
                             @click.prevent="refine"
