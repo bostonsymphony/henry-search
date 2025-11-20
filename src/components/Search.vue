@@ -45,17 +45,17 @@
   ]
 
   const addlRefinements = [
-    {attribute: 'works.artists.role', title: 'Instrument', placeholder: 'Search Instruments', type: 'list'},
+    {attribute: 'works.artists.role', title: 'Instrument', placeholder: 'Search Instruments', type: 'list', hideSearch: 'true'},
     // {attribute: 'works.additional_creators.creator_name', title: 'Additional Creator', placeholder: 'Search Creators', type: 'list'},
     // {attribute: 'works.additional_creators.creator_role', title: 'Additional Creator Role', placeholder: 'Search Creator Roles', type: 'list'},
     {attribute: 'season', title: 'Season', placeholder: 'Search Seasons', type: 'list'},
     {attribute: 'event_title', title: 'Event Title', placeholder: 'Search Event Titles', type: 'list'},
     {attribute: 'event_types', title: 'Series', placeholder: 'Search Event Types', type: 'list'},
-    {attribute: 'venue', title: 'Venue', placeholder: 'Search Venues', type: 'list'},
+    {attribute: 'venue', title: 'Venue', placeholder: 'Search Venues', type: 'list', hideSearch: 'true'},
     {attribute: 'location', title: 'Location', type: 'location'},
-    {attribute: 'media', title: 'Media', placeholder: 'Select Media', type: 'list', hideSearch: 'false'},
-    {attribute: 'premiere', title: 'Premiere', placeholder: 'Select Premiere', type: 'list', hideSearch: 'false'},
-    {attribute: 'works.commission', title: 'Commission', placeholder: 'Select Premiere', type: 'list', hideSearch: 'false'}
+    {attribute: 'media', title: 'Media', placeholder: 'Select Media', type: 'list', hideSearch: 'true'},
+    {attribute: 'works.premiere', title: 'Premiere', placeholder: 'Select Premiere', type: 'list', hideSearch: 'true'},
+    {attribute: 'works.commission', title: 'Commission', placeholder: 'Select Premiere', type: 'list', hideSearch: 'true'}
   ]
 
   const artistRefinements = [

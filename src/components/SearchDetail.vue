@@ -1,6 +1,5 @@
 <script setup>
 
-import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter'
 import Typesense from 'typesense'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 

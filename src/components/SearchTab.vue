@@ -142,25 +142,14 @@
         detailsEls.forEach((el) => {
             const summary = el.querySelector('summary:first-of-type')
             const summaryHeight = summary?.clientHeight
-            //if (el.open) {
-                el.classList.add('-closing')
-                el.style.setProperty('--accordion-height-closed', `${summaryHeight}px`)
+            el.classList.add('-closing')
+            el.style.setProperty('--accordion-height-closed', `${summaryHeight}px`)
 
-                setTimeout(() => {
-                el.open = false
-                el.classList.remove('-closing')
-                el.style.setProperty('--accordion-height-closed', 'auto')
-                }, 0)
-
-            //} else {
-            //     el.style.transitionDuration = '0s'
-            //     el.style.setProperty('--accordion-height-closed', `${summaryHeight}px`)
-
-            //     requestAnimationFrame(() => {
-            //     el.style.transitionDuration = ''
-            //     el.open = true
-            //     })
-            // }
+            setTimeout(() => {
+            el.open = false
+            el.classList.remove('-closing')
+            el.style.setProperty('--accordion-height-closed', 'auto')
+            }, 0)
         })
     }
 
@@ -519,7 +508,7 @@
                                 </summary>
                                 <div class="accordion__content" v-if="items.length">
                                     <div class="ais-SearchBox eventsSearch__searchBox -filter">
-                                        <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
+                                        <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
                                     </div>
                                     <div class="eventsSearch__checkBoxes">
                                         <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
