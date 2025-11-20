@@ -236,7 +236,7 @@
                     </div>
                     <div :class="`eventsSearch__resultCell -detailsMobile
                       ${index % 2 == 0 ? '-even' : '-odd'} 
-                      ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last -lastMobile' : ''}
+                      ${(index + 1 == items.length && (i + 1 == item.works.length || i == 4)) ? '-last -lastMobile' : ''}
                       ${ !(i + 1 == item.works.length || i == 5) ? '-empty' : ''}`">
                       <template  v-if="(i + 1 == item.works.length || i == 5)">
                         <event-links :item="item" extra-classes="-detailsMobile" />
@@ -248,11 +248,20 @@
                     <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                     <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                     <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -work -right -emptyMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                     <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       <a :href="`/details?performanceId=${item.id}`">More...</a>
                     </div>
+                    
                     <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`eventsSearch__resultCell -detailsMobile
+                      ${index % 2 == 0 ? '-even' : '-odd'} 
+                      ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last -lastMobile' : ''}
+                      ${ !(i + 1 == item.works.length || i == 5) ? '-empty' : ''}`">
+                      <template  v-if="(i + 1 == item.works.length || i == 5)">
+                        <event-links :item="item" extra-classes="-detailsMobile" />
+                       </template>
+                    </div>
                   </template>
                 </template>
                 <template v-if="!item.works || item.works.length == 0">
@@ -324,7 +333,7 @@
                     {{ item.composer }} / {{ item.work_title }}
                   </a>
                 </div>
-                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                <div :class="`eventsSearch__resultCell -perfs ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
                   <span class="mobileHeader"># of Performances</span>
                   <a :href="createURL([{ facet: 'works.artists.name', value: item.artist_name},
                     { facet: 'works.artists.role', value: item.artist_role },
@@ -381,7 +390,7 @@
                     </template>
                   </a>
                 </div>
-                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                <div :class="`eventsSearch__resultCell -perfs ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
                   <span class="mobileHeader"># of times Performed</span>
                   <a :href="createURL([{ facet: 'works.composers', value: item.composers},
                     { facet: 'works.creators', value: item.creators},

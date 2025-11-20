@@ -71,7 +71,7 @@ function formatItem(state) {
             if (searchName != "") {
                 searchName += "; "
             }
-            searchName += " " + formatDate(dateRange[0]) + " to " + formatDate(dateRange[1]);
+            searchName += " " + formatDate(dateRange[0]) + " to " + ( dateRange[1].length ? formatDate(dateRange[0]) : "Present" );
         })
     }
     
@@ -81,34 +81,33 @@ function formatItem(state) {
 </script>
 
 <template>
-    <div class="performance__header"><h2>Search History</h2></div>
     <div v-if="searchHistory" class="history__grid">
         <div class="history__performances">
-            <div v-for="item, index in filterHistory(props.performanceIndex)">
+            <template v-for="item, index in filterHistory(props.performanceIndex)">
                 <h4 v-if="index == 0">Performances</h4>
-                <template  v-if="formatItem(item?.uiState[props.performanceIndex]).length">
+                <div class="history__item"  v-if="formatItem(item?.uiState[props.performanceIndex]).length">
                     <a :href="item.link">{{ formatItem(item?.uiState[props.performanceIndex]) }}</a><br/>
                     {{ formatDate((new Date(item.date)).getTime() / 1000, true, false) }}
-                </template>
-            </div>
+                </div>
+            </template>
         </div>
         <div class="history__artists">
-            <div v-for="item, index in filterHistory(props.artistIndex)">
+            <template class="history__item" v-for="item, index in filterHistory(props.artistIndex)">
                 <h4 v-if="index == 0">Artists</h4>
-                <template v-if="formatItem(item?.uiState[props.artistIndex]).length">
+                <div v-if="formatItem(item?.uiState[props.artistIndex]).length">
                     <a :href="item.link">{{ formatItem(item?.uiState[props.artistIndex]) }}</a><br/>
                     {{ formatDate((new Date(item.date)).getTime() / 1000, true, false) }}
-                </template>
-            </div>
+                </div>
+            </template>
         </div>
         <div class="history__works">
-            <div v-for="item, index in filterHistory(props.workIndex)">
+            <template v-for="item, index in filterHistory(props.workIndex)">
                 <h4 v-if="index == 0">Works</h4>
-                <template v-if="formatItem(item?.uiState[props.workIndex]).length">
+                <div class="history__item" v-if="formatItem(item?.uiState[props.workIndex]).length">
                     <a :href="item.link">{{ formatItem(item?.uiState[props.workIndex]) }}</a><br/>
                     {{ formatDate((new Date(item.date)).getTime() / 1000, true, false) }}
-                </template>
-            </div>
+                </div>
+            </template>
         </div>
     </div>
     <div v-else>

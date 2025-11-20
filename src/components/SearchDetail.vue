@@ -79,6 +79,23 @@ onMounted(() => {
     return locationArray.join(', ')
   }
 
+  function formatWorkAttribute(works, attributeName) {
+    let returnString = ""
+    const attributeArray = []
+    works.forEach((w) => {
+        w[attributeName].forEach((attr) => {
+            if (!attributeArray.includes(attr)) {
+                attributeArray.push(attr)
+            }
+        })
+    })
+    attributeArray.forEach((attr, index) => {
+        returnString += `<a href="${ createURL(`works.${ attributeName }`, attr) }">${ attr }${ index < attributeArray.length - 1 ? ";&nbsp;" : ""}</a>`
+    })
+    return returnString
+  }
+
+
   function createURL(facet, value) {
     return encodeURI(`/?${ props.indexName }[refinementList][${ facet }][0]=${ value }`)
   }
@@ -98,12 +115,16 @@ onMounted(() => {
         <div class="performance__headerData">
             <div><span class="performance__dataTitle">Season:</span><br/><a :href="createURL('season', performance.season)">{{ performance.season }}</a></div>
             <div><span class="performance__dataTitle">Orchestra/Ensemble:</span><br/>
-                <span v-for="orch, index in performance.ensembles">
+                <span v-if="performance.works" v-html="formatWorkAttribute(performance.works, 'ensembles')">
+                </span>
+                <span v-else v-for="orch, index in performance.ensembles">
                     <a :href="createURL('ensemble', orch)">{{ orch + (index < performance.ensembles.length - 1 ? ";&nbsp;" : "") }}</a>
                 </span>
             </div>
            <div><span class="performance__dataTitle">Conductor:</span><br/>
-                <span v-for="conductor, index in performance.conductors">
+                <span v-if="performance.works" v-html="formatWorkAttribute(performance.works, 'conductors')">
+                </span>
+                <span v-else v-for="conductor, index in performance.conductors">
                     <a :href="createURL('conductors', conductor)">{{ conductor + (index < performance.conductors.length - 1 ? ",&nbsp;" : "") }}</a>
                 </span>
             </div>

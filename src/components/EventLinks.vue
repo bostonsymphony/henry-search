@@ -39,7 +39,7 @@ function showAudioLinks(event) {
                     View Program Book
                 </a>
             </template>
-            <template v-if="props.item.bso_audio_id">
+            <template v-if="props.item.media && props.item.media.includes('audio') && props.item.bso_audio_id">
                 <a @click="showAudioLinks">
                     <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="12" fill="#01ABE6"/>

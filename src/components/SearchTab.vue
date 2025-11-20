@@ -265,7 +265,7 @@
         const attributeMap = {
             "works.composers" : "Composer",
             "works.title" : "Work",
-            "conductors" : "Conductor",
+            "works.conductors" : "Conductor",
             "ensembles" : "Orchestra",
             "works.artists.name" : "Artist",
             "query" : "Keyword",
@@ -282,7 +282,8 @@
             'artist_role': 'Instrument/Role',
             'title': 'Work Title',
             'composers': 'Composer',
-            'composer': 'Composer'
+            'composer': 'Composer',
+            'media': 'Media'
         }
         if (refinement.attribute == 'performance_date' || refinement.attribute == 'last_performance_date') {
             return 'Date: ' + refinement.label[0] + ' ' + formatDate(refinement.value) + ' ×'
@@ -496,17 +497,17 @@
                         </div>
                     </div>
                     <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
-                        <template v-slot="{items, refine, searchForItems}">
+                        <template v-slot="{items, refine, searchForItems, isFromSearch}">
                             <p-accordion :name="refinement.title" class="accordion" :start-open="true">
                                 <summary class="accordion__summary">
-                                    <h6 :class="`accordion__heading ${ !items.length ? '-gray' : ''}`">{{ refinement.title }}</h6>
+                                    <h6 :class="`accordion__heading ${ !(items.length || isFromSearch) ? '-gray' : ''}`">{{ refinement.title }}</h6>
                                     <div class="accordion__iconWrapper" v-if="items.length">
                                         <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
                                             <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
                                     </div>
                                 </summary>
-                                <div class="accordion__content" v-if="items.length">
+                                <div class="accordion__content" v-if="items.length || isFromSearch">
                                     <div class="ais-SearchBox eventsSearch__searchBox -filter">
                                         <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
                                     </div>
@@ -530,17 +531,17 @@
                         <div class="accordion__content">
                             <template v-for="refinement in props.addlRefinements">
                                 <ais-refinement-list v-if="refinement.type == 'list'" :attribute="refinement.attribute" operator="and">
-                                    <template v-slot="{items, refine, searchForItems}">
+                                    <template v-slot="{items, refine, searchForItems, isFromSearch}">
                                         <p-accordion :name="refinement.title" class="accordion" :start-open="false">
                                             <summary class="accordion__summary">
-                                                <h6 :class="`accordion__heading ${ !items.length ? '-gray' : ''}`">{{ refinement.title }}</h6>
+                                                <h6 :class="`accordion__heading ${ !(items.length || isFromSearch) ? '-gray' : ''}`">{{ refinement.title }}</h6>
                                                 <div class="accordion__iconWrapper" v-if="items.length">
                                                 <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
                                                     <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
                                                 </div>
                                             </summary>
-                                            <div class="accordion__content" v-if="items.length">
+                                            <div class="accordion__content" v-if="items.length || isFromSearch">
                                                 <div class="ais-SearchBox eventsSearch__searchBox -filter" v-if="!refinement.hideSearch">
                                                     <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
                                                 </div>
