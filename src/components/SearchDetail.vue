@@ -1,7 +1,7 @@
 <script setup>
 
 import Typesense from 'typesense'
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 
 import EventLinks from "./EventLinks.vue"
 
@@ -40,6 +40,7 @@ onMounted(() => {
 
     client.collections(props.indexName).documents(props.performanceId).retrieve().then(function (results) {
         performance.value = results
+        console.log(results)
     }).catch((e) => {
         console.log(e)
         //document.location = '/404'
@@ -117,7 +118,7 @@ onMounted(() => {
             <h3>{{ formatTime(performance.performance_date) }} | {{ formatLocation(performance.venue, performance.location) }}</h3>
         </div>
         <div class="performance__headerLinks">
-            <event-links detail="true" :item="performance" />
+            <event-links :detail="true" :item="performance" />
         </div>
         <div class="performance__headerData">
             <div><span class="performance__dataTitle">Season:</span><br/><a :href="createURL('season', performance.season)">{{ performance.season }}</a></div>
@@ -174,21 +175,21 @@ onMounted(() => {
                                 <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>    
                         </span>
-                        <span v-if="work.premiere" class="infoItem">Work Premiere:<br/>
+                        <span v-if="work.premiere" class="infoItem -small">Work Premiere:<br/>
                             <a :href="createURL('works.premiere', work.premier)">{{ work.premiere }}</a>
                         </span>
-                        <span v-if="work.commission" class="infoItem">Commission:<br/>
+                        <span v-if="work.commission" class="infoItem -small">Commission:<br/>
                             <a :href="createURL('works.commission', work.commission)">
                                 {{ work.commission }}
                             </a>
                         </span>
-                        <span v-if="work.encore" class="infoItem"><a :href="createURL('works.encore', work.encore)">Encore</a></span>
+                        <span v-if="work.encore" class="infoItem -small"><a :href="createURL('works.encore', work.encore)">Encore</a></span>
                         </div>
                 </div>
                 <div :class="`performance__cell ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">
                     <span class="mobileHeader">Additional Creator</span>
-                    <span v-for="c in work.creator" class="infoItem">
-                        <a :href="createURL('works.creator.creator_name', c.creator_name)">{{ c.creator_name }}, {{ c.creator_role }}</a>
+                    <span v-for="c in work.additional_creators" class="infoItem">
+                        <a :href="createURL('works.additional_creators.name', c.name)">{{ c.name }}, {{ c.role }}</a>
                     </span>
                 </div>
                 <div :class="`performance__cell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">

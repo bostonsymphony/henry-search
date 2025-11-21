@@ -273,6 +273,8 @@
             "works.artists.name" : "Artist",
             "query" : "Keyword",
             'works.artists.role': 'Instrument/Role',
+            'works.additional_creators.name': 'Additional Creator',
+            'works.additional_creators.role': 'Creator Role',
             'season': 'Season',
             'event_title': 'Event Title',
             'event_types': 'Series',
@@ -287,7 +289,9 @@
             'title': 'Work Title',
             'composers': 'Composer',
             'composer': 'Composer',
-            'media': 'Media'
+            'media': 'Media',
+            'creators.name': 'Additional Creator',
+            'creators.role': 'Creator Role'
         }
         if (refinement.attribute == 'performance_date' || refinement.attribute == 'last_performance_date') {
             return 'Date: ' + refinement.label[0] + ' ' + formatDate(refinement.value) + ' ×'

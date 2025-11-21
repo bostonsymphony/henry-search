@@ -54,8 +54,8 @@
 
   const addlRefinements = [
     {attribute: 'works.artists.role', title: 'Instrument', placeholder: 'Search Instruments', type: 'list', hideSearch: 'true'},
-    // {attribute: 'works.additional_creators.creator_name', title: 'Additional Creator', placeholder: 'Search Creators', type: 'list'},
-    // {attribute: 'works.additional_creators.creator_role', title: 'Additional Creator Role', placeholder: 'Search Creator Roles', type: 'list'},
+    {attribute: 'works.additional_creators.name', title: 'Additional Creator', placeholder: 'Search Creators', type: 'list'},
+    {attribute: 'works.additional_creators.role', title: 'Additional Creator Role', placeholder: 'Search Creator Roles', type: 'list', hideSearch: 'true'},
     {attribute: 'season', title: 'Season', placeholder: 'Search Seasons', type: 'list'},
     {attribute: 'event_title', title: 'Event Title', placeholder: 'Search Event Titles', type: 'list'},
     {attribute: 'event_types', title: 'Series', placeholder: 'Search Event Types', type: 'list'},
@@ -80,6 +80,11 @@
     {attribute: 'composers', title: 'Composer', placeholder: 'Search Composers'},
     {attribute: 'title', title: 'Work Title', placeholder: 'Search Work Titles'},
     {attribute: 'commission', title: 'Commission', placeholder: 'Search Commissions'}
+  ]
+
+  const addlWorkRefinements = [
+    {attribute: 'creators.name', title: 'Additional Creator', placeholder: 'Search Creators', type: 'list'},
+    {attribute: 'creators.role', title: 'Creator Role', placeholder: 'Search Creator Roles', type: 'list', hideSearch: 'true'},
   ]
 
 
@@ -130,6 +135,18 @@
     return returnLocation
   }
 
+  function formatWorkAttribute(works, attributeName) {    
+    const attributeArray = []
+    works.forEach((w) => {
+        w[attributeName].forEach((attr) => {
+            if (!attributeArray.includes(attr)) {
+                attributeArray.push(attr)
+            }
+        })
+    })
+    return attributeArray.join("; ")
+  }
+
 
 </script>
 
@@ -174,15 +191,17 @@
                     <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} 
                       ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       <span class="mobileHeader">Ensemble</span>
-                      {{ w.ensembles.join('; ')}}
+                      <span class="ensembles">{{ w.ensembles.join('; ')}}</span>
+                      <span class="ensemblesMobile">{{ formatWorkAttribute(item.works, 'ensembles') }}</span>  
                     </div>
                     <div :class="`eventsSearch__resultCell 
                       ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       <span class="mobileHeader">Conductor</span>
-                      {{ w.conductors.join('; ') }}
+                      <span class="conductors">{{ w.conductors.join('; ') }}</span>
+                      <span class="conductorsMobile">{{ formatWorkAttribute(item.works, 'conductors') }}</span>  
                     </div>
-                    <div :class="`eventsSearch__resultCell 
-                        ${item.works.length > 1 ? '-work -left' : ''} ${index % 2 == 0 ? '-even' : '-odd'} 
+                    <div :class="`eventsSearch__resultCell -work
+                        ${index % 2 == 0 ? '-even' : '-odd'} 
                         ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                        <span class="mobileHeader">Composer/Work</span>
                       {{ w?.composers?.join("; ") }} / {{ w?.title }}
@@ -192,9 +211,11 @@
                       </svg>
                     </div>
                     <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-if="w.artists && w.artists.length < 3">
+                       <span class="mobileHeader">Artist/Role</span>
                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).join('; ') }}
                     </div>
                     <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-else>
+                       <span class="mobileHeader">Artist/Role</span>
                        {{ w.artists ? w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') : ""}}
                        <br/><a v-if="w.artists" :href="`/details?performanceId=${item.id}`">More...</a>
                     </div>
@@ -209,25 +230,22 @@
                   <template v-else-if="i > 0 && i <= 4">
                     <div :class="`eventsSearch__resultCell -empty -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                     <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell -artist
+                    <div :class="`eventsSearch__resultCell -empty
                       ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       {{ w.ensembles.join('; ')}}
                     </div>
-                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       {{ w.conductors.join('; ') }}
                     </div>
                     <div :class="`eventsSearch__resultCell -work 
-                    ${ i % 2 == 1 ? '-right' : '-left' }
                     ${index % 2 == 0 ? '-even' : '-odd'} 
                     ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      <span class="mobileHeader" v-if="i == 1">Composer/Work</span>
                       {{ w?.composers?.join("; ") }} / {{ w?.title }}
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
                         <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </div>
-                    <div v-if="(i + 1 == item.works.length && i % 2 == 0)" :class="`eventsSearch__resultCell -emptyMobile -work -right ${index % 2 == 0 ? '-even' : '-odd'}`"></div>
                     <div :class="`eventsSearch__resultCell -artist 
                       ${index % 2 == 0 ? '-even' : '-odd'} 
                       ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" 
@@ -255,7 +273,6 @@
                     <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                     <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                     <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell -work -right -emptyMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
                     <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       <a :href="`/details?performanceId=${item.id}`">More...</a>
                     </div>
@@ -363,6 +380,7 @@
         <search-tab
           :index-name="props.workIndex"
           :main-refinements="workRefinements"
+          :addl-refinements="addlWorkRefinements"
           :sort-field="'last_performance_date'"
           :query-by-fields="'commission, composers, title'"
           :include-fields="'commission, composers, title, num_performances'"
@@ -395,7 +413,7 @@
                 <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
                   <span class="mobileHeader">Additional Creator</span>
                   <a v-if="item.creators && item.creators.length" v-for="creator, index in item.creators"
-                    :href="createURL([{ facet: 'works.creators.name', value: creator.name}])">
+                    :href="createURL([{ facet: 'works.additional_creators.name', value: creator.name}])">
                     <template v-if="(typeof creator !== 'undefined' && creator && typeof creator.name !== 'undefined' && typeof creator.role !== 'undefined')">
                       {{ `${creator.name} / ${creator.role}${index < item?.creators?.length && items?.creators?.length > 1 ? '; ' : ''}` }}
                     </template>
@@ -404,7 +422,6 @@
                 <div :class="`eventsSearch__resultCell -perfs ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
                   <span class="mobileHeader"># of times Performed</span>
                   <a :href="createURL([{ facet: 'works.composers', value: item.composers},
-                    { facet: 'works.creators', value: item.creators},
                     { facet: 'works.title', value: item.title}
                   ])">
                     <span class="eventsSearch__lightLink">{{ item.num_performances }} Performances</span>
