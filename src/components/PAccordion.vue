@@ -66,15 +66,12 @@ const handleToggle = event => {
     })
   }
   if (props.openText && props.closedText) {
-    console.log('open closed text', props.openText, props.closedText)
     let replacementText = ""
-    console.log('details.value.open', details.value.open)
     if (details.value.open) {
       replacementText = props.closedText
     } else {
       replacementText = props.openText
     }
-    console.log(summary.children)
     if (summary.children) {
       summary.children[0].innerHTML = replacementText
     } else {

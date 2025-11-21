@@ -13,6 +13,14 @@ const props = defineProps({
     indexName: {
       type: String,
       default: "archived_performances"
+    },
+    docKey: {
+        type: String,
+        require: true
+    },
+    docHost: {
+        type: String,
+        require: true
     }
 })
 
@@ -22,17 +30,16 @@ const performance = ref(null)
 onMounted(() => {
     let client = new Typesense.Client({
         'nodes': [{
-        'host': 'go8f04wi19tuvlyrp-1.a1.typesense.net',
-        'port': '443',      
-        'protocol': 'https'   
+            'host': props.docHost,
+            'port': '443',      
+            'protocol': 'https'   
         }],
-        'apiKey': 'YcX337xoj8b2col5BakYHqh1BIZrIsJH',
+        'apiKey': props.docKey,
         'connectionTimeoutSeconds': 2
     })
 
     client.collections(props.indexName).documents(props.performanceId).retrieve().then(function (results) {
         performance.value = results
-        console.log('searchResults', performance.value)
     }).catch((e) => {
         console.log(e)
         //document.location = '/404'
@@ -154,7 +161,7 @@ onMounted(() => {
                 ${ index + 1 == performance.works.length ? '-last' : ''}`">
                     <span class="mobileHeader">Composer</span>
                     <span v-for="composer, index in work.composers">
-                        <a :href="createURL('works.composers', work.composer)">{{ work.composers + (index < work.composers.length - 1 ? ",&nbsp;" : "") }}</a>
+                        <a :href="createURL('works.composers', composer)">{{ composer + (index < work.composers.length - 1 ? ",&nbsp;" : "") }}</a>
                     </span>
                 </div>
                <div :class="`performance__cell ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">

@@ -38,7 +38,6 @@ function filterHistory(indexName) {
 }
 
 function formatItem(state) {
-    console.log(state)
     let searchName = state.query ? '"' + state.query + '"' : ""
     if (state.refinementList) {
         Object.entries(state.refinementList).forEach(([k1, v1]) => {
@@ -111,7 +110,7 @@ function formatItem(state) {
         </div>
     </div>
     <div v-else>
-        <h5>No current search history</h5>
+        <h4>No current search history</h4>
     </div>
 
 </template>

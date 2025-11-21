@@ -29,7 +29,7 @@ function showAudioLinks(event) {
 <template>
     <template v-if="props.detail">
         <div class="media">
-            <template v-if="props.item.program_link">
+            <template v-if="props.item.program_book_link">
                 <a :href="props.item.program_link" target="_new">
                     <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="12" fill="#01ABE6"/>

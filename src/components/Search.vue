@@ -20,6 +20,14 @@
     workIndex: {
       type: String,
       default: "performances"
+    },
+    searchKey: {
+      type: String,
+      require: true
+    },
+    searchHost: {
+      type: String,
+      require: true
     }
   })
   
@@ -79,10 +87,10 @@
     let returnUrl = "/?"
     facets.forEach((facet, index) => {
       if (facet.facet && facet.value) {
+        if (returnUrl != "/?") {
+          returnUrl += '&'
+        }
         if (Array.isArray(facet.value)) {
-          if (returnUrl != "/?") {
-            returnUrl += '&'
-          }
           facet.value.forEach((v, i) => {
             returnUrl += `${ props.performanceIndex }[refinementList][${ facet.facet }][${ i }]=${ v }`
             if (i < facet.value.length - 1) {
@@ -90,9 +98,6 @@
             }
           })
         } else {
-          if (returnUrl != "/?") {
-            returnUrl += '&'
-          }
           returnUrl += `${ props.performanceIndex }[refinementList][${ facet.facet }][0]=${ facet.value }`
           if (index < facets.length - 1) {
             returnUrl += '&'
@@ -141,6 +146,8 @@
           :include-fields="'works, works.composers, works.title, works.artists, season, venue, event_types, notes, event_title, ensembles, conductors, id, performance_date, program_book_link, media, bso_audio_id'"
           search-placeholder="Search by composer, works, conductor, orchestra, and more"
           results-title="Performances"
+          :search-key="props.searchKey"
+          :search-host="props.searchHost"
         >
           <template v-slot="{ items }">
             <div class="eventsSearch__resultsGrid" v-if="items && items.length">
@@ -306,6 +313,8 @@
           :include-fields="'artist_name, artist_role, work_title, composer, num_performances'"
           search-placeholder="Search by conductor, soloist, ensemble, instrument, or role"
           results-title="Artists"
+          :search-key="props.searchKey"
+          :search-host="props.searchHost"
         >
           <template v-slot="{ items }">
             <div class="eventsSearch__artistsGrid">
@@ -359,6 +368,8 @@
           :include-fields="'commission, composers, title, num_performances'"
           search-placeholder="Search by composer, work, or commission"
           results-title="Works"
+          :search-key="props.searchKey"
+          :search-host="props.searchHost"
         >
           <template v-slot="{ items }">
             <div class="eventsSearch__worksGrid">

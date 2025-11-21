@@ -1,9 +1,8 @@
 <script setup>
-    import { onMounted, ref } from 'vue'
+    import { ref } from 'vue'
     import {
         AisClearRefinements,
         AisCurrentRefinements,
-        AisHighlight,
         AisHits,
         AisInstantSearch,
         AisMenuSelect,
@@ -54,16 +53,20 @@
         resultsTitle: {
             type: String,
             default: "Performances"
+        },
+        searchKey: {
+            type: String,
+            require: true
+        },
+        searchHost: {
+            type: String,
+            require: true
         }
     })
 
     const sortView = ref('Most Recent')
     
     const updateNow = ref(0)
-
-    // onMounted(() => {
-
-    // })
 
     const routing = ref({
         router: historyRouter({
@@ -82,16 +85,16 @@
 
     const server = {
       connectionTimeoutSeconds: 20,
-      apiKey: 'qoWHCTjesGfIaxdXbw9vOgod1VToEXNI', // Be sure to use an API key that only allows search operations
+      apiKey:  props.searchKey, 
       nodes: [
         {
-          host: 'go8f04wi19tuvlyrp-1.a1.typesense.net',
-          path: '', // Optional. Example: If you have your typesense mounted in localhost:8108/typesense, path should be equal to '/typesense'
+          host: props.searchHost,
+          path: '', 
           port: '443',
           protocol: 'https',
         },
       ],
-      cacheSearchResultsForSeconds: 0, // Cache search results from server. Defaults to 2 minutes. Set to 0 to disable caching.
+      cacheSearchResultsForSeconds: 0,
     }
     const adapter = new TypesenseInstantSearchAdapter({
         server: server,
@@ -165,6 +168,7 @@
                     sortView.value = 'Most Recent'
                 }
             }
+            setView()
             showNumHits = currentQuery || uiState[props.indexName].refinementList || uiState[props.indexName].range || uiState[props.indexName].menu
             workFilters =  uiState[props.indexName].refinementList && Object.keys(uiState[props.indexName].refinementList).length !== 0 ? getWorkFilters(uiState[props.indexName].refinementList) : []
             showByWorks = Object.keys(workFilters).length !== 0
@@ -209,7 +213,6 @@
                 })
             }
         
-            //console.log('searchHistory', searchHistory, typeof searchHistory)
             sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
         }
     }
@@ -275,6 +278,7 @@
             'event_types': 'Series',
             'venue': 'Venue',
             'works.commission': 'Commission',
+            'works.premiere': 'Premiere',
             'location.city': 'City',
             'location.country': 'Country',
             'location.state': 'State',
@@ -332,7 +336,6 @@
     }
 
     function filterItems(items) {
-        console.log(props.indexName, items)
         if (showByWorks && props.indexName == "dev_henry_perfs") {
             
             let returnItems = items
