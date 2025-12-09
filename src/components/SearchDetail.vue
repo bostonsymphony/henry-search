@@ -42,6 +42,7 @@ onMounted(() => {
 
     client.collections(props.indexName).documents(props.performanceId).retrieve().then(function (results) {
         performance.value = results
+        document.title = `BSO HENRY | ${ formatDate(performance.value.performance_date) } Performance Detail`
         console.log(results)
     }).catch((e) => {
         console.log(e)
@@ -53,6 +54,8 @@ onMounted(() => {
         el.classList.remove("-open")
       })
     })
+
+   
 })
 
   function formatDate(unix_timestamp) {

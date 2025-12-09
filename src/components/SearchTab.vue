@@ -15,10 +15,14 @@
     import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter'
     import { history as historyRouter } from 'instantsearch.js/es/lib/routers'
     import { simple as simpleStateMapping } from 'instantsearch.js/es/lib/stateMappings'
-    import PAccordion from './PAccordion.vue'
     import VueDatePicker from '@vuepic/vue-datepicker'
     import slugify from '../composables/slugify'
+
+    import PAccordion from './PAccordion.vue'
     import formatDate from '../composables/formatDate'
+    import formatSearchTitle from '../composables/formatSearchTitle'
+
+
     import pSelect from '@vueform/multiselect'
  
     const props = defineProps({
@@ -232,6 +236,7 @@
             }
         
             sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
+            updateTitle(uiState[props.indexName])
         }
     }
 
@@ -260,6 +265,10 @@
     function onStateChange({ uiState, setUiState }) {
         updateStateRefs(uiState)
         setUiState(uiState)    
+    }
+
+    function updateTitle(state) {
+        document.title = "BSO HENRY | " + formatSearchTitle(state)
     }
 
     function setView() {
