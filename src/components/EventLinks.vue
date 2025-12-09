@@ -1,6 +1,7 @@
 <script setup>
 
 import AudioLinks from "./AudioLinks.vue"
+import formatDate from '../composables/formatDate'
 
 const props = defineProps({
     item: {
@@ -67,7 +68,7 @@ function showAudioLinks(event) {
                 <path d="M5 9H13" stroke="white" stroke-width="1.5"/>
                 <path d="M9 5L13 9L9 13" stroke="white" stroke-width="1.5"/>
             </svg>
-            <a class="detailsLink" :href="`/details?performanceId=${props.item.id}`">Details</a>
+            <a class="detailsLink" :href="`/details?performanceId=${props.item.id}`" :title="formatDate(item.performance_date) + ' Details'">Details</a>
         </div>
         <div v-if="props.item.program_book_link" :class="`eventsSearch__perfDetails ${ props.extraClasses }`">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -75,16 +76,18 @@ function showAudioLinks(event) {
             <path d="M6.22876 12.0713L11.8854 6.41469" stroke="#01ABE6" stroke-width="1.5"/>
             <path d="M6.22864 6.41382L11.8854 6.41395L11.8855 12.0707" stroke="#01ABE6" stroke-width="1.5"/>
         </svg>
-        <a class="detailsLink" target="_new" :href="props.item.program_book_link">Program</a>
+        <a class="detailsLink" target="_new" :href="props.item.program_book_link" :title="formatDate(item.performance_date) + ' Details'">Program</a>
         </div>
         <div v-if="props.item.media && props.item.media.includes('audio') && props.item.bso_audio_id" :class="`eventsSearch__perfDetails ${ props.extraClasses }`">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="9" cy="9" r="8.25" fill="white" stroke="#01ABE6" stroke-width="1.5"/>
-                <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" fill="white" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" fill="white"/>
-                <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <a class="detailsLink" @click="showAudioLinks">Audio</a>
+            <button class="detailsLink" @click="showAudioLinks"  :title="formatDate(item.performance_date) + ' Audio'">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="9" cy="9" r="8.25" fill="white" stroke="#01ABE6" stroke-width="1.5"/>
+                    <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" fill="white" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" fill="white"/>
+                    <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Audio
+            </button>
             <audio-links :audio-id="props.item.bso_audio_id" />
 
         </div>

@@ -112,9 +112,14 @@
     let showByWorks = false
     let workFilters = null
     let currentQuery = null
+    let wrapperInnerHTML = null
 
     function toggleFilters() {
         const wrapper = document.getElementById(`${props.indexName}_filterRail`)
+        if (wrapper.innerHTML != "") {
+            wrapperInnerHTML = wrapper.innerHTML
+        }
+        
         const tabContent = document.getElementById(`${props.indexName}_tabs__content`)
         const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
         const toggleOnButton = document.getElementById(`${props.indexName}_filterToggleOn`)
@@ -123,6 +128,19 @@
         }
         wrapper.classList.toggle('closed')
         leftPane.classList.toggle('closed')
+        console.log("wrapper.classList.contains('closed')", wrapper.classList.contains('closed'), wrapper.classList)
+        const allNestedElements = wrapper.querySelectorAll("*")
+        console.log('allNestedElements', allNestedElements)
+        if (wrapper && wrapper.classList.contains('closed')) {
+            allNestedElements.forEach((el) => {
+                el.setAttribute("tabindex", -1)
+            })
+        } else {
+            allNestedElements.forEach((el) => {
+                el.removeAttribute("tabindex")
+            })
+        }
+        
         tabContent.classList.toggle('open')
         tabContent.classList.toggle('closed')
     }
@@ -407,8 +425,10 @@
                             >
                                 <template v-slot="{ currentRefinement, isSearchStalled, refine }">
                                     <form class="ais-SearchBox-form" novalidate>
+                                        <label for="searchbox" class="hiddenLabel">{{ props.searchPlaceholder }}</label>
                                         <input
                                             class="ais-SearchBox-input"
+                                            id="searchbox"
                                             type="search"
                                             :value="currentRefinement"
                                             @input="refine($event.currentTarget.value)"
@@ -424,7 +444,9 @@
                         <div class="eventsSearch__filterGroup eventsSearch__filterGroup--date">
                             <ais-range-input :attribute="props.sortField">
                                 <template v-slot="{ currentRefinement, range, refine }" >
+                                    <label for="start" class="hiddenLabel">Start Date</label>
                                     <vue-date-picker
+                                        :aria-labels="{ input: 'Start Date'}"
                                         :model-value="toMinValue(currentRefinement, range)"
                                         @update:model-value="(modelValue) => {
                                             refine({
@@ -444,7 +466,9 @@
                                         class="eventsSearch__datePicker"
                                         id="start"
                                     />
+                                    <label for="end" class="hiddenLabel">End Date</label>
                                     <vue-date-picker
+                                        :aria-labels="{ input: 'End Date'}"
                                         :model-value="toMaxValue(currentRefinement, range)"
                                         @update:model-value="(modelValue) => { refine({
                                             min: formatMinValue(currentRefinement.min, range.min),
@@ -494,7 +518,7 @@
                             <span class="label">Filters</span>
                         </div>
                         <div>
-                            <a class="hideButton" :id="`${props.resultsTitle.toLowerCase()}_filterToggle`" @click="toggleFilters()">Hide</a>
+                            <button class="hideButton" :id="`${props.resultsTitle.toLowerCase()}_filterToggle`" @click="toggleFilters()">Hide</button>
                             <a class="hideMobile"  @click="toggleFiltersMobile()">
                                 <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <line x1="1.06058" y1="0.353539" x2="17.0606" y2="16.3535" stroke="#686F73"/>
@@ -516,14 +540,15 @@
                                 </summary>
                                 <div class="accordion__content" v-if="items.length || isFromSearch">
                                     <div class="ais-SearchBox eventsSearch__searchBox -filter">
-                                        <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
+                                        <label class="hiddenLabel" :for="refinement.attribute">{{ refinement.placeholder }}</label>
+                                        <input :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
                                     </div>
                                     <div class="eventsSearch__checkBoxes">
                                         <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
                                             <div class="eventSearch__checkBox">
                                                 <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
                                             </div>
-                                            <span>{{ item.value }}</span><span class="eventsSearch__refinementCount">{{ item.count }}</span>
+                                            <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="eventsSearch__refinementCount">{{ item.count }}</span>
                                         </label>
                                     </div>
                                 </div> 
@@ -550,14 +575,15 @@
                                             </summary>
                                             <div class="accordion__content" v-if="items.length || isFromSearch">
                                                 <div class="ais-SearchBox eventsSearch__searchBox -filter" v-if="!refinement.hideSearch">
-                                                    <input @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
+                                                    <label class="hiddenLabel" :for="refinement.attribute">{{ refinement.placeholder }}</label>
+                                                    <input :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
                                                 </div>
                                                 <div class="eventsSearch__checkBoxes">
                                                     <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
                                                         <div class="eventSearch__checkBox">
                                                             <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
                                                         </div>
-                                                        <span>{{ item.value }}</span><span class="itemCount">{{ item.count }}</span>
+                                                        <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="itemCount">{{ item.count }}</span>
                                                     </label>
                                                 </div>
                                             </div> 
@@ -625,7 +651,7 @@
                     <template v-slot="{ items }">
                         <div class="eventsSearch__resultsHeader -mobile">
                             <div class="eventsSearch__filterToggle">
-                                <div class="filterButton" @click="toggleFiltersMobile()">
+                                <button class="filterButton" @click="toggleFiltersMobile()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" >
                                         <rect width="24" height="24" rx="4" fill="#01ABE6"/>
                                         <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
@@ -636,7 +662,7 @@
                                         <circle cx="10.7725" cy="7.04545" r="1.54545" fill="#01ABE6" stroke="white"/>
                                     </svg> 
                                     Filters
-                                </div>
+                                </button>
                                 <div class="eventsSearch__resultsSort">Sort by: 
                                     <select v-model="sortView" @change="setView">
                                     <option value="Most Recent">Most Recent</option>
@@ -657,14 +683,14 @@
                                     <circle cx="14.8633" cy="12.5" r="1.54545" fill="#01ABE6" stroke="white"/>
                                     <circle cx="10.7725" cy="7.04545" r="1.54545" fill="#01ABE6" stroke="white"/>
                                 </svg> 
-                                <h3 v-if="showNumHits">
+                                <h2 v-if="showNumHits">
                                     <ais-stats>
                                         <template v-slot="{ nbHits }">
                                             {{ nbHits }} {{ nbHits > 1 ? 'Results' : 'Result' }}
                                         </template>
                                     </ais-stats>
-                                </h3>
-                                <h3 v-else>{{ props.resultsTitle }}</h3>
+                                </h2>
+                                <h2 v-else>{{ props.resultsTitle }}</h2>
 
                             </div>
                             <div class="eventsSearch__actions">
