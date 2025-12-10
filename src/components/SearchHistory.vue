@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 
 import formatDate from '../composables/formatDate'
 import formatSearchTitle from '../composables/formatSearchTitle'
@@ -18,12 +19,12 @@ const props = defineProps({
     }
 })
 
-const searchHistory = JSON.parse(sessionStorage.getItem('searchHistory'))
+const searchHistory = ref(JSON.parse(sessionStorage.getItem('searchHistory')))
 
 
-function filterHistory(indexName) {
-    if (searchHistory) {
-        return searchHistory.filter((item) => {
+const filterHistory = (indexName) => {
+    if (searchHistory.value) {
+        return searchHistory.value.filter((item) => {
             let returnItem = false
             Object.entries(item.uiState).forEach(([k, v]) => {
                 if (k == indexName && !returnItem) {

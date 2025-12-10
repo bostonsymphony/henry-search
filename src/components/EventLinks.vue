@@ -18,7 +18,7 @@ const props = defineProps({
     }
 })
 
-function showAudioLinks(event) {
+const showAudioLinks = (event) => {
     event.stopPropagation()
     const audioLinkBox = event.currentTarget.parentElement.querySelector(".audioLinkBox")
     audioLinkBox.classList.toggle("-open")

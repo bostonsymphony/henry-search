@@ -26,7 +26,7 @@ const props = defineProps({
 
 const performance = ref(null)
 
-const searchHistory = JSON.parse(sessionStorage.getItem('searchHistory'))
+const searchHistory = ref(JSON.parse(sessionStorage.getItem('searchHistory')))
 
 
 onMounted(() => {
@@ -58,16 +58,16 @@ onMounted(() => {
    
 })
 
-  function formatDate(unix_timestamp) {
+const formatDate = (unix_timestamp) => {
     // multiplied by 1000 so that the argument is in milliseconds, not seconds
     const date = new Date(unix_timestamp * 1000)
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
     return `${(months[date.getMonth()]).substring(0, 3)} ${date.getDay() + 1}, ${date.getFullYear()}`
-  }
+}
 
 
-  function formatTime(unix_timestamp) {
+const formatTime = (unix_timestamp) => {
     // multiplied by 1000 so that the argument is in milliseconds, not seconds
     const date = new Date(unix_timestamp * 1000)
     const hour = date.getHours() + 1 > 12 ? date.getHours() - 11 : date.getHours() + 1
@@ -76,9 +76,9 @@ onMounted(() => {
 
     return `${hour}:${minutes.substr(-2)}${amPm}`
 
-  }
+}
 
-  function formatLocation(venue, location) {
+const formatLocation = (venue, location) => {
     const locationArray = [venue]
     if (location.city) {
         locationArray.push(location.city)
@@ -90,9 +90,9 @@ onMounted(() => {
         locationArray.push(location.country)
     }
     return locationArray.join(', ')
-  }
+}
 
-  function formatWorkAttribute(works, attributeName) {
+const formatWorkAttribute = (works, attributeName) => {
     let returnString = ""
     const attributeArray = []
     works.forEach((w) => {
@@ -106,12 +106,12 @@ onMounted(() => {
         returnString += `<a href="${ createURL(`works.${ attributeName }`, attr) }">${ attr }${ index < attributeArray.length - 1 ? ";&nbsp;" : ""}</a>`
     })
     return returnString
-  }
+}
 
 
-  function createURL(facet, value) {
+const createURL = (facet, value) => {
     return encodeURI(`/?${ props.indexName }[refinementList][${ facet }][0]=${ value }`)
-  }
+}
  
 
 </script>

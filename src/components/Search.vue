@@ -31,11 +31,6 @@
     }
   })
   
-  const displayDate = ref(null)
-
-  const today = Date.now()
-  const date = ref([today, today])
-
   onMounted(() => {
     document.addEventListener("click", function(){
       document.querySelectorAll(".audioLinkBox").forEach((el) => {
@@ -88,7 +83,7 @@
   ]
 
 
-  function createURL(facets) {
+  const createURL = (facets) => {
     let returnUrl = "/?"
     facets.forEach((facet, index) => {
       if (facet.facet && facet.value) {
@@ -113,7 +108,7 @@
     return encodeURI(returnUrl)
   }
 
-  function formatLocation(location) {
+  const formatLocation = (location) => {
     let returnLocation = "";
     if (location) {
        if (location?.city) {
@@ -135,7 +130,7 @@
     return returnLocation
   }
 
-  function formatWorkAttribute(works, attributeName) {    
+  const formatWorkAttribute = (works, attributeName) => {    
     const attributeArray = []
     works.forEach((w) => {
         w[attributeName].forEach((attr) => {

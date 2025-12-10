@@ -39,7 +39,7 @@
       firstLoad.value = false
   })
 
-  function setInitActiveItem () {
+  const setInitActiveItem = () => {
       if (location.hash) {
           tabs.value.every((el, index) => {
             if (location.hash.substring(1) == el.title) {

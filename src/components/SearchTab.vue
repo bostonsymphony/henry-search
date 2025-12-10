@@ -69,6 +69,10 @@
     })
 
     const sortView = ref('Most Recent')
+    const showNumHits = ref(false)
+    const showByWorks = ref(false)
+    const workFilters = ref(null)
+    const currentQuery = ref(null)
     
     const updateNow = ref(0)
 
@@ -112,18 +116,8 @@
 
     const searchClient = adapter.searchClient
 
-    let showNumHits = false
-    let showByWorks = false
-    let workFilters = null
-    let currentQuery = null
-    let wrapperInnerHTML = null
-
-    function toggleFilters() {
+    const toggleFilters = () => {
         const wrapper = document.getElementById(`${props.indexName}_filterRail`)
-        if (wrapper.innerHTML != "") {
-            wrapperInnerHTML = wrapper.innerHTML
-        }
-        
         const tabContent = document.getElementById(`${props.indexName}_tabs__content`)
         const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
         const toggleOnButton = document.getElementById(`${props.indexName}_filterToggleOn`)
@@ -149,7 +143,7 @@
         tabContent.classList.toggle('closed')
     }
 
-    function toggleFiltersMobile() {
+    const toggleFiltersMobile = () => {
         const wrapper = document.getElementById(`${props.indexName}_filterRail`)
         const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
         const containers = document.querySelectorAll('.container')
@@ -178,10 +172,10 @@
         })
     }
 
-    function updateStateRefs(uiState) {
+    const updateStateRefs = (uiState) => {
         if (uiState && uiState[props.indexName]) {
-            currentQuery = uiState[props.indexName].query
-            if (currentQuery) {
+            currentQuery.value = uiState[props.indexName].query
+            if (currentQuery.value) {
                 if (sortView.value != 'Most Relevant') {
                     sortView.value = 'Most Relevant'
                 }
@@ -191,9 +185,9 @@
                 }
             }
             setView()
-            showNumHits = currentQuery || uiState[props.indexName].refinementList || uiState[props.indexName].range || uiState[props.indexName].menu
-            workFilters =  uiState[props.indexName].refinementList && Object.keys(uiState[props.indexName].refinementList).length !== 0 ? getWorkFilters(uiState[props.indexName].refinementList) : []
-            showByWorks = Object.keys(workFilters).length !== 0
+            showNumHits.value = currentQuery.value || uiState[props.indexName].refinementList || uiState[props.indexName].range || uiState[props.indexName].menu
+            workFilters.value =  uiState[props.indexName].refinementList && Object.keys(uiState[props.indexName].refinementList).length !== 0 ? getWorkFilters(uiState[props.indexName].refinementList) : []
+            showByWorks.value = Object.keys(workFilters.value).length !== 0
 
             // update search history
             let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
@@ -240,7 +234,7 @@
         }
     }
 
-    function getWorkFilters(refinementList) {
+    const getWorkFilters = (refinementList) => {
         let returnFilters = {}
         Object.entries(refinementList).forEach(([k, v]) => {
             if (k.includes('works')) {
@@ -262,16 +256,16 @@
         return returnFilters
     }
 
-    function onStateChange({ uiState, setUiState }) {
+    const onStateChange = ({ uiState, setUiState }) => {
         updateStateRefs(uiState)
         setUiState(uiState)    
     }
 
-    function updateTitle(state) {
+    const updateTitle = (state) => {
         document.title = "BSO HENRY | " + formatSearchTitle(state)
     }
 
-    function setView() {
+    const setView = () => {
         if (sortView.value == 'Oldest First') {
             adapter.updateConfiguration({...adapter.configuration, additionalSearchParameters: {
                 query_by: props.queryByFields,
@@ -291,12 +285,13 @@
         updateNow.value++
     }
 
-    function formatRefinement(refinement) {
+    const formatRefinement = (refinement) => {
         const attributeMap = {
             "works.composers" : "Composer",
             "works.title" : "Work",
             "works.conductors" : "Conductor",
             "ensembles" : "Orchestra",
+            "works.ensembles" : "Orchestra",
             "works.artists.name" : "Artist",
             "query" : "Keyword",
             'works.artists.role': 'Instrument/Role',
@@ -331,7 +326,7 @@
        
     }
 
-    function intersect(filters, work){
+    const intersect = (filters, work) => {
         let intersectKeys = Object.keys(filters).filter(k => Object.hasOwn(work, k))
         let intersectArray = []
         intersectKeys.forEach((key) => {
@@ -366,8 +361,8 @@
 
     }
 
-    function filterItems(items) {
-        if (showByWorks && props.indexName == "dev_henry_perfs") {
+    const filterItems = (items) => {
+        if (showByWorks.value && props.indexName == "dev_henry_perfs") {
             
             let returnItems = items
             let itemIndex = 0
@@ -375,11 +370,11 @@
                 let shownWorks = []
                 item?.works.forEach((work) => {
                     let workAdded = false
-                    if (intersect(workFilters, work)?.length) {
+                    if (intersect(workFilters.value, work)?.length) {
                         shownWorks.push(work)
                         workAdded = true
                     }
-                    if (!workAdded && currentQuery && JSON.stringify(work).includes(currentQuery)) {
+                    if (!workAdded && currentQuery.value && JSON.stringify(work).includes(currentQuery.value)) {
                         shownWorks.push(work)
                     }  
                 })
@@ -394,19 +389,19 @@
 
     }
 
-    function toMinValue(value, range) {
+    const toMinValue = (value, range) => {
         return typeof value.min === "number" && value.min != 0 ? value.min * 1000 : range.min * 1000
     }
 
-    function toMaxValue(value, range) {
+    const toMaxValue = (value, range) => {
         return typeof value.max === "number" && value.max != 0 ? value.max * 1000 : range.max * 1000
     }
 
-    function formatMinValue(minValue, minRange) {
+    const formatMinValue = (minValue, minRange) => {
         return typeof minValue === "number" && minValue !== null && minValue !== minRange ? minValue : minRange
     }
     
-    function formatMaxValue(maxValue, maxRange) {
+    const formatMaxValue = (maxValue, maxRange) => {
       return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxRange
     }
 
@@ -832,13 +827,13 @@
                                 </template>
                                 <template v-else>
                                     <li>
-                                        <a :href="createURL(0)" @click.prevent="refine(0)">
+                                        <a :href="createURL(0)" @click.prevent="refine(0)" :style="{ fontWeight: currentRefinement === 0 ? 'bold' : '' }">
                                         1
                                         </a>
                                     </li>
                                     <li v-if="pages.length > 5">...</li>
-                                    <li  v-for="page in 5" :key="page" v-if="pages.length > 5">
-                                        <a :href="createURL(nbPages - (5 - page + 1))" :style="{ fontWeight: nbPages - (5 - page) === currentRefinement + 1 ? 'bold' : '' }">
+                                    <li  v-for="page in 5" :key="page" v-if="nbPages > 5">
+                                        <a :href="createURL(nbPages - (5 - page) - 1)" :style="{ fontWeight: nbPages - (5 - page) - 1 === currentRefinement ? 'bold' : '' }">
                                             {{ nbPages - (5 - page) }}
                                         </a>
                                     </li>
