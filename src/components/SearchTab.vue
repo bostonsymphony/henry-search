@@ -795,12 +795,12 @@
                             }"
                         >
                             <ul class="eventsSearch__paginationComponent" v-if="pages.length > 1">
-                                <li v-if="!isFirstPage && nbPages > 4" class="arrow">
+                                <li v-if="!isFirstPage && nbPages > 5" class="arrow">
                                     <a :href="createURL(0)" @click.prevent="refine(0)">
                                     ‹‹
                                     </a>
                                 </li>
-                                <li v-if="!isFirstPage && nbPages > 4" class="arrow">
+                                <li v-if="!isFirstPage && nbPages > 5" class="arrow">
                                     <a
                                     :href="createURL(currentRefinement - 1)"
                                     @click.prevent="refine(currentRefinement - 1)"
@@ -837,8 +837,13 @@
                                             {{ nbPages - (5 - page) }}
                                         </a>
                                     </li>
+                                    <li v-for="page in nbPages - 1" v-if="nbPages <= 5">
+                                        <a :href="createURL(page)" :style="{ fontWeight: page === currentRefinement ? 'bold' : '' }">
+                                            {{ page + 1 }}
+                                        </a>
+                                    </li>
                                 </template>
-                                <li v-if="!isLastPage && nbPages > 4" class="arrow">
+                                <li v-if="!isLastPage && nbPages > 5" class="arrow">
                                     <a
                                     :href="createURL(currentRefinement + 1)"
                                     @click.prevent="refine(currentRefinement + 1)"
@@ -846,7 +851,7 @@
                                     ›
                                     </a>
                                 </li>
-                                <li v-if="!isLastPage && nbPages > 4" class="arrow">
+                                <li v-if="!isLastPage && nbPages > 5" class="arrow">
                                     <a :href="createURL(nbPages)" @click.prevent="refine(nbPages)">
                                     ››
                                     </a>
