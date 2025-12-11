@@ -1,0 +1,22 @@
+@use "@imarc/pronto/resources/styles/imported" as *;
+
+.eventLinks 
+{
+    display: flex;
+    gap: 0.1rem;
+    &.-detailsMobile {
+      @include at(lg) {
+        display: none;
+      }
+    }
+    a.eventLinks__details,
+    button,
+    &__details {
+      display: flex;
+      background-color: inherit;
+      padding: 0;
+      border: none;
+      color: var(--color-turquoise);
+      font-weight: bold;
+    }
+}

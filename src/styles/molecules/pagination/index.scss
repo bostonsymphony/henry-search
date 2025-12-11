@@ -1,0 +1,44 @@
+@use "@imarc/pronto/resources/styles/imported" as *;
+
+.resultsPagination {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    @include at(lg) {
+        padding: 2rem  0;
+    }
+
+    &__paginationComponent {
+
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        padding: 0 .2rem;
+        height: 1.5rem;
+      }
+      li.arrow a{
+        color: var(--color-turquoise);
+      }
+
+      li:hover {
+        border-bottom: 2px solid var(--color-turquoise);
+      }
+
+      a {
+        font-size: 1.1rem;
+        color: var(--color-gray-500);
+       
+      }
+      // a:hover {
+      //     text-decoration: underline;
+      // }
+
+      
+  }
+}

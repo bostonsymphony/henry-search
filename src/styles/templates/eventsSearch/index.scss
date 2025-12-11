@@ -1,0 +1,381 @@
+@use "@imarc/pronto/resources/styles/imported" as *;
+
+.eventsSearch {
+  // Ensure full width in responsive design mode
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+
+  &__artistsGrid,
+  &__worksGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 1.5rem;
+    @include at(lg) {
+      padding: 0;
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+
+
+  .button {
+    padding: 0;
+    width: 2.5rem;
+    height: 100%;
+    @include at(md) {
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+  &--ensemble {
+    grid-area: ensemble;
+  }
+
+
+
+    // Pagination styles
+  &__results {
+    grid-column-start: 2;
+    padding-top: 0.75rem;
+
+    @include at(lg) {
+      padding-top:3rem;
+      padding-right:4rem;
+      padding-left: 2rem;
+    }
+    
+    transition: padding-left 400ms;
+    
+    &.closed {
+      @include at(lg) {
+        padding-left: 8rem;
+      }
+      
+    }
+    &.openMobile {
+      display: none;
+      @include at(lg) {
+        display: inline;
+      }
+    }
+   }
+
+  &__resultsHeader {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1.5rem 0;
+    border-bottom: thin solid var(--color-gray-200);
+    @include at(lg) {
+      padding: 0;
+      border-bottom: none;
+    }
+    &.-mobile {
+      display: flex;
+      padding-bottom: 0.75rem;
+      @include at(lg) {
+        display: none;
+      }
+      .filters__toggle {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        
+      }
+      
+      .filterButton {
+        background-color: var(--color-white);
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+      }
+    }
+  }
+
+  &__resultsSort {
+    font-weight: 100;
+    font-size: 1.1rem;
+    margin-right: .5rem;
+  }
+
+  &__resultsTitle {
+    display: flex;
+    align-items: baseline;
+    //width: 75%;
+  }
+
+  &__search {
+    display: grid;
+    grid-template-columns: 25% 75%;
+    gap: 2rem;
+    background-color: var(--color-white);
+  }
+
+
+
+  &__selectOption {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 4px;
+
+    span {
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      line-height: 1.4;
+      min-width: 0; // Important for flex wrapping
+      max-width: calc(100% - 30px); // Reserve minimal space for count
+    }
+  }
+
+  &__selectCount {
+    color: #999;
+    font-size: 11px;
+    margin-left: 2px;
+    padding: 0 2px;
+    flex-shrink: 0;
+    align-self: flex-start;
+    min-width: 0;
+    width: fit-content;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  &__title {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-2);
+    line-height: var(--line-height-heading);
+    letter-spacing: -0.01em;
+    color: var(--c-theme-800);
+    margin-bottom: 0;
+  }
+
+  &__topSection {
+    background-color: var(--color-light-gold);
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    grid-column: 1 / span 2;
+
+    width: 100%;
+    box-sizing: border-box;
+    
+    padding: 1rem 1.5rem;
+    @include at(lg) {
+      padding: 2rem 4rem;
+    }
+
+     @include at(lg) {
+      flex-direction: column;
+      gap: 1rem;
+      padding: 2rem 4rem 2rem 8rem;
+    }
+
+  }
+
+  &--venue {
+    grid-area: venue;
+  }
+
+
+
+  // Mobile date picker modal styles
+  .dp__mobile_modal {
+    .dp__menu {
+      position: static !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      width: 100% !important;
+      height: auto !important;
+      max-width: none !important;
+      max-height: none !important;
+      border-radius: 0 !important;
+      z-index: auto !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      border: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .dp__modal_body {
+      padding: 1rem !important;
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+  }
+
+  // Make dropdown menus span across both venue and ensemble filters
+  .eventsSearch__filtersRow {
+    position: relative;
+  }
+
+  &__refinementCount {
+    justify-self: end;
+    padding-right: 0.5rem;
+  }
+
+  
+
+  // Modal styles moved outside .eventsSearch scope
+
+
+
+  .tabs {
+    grid-column: 1 / span 2;
+  }
+
+
+
+
+  // Calendar styles
+  .dp__menu {
+    @media (max-width: 768px) {
+      border: none !important;
+    }
+  }
+
+  // Desktop positioning for date picker to span across Date and Venue inputs
+  .eventsSearch__filterGroup--date {
+    --dp-menu-width: 300px;
+  @media (min-width: 769px) {
+      position: relative;
+    }
+
+    .dp__outer_menu_wrap {
+      @media (min-width: 769px) {
+        position: absolute !important;
+        left: 0 !important;
+        top: calc(100% + .5rem)  !important;
+        //width: calc(150% + 1rem) !important;
+        z-index: 1000 !important;
+      }
+
+      .dp__menu {
+        @media (min-width: 769px) {
+          width: 100% !important;
+          left: 0 !important;
+        }
+      }
+    }
+  }
+
+  .dp__menu_inner {
+    --dp-menu-padding: 16px 8px;
+    @media (max-width: 769px) {
+      --dp-menu-padding: 0 !important;
+    }
+  }
+
+  .dp__cell_inner.dp__today {
+    border-radius: 50% !important;
+    border-color: var(--c-brand) !important;
+    color: var(--c-brand) !important;
+  }
+
+  .dp__cell_inner {
+    --dp-cell-border-radius: 16px !important;
+    --dp-font-size: 14px !important;
+    --dp-cell-size: 48px;
+    font-size: var(--dp-font-size);
+  }
+
+  .dp__range_start,
+  .dp__range_end {
+    --dp-cell-border-radius: 32px !important;
+    --dp-primary-color: var(--c-brand) !important;
+  }
+
+  .dp__range_between {
+    --dp-range-between-dates-background-color: var(--c-theme-200) !important;
+    --dp-range-between-dates-text-color: var(--c-theme-400) !important;
+    border: none !important;
+  }
+
+  .dp__calendar_item,
+  .dp__calendar_header_item {
+    flex-grow: 0 !important;
+    --dp-cell-size: 48px;
+  }
+
+  .dp--year-select, .dp__month_year_select {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    --dp-text-color: var(--c-theme-800) !important;
+  }
+
+  .dp__calendar_header_item {
+    color: #686F73 !important;
+  }
+
+  // Date picker action buttons to match mobile modal buttons
+  .dp__action_buttons {
+    gap: 12px !important;
+  }
+
+  .dp__active_date {
+    background-color: var(--color-turquoise);
+  }
+
+  .dp__action_button {
+    @include at(lg) {
+      padding: 16px 24px !important;
+    }
+    
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: var(--font-size-2) !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    padding: 1rem;
+
+    &.dp__action_select {
+      background: var(--color-turquoise) !important;
+      color: var(--color-dark-blue);
+
+      &:hover {
+        background: var(--color-turquoise) !important;
+      }
+    }
+
+    &.dp__action_cancel {
+      background: var(--color-gray-100) !important;
+      color: var(--color-dark-blue) !important;
+      border: none !important;
+      font-weight: 200 !important;
+
+      &:hover {
+        background: #e8e8e8 !important;
+      }
+    }
+  }
+  .dp__calendar_header_separator{
+    height: 0 !important;
+  }
+
+  .dp__month_year_wrap {
+    margin-bottom: .5rem !important;
+  }
+
+  .dp__action_row {
+    border-top: 1px solid #D6D;
+  }
+  .dp__action_row {
+    @include at(lg) {
+      width: 100% !important;
+    }
+    border-top: 1px solid #D6D6D6 !important;
+  }
+
+  .dp__input_icon {
+    --dp-icon-color: var(--color-dark-blue);
+  }
+}

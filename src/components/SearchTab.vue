@@ -419,17 +419,17 @@
             <!-- Header and Search Section -->
             <div class="eventsSearch__topSection">
                 <!-- Search Filters Section -->
-                <section class="eventsSearch__filters">
-                    <div class="eventsSearch__filtersRow">
+                <section class="filters">
+                    <div class="filters__row">
                         <!-- Search Box -->
-                        <div class="eventsSearch__filterGroup eventsSearch__filterGroup--search">
+                        <div class="filters__filterGroup filters__search">
                             <ais-search-box
                                 
-                                class="eventsSearch__searchBox"
+                                class="searchBox"
                             >
                                 <template v-slot="{ currentRefinement, isSearchStalled, refine }">
                                     <form class="ais-SearchBox-form" novalidate>
-                                        <label for="searchbox" class="hiddenLabel">{{ props.searchPlaceholder }}</label>
+                                        <label for="searchbox" class="label__hidden">{{ props.searchPlaceholder }}</label>
                                         <input
                                             class="ais-SearchBox-input"
                                             id="searchbox"
@@ -445,10 +445,10 @@
                                 </template>
                             </ais-search-box>
                         </div>
-                        <div class="eventsSearch__filterGroup eventsSearch__filterGroup--date">
+                        <div class="filters__filterGroup dateRange">
                             <ais-range-input :attribute="props.sortField">
                                 <template v-slot="{ currentRefinement, range, refine }" >
-                                    <label for="start" class="hiddenLabel">Start Date</label>
+                                    <label for="start" class="label__hidden">Start Date</label>
                                     <vue-date-picker
                                         :aria-labels="{ input: 'Start Date'}"
                                         :model-value="toMinValue(currentRefinement, range)"
@@ -467,10 +467,9 @@
                                         :tab-submit="true"
                                         :text-input="true"
                                         placeholder="Start"
-                                        class="eventsSearch__datePicker"
                                         id="start"
                                     />
-                                    <label for="end" class="hiddenLabel">End Date</label>
+                                    <label for="end" class="label__hidden">End Date</label>
                                     <vue-date-picker
                                         :aria-labels="{ input: 'End Date'}"
                                         :model-value="toMaxValue(currentRefinement, range)"
@@ -485,19 +484,18 @@
                                         :multi-calendars="false"
                                         :enable-time-picker="false"
                                         placeholder="End"
-                                        class="eventsSearch__datePicker"
                                         id="end"
                                     />
                                 </template>
                             </ais-range-input>
                         </div>
-                        <div class="eventsSearch__filterGroup--button">
+                        <div class="filters__button">
                             <button class="button info">
                                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" class="mobileSearch">
                                     <path d="M6.00037 11.2504C8.90007 11.2504 11.2507 8.89978 11.2507 6.00018C11.2507 3.10059 8.90007 0.75 6.00037 0.75C3.10067 0.75 0.75 3.10059 0.75 6.00018C0.75 8.89978 3.10067 11.2504 6.00037 11.2504Z" stroke="#14284E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M9.7124 9.71265L12.7502 12.7503" stroke="#14284E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span class="searchButton">Search</span>
+                                <span class="filters__searchButton">Search</span>
                             </button>
                         </div>
                     </div>
@@ -505,12 +503,12 @@
             </div>
 
                 <!-- View Toggle and Active Filters -->
-            <section class="eventsSearch__filterRail" :id="`${props.indexName}_filterRail`">
+            <section class="filters__filterRail" :id="`${props.indexName}_filterRail`">
                 
-                <div class="eventsSearch__filterWrapper">
-                    <div class="eventsSearch__filterHeader">
-                        <div class="eventsSearch__filterToggle">
-                            <svg width="24" height="24" viewBox="0 0 24 24" class="filterIcon">
+                <div class="filters__wrapper">
+                    <div class="filters__header">
+                        <div class="filters__toggle">
+                            <svg width="24" height="24" viewBox="0 0 24 24" class="filters__icon">
                                 <rect width="24" height="24" rx="4" fill="#01ABE6"/>
                                 <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
                                 <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
@@ -543,12 +541,12 @@
                                     </div>
                                 </summary>
                                 <div class="accordion__content" v-if="items.length || isFromSearch">
-                                    <div class="ais-SearchBox eventsSearch__searchBox -filter">
-                                        <label class="hiddenLabel" :for="refinement.attribute">{{ refinement.placeholder }}</label>
+                                    <div class="ais-SearchBox searchBox -filter">
+                                        <label class="label__hidden" :for="refinement.attribute">{{ refinement.placeholder }}</label>
                                         <input :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
                                     </div>
-                                    <div class="eventsSearch__checkBoxes">
-                                        <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
+                                    <div class="checkBoxes">
+                                        <label v-for="item in items" class="checkBoxes__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
                                             <div class="eventSearch__checkBox">
                                                 <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
                                             </div>
@@ -578,12 +576,12 @@
                                                 </div>
                                             </summary>
                                             <div class="accordion__content" v-if="items.length || isFromSearch">
-                                                <div class="ais-SearchBox eventsSearch__searchBox -filter" v-if="!refinement.hideSearch">
-                                                    <label class="hiddenLabel" :for="refinement.attribute">{{ refinement.placeholder }}</label>
+                                                <div class="ais-SearchBox searchBox -filter" v-if="!refinement.hideSearch">
+                                                    <label class="label__hidden" :for="refinement.attribute">{{ refinement.placeholder }}</label>
                                                     <input :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
                                                 </div>
-                                                <div class="eventsSearch__checkBoxes">
-                                                    <label v-for="item in items" class="eventsSearch__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
+                                                <div class="checkBoxes">
+                                                    <label v-for="item in items" class="checkBoxes__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
                                                         <div class="eventSearch__checkBox">
                                                             <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
                                                         </div>
@@ -632,16 +630,16 @@
                         </div>
                     </p-accordion>
                 </div>
-                <div class="actionBar">
+                <div class="clearRefinements">
                     <ais-clear-refinements :excluded-attributes="[]">
                         <template v-slot="{ refine, createURL }">
-                        <a
-                            :href="createURL()"
-                            @click.prevent="refine"
-                        >
-                            <button>Clear</button>
-                            <button @click="toggleFiltersMobile()" class="filterApply">Apply</button>
-                        </a>
+                            <a
+                                :href="createURL()"
+                                @click.prevent="refine"
+                            >
+                                <button>Clear</button>
+                                <button @click="toggleFiltersMobile()" class="filterApply">Apply</button>
+                            </a>
                         </template>
                     </ais-clear-refinements>
                     
@@ -654,7 +652,7 @@
                 <ais-hits :key="updateNow" class="eventsSearch__hits" :transform-items="filterItems">
                     <template v-slot="{ items }">
                         <div class="eventsSearch__resultsHeader -mobile">
-                            <div class="eventsSearch__filterToggle">
+                            <div class="filters__toggle">
                                 <button class="filterButton" @click="toggleFiltersMobile()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" >
                                         <rect width="24" height="24" rx="4" fill="#01ABE6"/>
@@ -678,7 +676,7 @@
                         </div>
                         <div class="eventsSearch__resultsHeader">
                             <div class="eventsSearch__resultsTitle">
-                                <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" class="eventsSearch__filterToggleOn" @click="toggleFilters()">
+                                <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" class="filters__toggleOn" @click="toggleFilters()">
                                     <rect width="24" height="24" rx="4" fill="#01ABE6"/>
                                     <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
                                     <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
@@ -697,22 +695,22 @@
                                 <h2 v-else>{{ props.resultsTitle }}</h2>
 
                             </div>
-                            <div class="eventsSearch__actions">
-                                <div class="eventsSearch__resultsSort">Sort by: 
+                            <div class="actions">
+                                <div class="actions__sort">Sort by: 
                                     <select v-model="sortView" @change="setView">
                                     <option value="Most Recent">Most Recent</option>
                                     <option value="Most Relevant">Most Relevant</option>
                                     <option value="Oldest First">Oldest First</option>
                                     </select>
                                 </div>
-                                <div v-if="showNumHits" class="eventsSearch__actionButtons">
-                                    <a onclick="navigator.clipboard.writeText(window.location.href);" class="eventsSearch__actionIcon">
+                                <div v-if="showNumHits" class="actions__buttons">
+                                    <a onclick="navigator.clipboard.writeText(window.location.href);" class="actions__icon">
                                         <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M3.8335 5.00683C4.00129 5.24348 4.21538 5.4393 4.46122 5.581C4.70706 5.72269 4.97891 5.80696 5.25834 5.82807C5.53776 5.84918 5.81823 5.80665 6.0807 5.70336C6.34317 5.60006 6.58152 5.43843 6.77957 5.22941L7.95175 3.99281C8.30762 3.6041 8.50454 3.08349 8.50009 2.5431C8.49564 2.00271 8.29018 1.48578 7.92796 1.10365C7.56574 0.721528 7.07574 0.504774 6.5635 0.500078C6.05127 0.495382 5.55778 0.70312 5.18932 1.07855L4.51727 1.78341" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M5.83333 3.99326C5.64156 3.7566 5.3969 3.56078 5.11594 3.41908C4.83497 3.27739 4.52428 3.19313 4.20494 3.17201C3.8856 3.1509 3.56507 3.19343 3.2651 3.29673C2.96513 3.40002 2.69273 3.56165 2.46639 3.77067L1.12675 5.00727C0.720043 5.39598 0.494997 5.9166 0.500084 6.45698C0.505171 6.99737 0.739985 7.5143 1.15395 7.89643C1.56791 8.27855 2.12791 8.49531 2.71332 8.5C3.29874 8.5047 3.86273 8.29696 4.28382 7.92153L5.04741 7.21667" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
                                     </a>
-                                    <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`"  class="eventsSearch__actionIcon">
+                                    <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`"  class="actions__icon">
                                         <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M7.47805 10.9099L0.5 10.9099" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M0.75293 4.94067L3.92477 8.11252L7.09662 4.94067" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -724,24 +722,24 @@
                         </div>
                         <ais-current-refinements :excluded-attributes="[]">
                             <template v-slot="{ items, createURL }">
-                                <div class="eventsSearch__activeFilters">
-                                    <div class="eventsSearch__activeTitle" v-if="items.length">Applied Filters</div>
+                                <div class="activeFilters">
+                                    <div class="activeFilters__title" v-if="items.length">Applied Filters</div>
                                     <ais-clear-refinements v-if="items.length" :excluded-attributes="[]">
                                         <template v-slot="{ canRefine, refine, createURL }">
                                         <a
                                             :href="createURL()"
                                             @click.prevent="refine"
                                             v-if="canRefine"
-                                            class="eventsSearch__clearFilters"
+                                            class="activeFilters__clearFilters"
                                         >
                                             Clear
                                         </a>
                                         <span v-else></span>
                                         </template>
                                     </ais-clear-refinements>
-                                    <ul class="eventsSearch__activeFiltersList">
-                                        <li v-for="item in items" :key="item.attribute" class="eventsSearch__activeFiltersGroup">
-                                        <ul class="eventsSearch__activeFiltersItems">
+                                    <ul class="activeFilters__filtersList">
+                                        <li v-for="item in items" :key="item.attribute">
+                                        <ul class="activeFilters__items">
                                             <li
                                             v-for="refinement in item.refinements"
                                             :key="[
@@ -750,13 +748,13 @@
                                                 refinement.value,
                                                 refinement.operator
                                             ].join(':')"
-                                            class="eventsSearch__activeFilterItem"
+                                            class="activeFilters__item"
                                             >
                                             <a
                                                 :href="createURL(refinement)"
                                                 @click.prevent="item.refine(refinement)"
                                                 v-html="formatRefinement(refinement)"
-                                                class="eventsSearch__activeFilterRemove"
+                                                class="activeFilters__remove"
                                             ></a>
                                             </li>
                                         </ul>
@@ -776,7 +774,7 @@
 
 
                 <!-- Pagination -->
-                <nav class="eventsSearch__pagination">
+                <nav class="resultsPagination">
                     <ais-stats>
                         <template v-slot="{ hitsPerPage, nbHits, page }">
                             {{ nbHits == 0 ? nbHits : page * hitsPerPage + 1 }} - {{ (((page + 1) * hitsPerPage)) < nbHits ? (((page + 1) * hitsPerPage)) : nbHits }} of {{ nbHits }} Results
@@ -794,7 +792,7 @@
                             createURL
                             }"
                         >
-                            <ul class="eventsSearch__paginationComponent" v-if="pages.length > 1">
+                            <ul class="resultsPagination__paginationComponent" v-if="pages.length > 1">
                                 <li v-if="!isFirstPage && nbPages > 5" class="arrow">
                                     <a :href="createURL(0)" @click.prevent="refine(0)">
                                     ‹‹

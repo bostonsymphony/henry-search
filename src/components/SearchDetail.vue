@@ -50,7 +50,7 @@ onMounted(() => {
     })
 
     document.addEventListener("click", function(){
-      document.querySelectorAll(".audioLinkBox").forEach((el) => {
+      document.querySelectorAll(".audioLinks__box").forEach((el) => {
         el.classList.remove("-open")
       })
     })
@@ -118,13 +118,13 @@ const createURL = (facet, value) => {
 
 <template>
     <template v-if="performance">
-        <div class="performance__breadCrumb"><a :href="searchHistory[searchHistory.length - 1].link">Back to Search Results</a></div>
+        <div class="breadCrumb"><a :href="searchHistory[searchHistory.length - 1].link">Back to Search Results</a></div>
         <div class="performance__details">
             <div class="performance__header">
                 <h1>{{ formatDate(performance.performance_date) }} Performance Detail</h1>
                 <h2>{{ formatTime(performance.performance_date) }} | {{ formatLocation(performance.venue, performance.location) }}</h2>
             </div>
-            <div class="performance__headerLinks">
+            <div class="headerLinks">
                 <event-links :detail="true" :item="performance" />
             </div>
             <div class="performance__headerData">
@@ -153,59 +153,59 @@ const createURL = (facet, value) => {
                 <div><span class="performance__dataTitle">Notes:</span><br/>{{ performance.notes ?? '---' }}</div>
             </div>
             <h4>Program</h4>
-            <div class="performance__grid">
+            <div class="performanceGrid">
                 <template v-for="work, index in performance.works">
                     <template v-if="index == 0">
-                        <div class="performance__cell -header -first">Composer</div>
-                        <div class="performance__cell -header">Works</div>
-                        <div class="performance__cell -header">Additional Creator</div>
-                        <div class="performance__cell -header">Artist</div>
-                        <div class="performance__cell -header">Role</div>
+                        <div class="performanceGrid__cell -header -first">Composer</div>
+                        <div class="performanceGrid__cell -header">Works</div>
+                        <div class="performanceGrid__cell -header">Additional Creator</div>
+                        <div class="performanceGrid__cell -header">Artist</div>
+                        <div class="performanceGrid__cell -header">Role</div>
                     </template>
 
-                <div :class="`performance__cell -first -composers 
+                <div :class="`performanceGrid__cell -first -composers 
                     ${ index == 0 ? '-top' : ''}
                     ${ index % 2 == 0 ? '-even' : '-odd' } 
                     ${ index + 1 == performance.works.length ? '-last' : ''}`">
-                        <span class="mobileHeader">Composer</span>
+                        <span class="performanceGrid__mobileHeader">Composer</span>
                         <span v-for="composer, index in work.composers">
                             <a :href="createURL('works.composers', composer)">{{ composer + (index < work.composers.length - 1 ? ",&nbsp;" : "") }}</a>
                         </span>
                     </div>
-                <div :class="`performance__cell ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">
-                        <span class="mobileHeader">Work</span>
-                        <div class="workItem">
-                            <span class="infoItem">
+                <div :class="`performanceGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">
+                        <span class="performanceGrid__mobileHeader">Work</span>
+                        <div class="performanceGrid__workItem">
+                            <span class="performanceGrid__infoItem">
                                 <a :href="createURL('works.title', work.title)">{{ work.title }}</a>
                                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="work.has_recording">
                                     <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>    
                             </span>
-                            <span v-if="work.premiere" class="infoItem -small">Work Premiere:<br/>
+                            <span v-if="work.premiere" class="performanceGrid__infoItem -small">Work Premiere:<br/>
                                 <a :href="createURL('works.premiere', work.premier)">{{ work.premiere }}</a>
                             </span>
-                            <span v-if="work.commission" class="infoItem -small">Commission:<br/>
+                            <span v-if="work.commission" class="performanceGrid__infoItem -small">Commission:<br/>
                                 <a :href="createURL('works.commission', work.commission)">
                                     {{ work.commission }}
                                 </a>
                             </span>
-                            <span v-if="work.encore" class="infoItem -small"><a :href="createURL('works.encore', work.encore)">Encore</a></span>
+                            <span v-if="work.encore" class="performanceGrid__infoItem -small"><a :href="createURL('works.encore', work.encore)">Encore</a></span>
                             </div>
                     </div>
-                    <div :class="`performance__cell ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">
-                        <span class="mobileHeader">Additional Creator</span>
-                        <span v-for="c in work.additional_creators" class="infoItem">
+                    <div :class="`performanceGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">
+                        <span class="performanceGrid__mobileHeader">Additional Creator</span>
+                        <span v-for="c in work.additional_creators" class="performanceGrid__infoItem">
                             <a :href="createURL('works.additional_creators.name', c.name)">{{ c.name }}, {{ c.role }}</a>
                         </span>
                     </div>
-                    <div :class="`performance__cell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">
-                        <span class="mobileHeader">Artist</span>
-                        <span v-for="a in work.artists" class="infoItem"><a :href="createURL('works.artists.name', a.name)">{{ a.name }}</a></span>
+                    <div :class="`performanceGrid__cell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">
+                        <span class="performanceGrid__mobileHeader">Artist</span>
+                        <span v-for="a in work.artists" class="performanceGrid__infoItem"><a :href="createURL('works.artists.name', a.name)">{{ a.name }}</a></span>
                     </div>
-                <div :class="`performance__cell -role ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">
-                        <span class="mobileHeader">Role</span>
-                        <span v-for="a in work.artists" class="infoItem"><a :href="createURL('works.artists.role', a.role)">{{ a.role }}</a></span>
+                <div :class="`performanceGrid__cell -role ${index % 2 == 0 ? '-even' : '-odd'} ${ index + 1 == performance.works.length ? '-last' : ''}`">
+                        <span class="performanceGrid__mobileHeader">Role</span>
+                        <span v-for="a in work.artists" class="performanceGrid__infoItem"><a :href="createURL('works.artists.role', a.role)">{{ a.role }}</a></span>
                     </div>
                 </template>
             </div> 

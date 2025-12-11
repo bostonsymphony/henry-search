@@ -1,0 +1,12 @@
+@use "@imarc/pronto/resources/styles/imported" as *;
+
+.breadCrumb {
+    background-color: var(--color-light-gold);
+    padding: 0.5rem 1.5rem;
+    @include at(md) {
+        padding: 0.5rem 2rem 0.5rem 4rem;
+    }
+    @include at(lg) {
+        padding: 0.5rem 4rem 0.5rem 8rem;
+    }
+}

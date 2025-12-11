@@ -1,0 +1,49 @@
+.activeFilters {
+    align-items: center;
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: 1fr auto;
+    padding-top: 1rem;
+
+    
+
+    &__clearFilters {
+        font-weight: 100;
+        font-size: 1.15rem;
+        color: var(--color-mid-gray);
+    }
+
+    &__item {
+        background-color: var(--color-light-gray);
+        color: var(--color-dark-blue);
+        font-weight: 100;
+        border-radius: 4px;
+        padding: .25rem .5rem;
+    }
+
+    &__items {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    &__filtersList {
+        grid-column: 1/span 2;
+        display: flex;
+        gap: .75rem;
+        margin-bottom: 1rem;
+    }
+    &__remove {
+        color: var(--color-dark-blue);
+        .eventLocation {
+        margin-left: 0.25rem;
+        }
+    }
+
+    &__title {
+        font-weight: bold;
+    }
+
+  
+}

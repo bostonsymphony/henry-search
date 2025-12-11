@@ -162,59 +162,59 @@
           :search-host="props.searchHost"
         >
           <template v-slot="{ items }">
-            <div class="eventsSearch__resultsGrid" v-if="items && items.length">
+            <div class="resultsGrid" v-if="items && items.length">
               <!-- Header Row -->
-              <div class="eventsSearch__resultCell -header -first">Date/Season/Title</div>
-              <div class="eventsSearch__resultCell -header">Venue</div>
-              <div class="eventsSearch__resultCell -header">Ensemble</div>
-              <div class="eventsSearch__resultCell -header">Conductor</div>
-              <div class="eventsSearch__resultCell -header">Composer/Work</div>
-              <div class="eventsSearch__resultCell -header">Artist/Role</div>
-              <div class="eventsSearch__resultCell -header">View</div>
+              <div class="resultsGrid__cell -header -first">Date/Season/Title</div>
+              <div class="resultsGrid__cell -header">Venue</div>
+              <div class="resultsGrid__cell -header">Ensemble</div>
+              <div class="resultsGrid__cell -header">Conductor</div>
+              <div class="resultsGrid__cell -header">Composer/Work</div>
+              <div class="resultsGrid__cell -header">Artist/Role</div>
+              <div class="resultsGrid__cell -header">View</div>
               <template v-for="item, index in items">
                 <template v-if="item.works && item.works.length" v-for="w, i in item.works.slice(0, 6)">
                   <!-- First row of an event -->
                   <template v-if="i == 0">
-                    <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      <span class="mobileHeader">Date/Season/Title</span>
+                    <div :class="`resultsGrid__cell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      <span class="resultsGrid__mobileHeader">Date/Season/Title</span>
                       {{ formatDate(item.performance_date) }} / {{ item.season + (item.event_title ? " / " + item.event_title : "")}}
                     </div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${((index + 1 == items.length && (i + 1 == item.works.length || i == 5)) && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      <span class="mobileHeader">Venue</span>
+                    <div :class="`resultsGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} ${((index + 1 == items.length && (i + 1 == item.works.length || i == 5)) && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                      <span class="resultsGrid__mobileHeader">Venue</span>
                       {{ item.venue }} {{ formatLocation(item.location) }}
                     </div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} 
+                    <div :class="`resultsGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} 
                       ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      <span class="mobileHeader">Ensemble</span>
-                      <span class="ensembles">{{ w.ensembles.join('; ')}}</span>
-                      <span class="ensemblesMobile">{{ formatWorkAttribute(item.works, 'ensembles') }}</span>  
+                      <span class="resultsGrid__mobileHeader">Ensemble</span>
+                      <span class="resultsGrid__ensembles">{{ w.ensembles.join('; ')}}</span>
+                      <span class="resultsGrid__ensemblesMobile">{{ formatWorkAttribute(item.works, 'ensembles') }}</span>  
                     </div>
-                    <div :class="`eventsSearch__resultCell 
+                    <div :class="`resultsGrid__cell 
                       ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                      <span class="mobileHeader">Conductor</span>
-                      <span class="conductors">{{ w.conductors.join('; ') }}</span>
-                      <span class="conductorsMobile">{{ formatWorkAttribute(item.works, 'conductors') }}</span>  
+                      <span class="resultsGrid__mobileHeader">Conductor</span>
+                      <span class="resultsGrid__conductors">{{ w.conductors.join('; ') }}</span>
+                      <span class="resultsGrid__conductorsMobile">{{ formatWorkAttribute(item.works, 'conductors') }}</span>  
                     </div>
-                    <div :class="`eventsSearch__resultCell -work
+                    <div :class="`resultsGrid__cell -work
                         ${index % 2 == 0 ? '-even' : '-odd'} 
                         ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
-                       <span class="mobileHeader">Composer/Work</span>
+                       <span class="resultsGrid__mobileHeader">Composer/Work</span>
                       {{ w?.composers?.join("; ") }} / {{ w?.title }}
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" v-if="w.has_recording">
                         <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </div>
-                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-if="w.artists && w.artists.length < 3">
-                       <span class="mobileHeader">Artist/Role</span>
+                    <div :class="`resultsGrid__cell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-if="w.artists && w.artists.length < 3">
+                       <span class="resultsGrid__mobileHeader">Artist/Role</span>
                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).join('; ') }}
                     </div>
-                    <div :class="`eventsSearch__resultCell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-else>
-                       <span class="mobileHeader">Artist/Role</span>
+                    <div :class="`resultsGrid__cell -artist ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" v-else>
+                       <span class="resultsGrid__mobileHeader">Artist/Role</span>
                        {{ w.artists ? w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') : ""}}
                        <br/><a v-if="w.artists" :href="`/details?performanceId=${item.id}`">More...</a>
                     </div>
-                    <div :class="`eventsSearch__resultCell -detailsMobile
+                    <div :class="`resultsGrid__cell -detailsMobile
                       ${item.works.length > 1 ? '-details' : '' }
                       ${index % 2 == 0 ? '-even' : '-odd'} 
                       ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last -lastMobile' : ''}`">
@@ -223,16 +223,16 @@
                   </template>
                   <!-- Additional event rows -->
                   <template v-else-if="i > 0 && i <= 4">
-                    <div :class="`eventsSearch__resultCell -empty -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell -empty
+                    <div :class="`resultsGrid__cell -empty -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`resultsGrid__cell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`resultsGrid__cell -empty
                       ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       {{ w.ensembles.join('; ')}}
                     </div>
-                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`resultsGrid__cell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       {{ w.conductors.join('; ') }}
                     </div>
-                    <div :class="`eventsSearch__resultCell -work 
+                    <div :class="`resultsGrid__cell -work 
                     ${index % 2 == 0 ? '-even' : '-odd'} 
                     ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       {{ w?.composers?.join("; ") }} / {{ w?.title }}
@@ -241,20 +241,20 @@
                         <path d="M12.4268 6.99365C12.9669 7.53393 13.2703 8.2666 13.2703 9.03054C13.2703 9.79449 12.9669 10.5272 12.4268 11.0674" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </div>
-                    <div :class="`eventsSearch__resultCell -artist 
+                    <div :class="`resultsGrid__cell -artist 
                       ${index % 2 == 0 ? '-even' : '-odd'} 
                       ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" 
                       v-if="w.artists && w.artists.length < 3">
                       {{ w.artists.map((artist) => artist.name + '/' + artist.role).join('; ') }}
                     </div>
-                    <div :class="`eventsSearch__resultCell -artist 
+                    <div :class="`resultsGrid__cell -artist 
                       ${index % 2 == 0 ? '-even' : '-odd'} 
                       ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`" 
                       v-else>
                       {{ w.artists ? w.artists.map((artist) => artist.name + '/' + artist.role).slice(0, 2).join('; ') : ""}}
                       <br/><a v-if="w.artists" :href="`/details?performanceId=${item.id}`">More...</a>
                     </div>
-                    <div :class="`eventsSearch__resultCell -detailsMobile
+                    <div :class="`resultsGrid__cell -detailsMobile
                       ${index % 2 == 0 ? '-even' : '-odd'} 
                       ${(index + 1 == items.length && (i + 1 == item.works.length || i == 4)) ? '-last -lastMobile' : ''}
                       ${ !(i + 1 == item.works.length || i == 5) ? '-empty' : ''}`">
@@ -264,16 +264,16 @@
                     </div>
                   </template>
                   <template v-else-if="i > 4">
-                    <div :class="`eventsSearch__resultCell -empty -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
+                    <div :class="`resultsGrid__cell -empty -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`resultsGrid__cell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`resultsGrid__cell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`resultsGrid__cell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`resultsGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`">
                       <a :href="`/details?performanceId=${item.id}`">More...</a>
                     </div>
                     
-                    <div :class="`eventsSearch__resultCell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
-                    <div :class="`eventsSearch__resultCell -detailsMobile
+                    <div :class="`resultsGrid__cell -empty ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last' : ''}`"></div>
+                    <div :class="`resultsGrid__cell -detailsMobile
                       ${index % 2 == 0 ? '-even' : '-odd'} 
                       ${(index + 1 == items.length && (i + 1 == item.works.length || i == 5)) ? '-last -lastMobile' : ''}
                       ${ !(i + 1 == item.works.length || i == 5) ? '-empty' : ''}`">
@@ -284,27 +284,27 @@
                   </template>
                 </template>
                 <template v-if="!item.works || item.works.length == 0">
-                  <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                    <span class="mobileHeader">Date/Season/Title</span>
+                  <div :class="`resultsGrid__cell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                    <span class="resultsGrid__mobileHeader">Date/Season/Title</span>
                     {{ formatDate(item.performance_date) }} / {{ item.season + (item.event_title ? " / " + item.event_title : "")}}
                   </div>
-                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                     <span class="mobileHeader">Venue</span>
+                  <div :class="`resultsGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                     <span class="resultsGrid__mobileHeader">Venue</span>
                     {{ item.venue }} {{ formatLocation(item.location) }}
                   </div>
-                  <div :class="`eventsSearch__resultCell
+                  <div :class="`resultsGrid__cell
                     ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                    <span class="mobileHeader">Ensemble</span>
+                    <span class="resultsGrid__mobileHeader">Ensemble</span>
                     {{ item.ensembles ? item.ensembles.join('; ') : ""}}
                   </div>
-                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} 
+                  <div :class="`resultsGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} 
                     ${(index + 1 == items.length) ? '-last' : ''}`">
-                    <span class="mobileHeader">Conductor</span>
+                    <span class="resultsGrid__mobileHeader">Conductor</span>
                     {{ item.conductors.join('; ') }}
                   </div>
-                  <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"><span class="mobileHeader">Composer/Work</span></div>
-                  <div :class="`eventsSearch__resultCell -hideMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
-                  <div :class="`eventsSearch__resultCell -detailsMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <div :class="`resultsGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"><span class="resultsGrid__mobileHeader">Composer/Work</span></div>
+                  <div :class="`resultsGrid__cell -hideMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`"></div>
+                  <div :class="`resultsGrid__cell -detailsMobile ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
                     <event-links :item="item" />
 
                   </div>
@@ -330,37 +330,37 @@
         >
           <template v-slot="{ items }">
             <div class="eventsSearch__artistsGrid">
-              <div class="eventsSearch__resultCell -header -first">Artist</div>
-              <div class="eventsSearch__resultCell -header">Instrument/Role</div>
-              <div class="eventsSearch__resultCell -header">Composer/Work</div>
-              <div class="eventsSearch__resultCell -header"># of Performances</div>
+              <div class="resultsGrid__cell -header -first">Artist</div>
+              <div class="resultsGrid__cell -header">Instrument/Role</div>
+              <div class="resultsGrid__cell -header">Composer/Work</div>
+              <div class="resultsGrid__cell -header"># of Performances</div>
 
               <template v-for="item, index in items">
-                <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                  <span class="mobileHeader">Artist</span>
+                <div :class="`resultsGrid__cell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <span class="resultsGrid__mobileHeader">Artist</span>
                   <a :href="createURL([{ facet: 'works.artists.name', value: item.artist_name}])">
                     {{ item.artist_name }}
                   </a>
                 </div>
-                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                  <span class="mobileHeader">Role</span>
+                <div :class="`resultsGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <span class="resultsGrid__mobileHeader">Role</span>
                   <a :href="createURL([{ facet: 'works.artists.role', value: item.artist_role }])">
                     {{ item.artist_role }}
                   </a>
                 </div>
-                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                  <span class="mobileHeader">Composer/Work</span>
+                <div :class="`resultsGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <span class="resultsGrid__mobileHeader">Composer/Work</span>
                   <a :href="createURL([{ facet: 'works.title', value: item.work_title }])">
                     {{ item.composer }} / {{ item.work_title }}
                   </a>
                 </div>
-                <div :class="`eventsSearch__resultCell -perfs ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                  <span class="mobileHeader"># of Performances</span>
+                <div :class="`resultsGrid__cell -perfs ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <span class="resultsGrid__mobileHeader"># of Performances</span>
                   <a :href="createURL([{ facet: 'works.artists.name', value: item.artist_name},
                     { facet: 'works.artists.role', value: item.artist_role },
                     { facet: 'works.title', value: item.work_title }
                   ])">
-                    <span class="eventsSearch__lightLink">{{ item.num_performances }} Performances</span>
+                    <span class="resultsGrid__lightLink">{{ item.num_performances }} Performances</span>
                     
                   </a>                  
                 </div>
@@ -386,27 +386,27 @@
         >
           <template v-slot="{ items }">
             <div class="eventsSearch__worksGrid">
-              <div class="eventsSearch__resultCell -header -first">Composer</div>
-              <div class="eventsSearch__resultCell -header">Work</div>
-              <div class="eventsSearch__resultCell -header">Additional Creator</div>
-              <div class="eventsSearch__resultCell -header"># of times Performed</div>
+              <div class="resultsGrid__cell -header -first">Composer</div>
+              <div class="resultsGrid__cell -header">Work</div>
+              <div class="resultsGrid__cell -header">Additional Creator</div>
+              <div class="resultsGrid__cell -header"># of times Performed</div>
                <template v-for="item, index in items">
-                <div :class="`eventsSearch__resultCell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                  <span class="mobileHeader">Composer</span>
+                <div :class="`resultsGrid__cell -first ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <span class="resultsGrid__mobileHeader">Composer</span>
                   <a v-for="composer, index in item.composers"
                     :href="createURL([{ facet: 'works.composers', value: composer}])">
                     {{ `${composer}${index < item.composers.length && item.composers.length > 1 ? '; ' : ''}` }}
                   </a>
                 </div>
-                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                  <span class="mobileHeader">Work</span>
+                <div :class="`resultsGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <span class="resultsGrid__mobileHeader">Work</span>
                   <a v-for="title, index in item.title"
                     :href="createURL([{ facet: 'works.title', value: title}])">
                     {{ `${title}${index < item.title.length && item.title.length > 1 ? '; ' : ''}` }}
                   </a>
                 </div>
-                <div :class="`eventsSearch__resultCell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                  <span class="mobileHeader">Additional Creator</span>
+                <div :class="`resultsGrid__cell ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <span class="resultsGrid__mobileHeader">Additional Creator</span>
                   <a v-if="item.creators && item.creators.length" v-for="creator, index in item.creators"
                     :href="createURL([{ facet: 'works.additional_creators.name', value: creator.name}])">
                     <template v-if="(typeof creator !== 'undefined' && creator && typeof creator.name !== 'undefined' && typeof creator.role !== 'undefined')">
@@ -414,12 +414,12 @@
                     </template>
                   </a>
                 </div>
-                <div :class="`eventsSearch__resultCell -perfs ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
-                  <span class="mobileHeader"># of times Performed</span>
+                <div :class="`resultsGrid__cell -perfs ${index % 2 == 0 ? '-even' : '-odd'} ${(index + 1 == items.length) ? '-last' : ''}`">
+                  <span class="resultsGrid__mobileHeader"># of times Performed</span>
                   <a :href="createURL([{ facet: 'works.composers', value: item.composers},
                     { facet: 'works.title', value: item.title}
                   ])">
-                    <span class="eventsSearch__lightLink">{{ item.num_performances }} Performances</span>
+                    <span class="resultsGrid__lightLink">{{ item.num_performances }} Performances</span>
                   </a>
                 </div>
               </template>

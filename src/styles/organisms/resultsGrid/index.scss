@@ -1,0 +1,157 @@
+@use "@imarc/pronto/resources/styles/imported" as *;
+
+.resultsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 1.5rem;
+    @include at(lg) {
+      padding: 0;
+      grid-template-columns: repeat(7, 1fr);
+    }
+
+    &__cell {
+        border-left: thin solid var(--color-gray-200);
+        border-right: thin solid var(--color-gray-200);
+        color: var(--color-dark-blue);
+        font-size: 0.9rem;
+        font-weight: bold;
+        grid-column: 1/span 2;
+        padding: 0.5rem 1rem;
+        @include at(lg) {
+            padding: 1rem;
+            grid-column: auto;
+            border: none;
+            border-right: thin solid var(--color-gray-200);
+        }
+        
+        
+        a {
+            color: var(--color-dark-blue);
+        }
+        
+        &.-artist {
+            border-left: none;
+            border-right: thin solid var(--color-gray-200);
+            grid-column: auto;
+        }
+
+        
+        &.-details {
+            display: none;
+            @include at(lg) {
+                display: inline;
+            }
+        }
+        &.-detailsMobile {
+            padding-bottom: 1rem;
+        }
+
+        &.-detailsMobile.-last {
+            border-bottom: thin solid var(--color-gray-200);
+        }
+        
+        &.-empty {
+            display:none;
+            @include at(lg) {
+                border-bottom: none;
+                display:inline;
+            }
+        }
+        &.-emptyMobile {
+            display:inline;
+            @include at(lg) {
+                display:none;
+            }
+        }
+        &.-even {
+            background-color: var(--color-light-gray);
+        }
+        &.-first {
+            border-top: thin solid var(--color-gray-200);
+            padding-top: 1rem;
+            @include at(lg) {
+                border-top: none;
+                border-left: thin solid var(--color-gray-200);
+            }
+        }
+        &.-header {
+            display: none;
+            @include at(lg) {
+                display: inline;
+                border-top: thin solid var(--color-gray-200);
+                border-bottom: thin solid var(--color-gray-200);
+                font-weight:100;
+                color: var(--color-gray-400);
+            }
+        }
+        &.-hideMobile {
+            display: none;
+            @include at(lg) {
+                display: inline;
+            }
+        }
+
+        &.-last.-empty.-lastMobile {
+            border-bottom: none;
+        }
+
+        &.-last, &.-last.-right, &.-last.-work {
+            border-bottom: none;
+            border-top: none;
+            @include at(lg) {
+                border-bottom: thin solid var(--color-gray-200);
+            }
+        }
+
+        &.-last.-perfs {
+            border-bottom: thin solid var(--color-gray-200);
+        }
+
+        &.-lastMobile {
+            border-bottom: thin solid var(--color-gray-200);
+        }
+
+        &.-emptyMobile {
+            display: inline;
+            @include at(lg) {
+                display:none;
+            }
+        }
+        
+        &.-work {
+            grid-column: auto;
+            border-right: none;
+            //border-left: thin solid var(--color-gray-200);
+            @include at(lg) {
+                border-right: thin solid var(--color-gray-200);
+            }
+        }
+    }
+    &__conductors,
+    &__ensembles {
+        display: none;
+        @include at(lg) {
+            display: inline;
+        }
+    }
+    &__conductorsMobile,
+    &__ensemblesMobile {
+        display: inline;
+        @include at(lg) {
+            display: none;
+        }
+    }
+
+    &__lightLink {
+        color: var(--color-turquoise);
+    }
+
+    &__mobileHeader {
+        display: block;
+        font-weight:100;
+        color: var(--color-gray-400);
+        @include at(lg) {
+            display: none;
+        }
+    }
+}

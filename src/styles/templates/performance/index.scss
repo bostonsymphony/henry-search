@@ -1,0 +1,74 @@
+
+@use "@imarc/pronto/resources/styles/imported" as *;
+
+.performance {
+
+
+
+    &__dataTitle {
+        font-weight: 100;
+        font-size: 0.9rem;
+        color: var(--color-dark-gray);
+        
+    }
+    &__details {
+        padding: 0.5rem 1.5rem;
+        h4 {
+            padding: 2rem 0 0.25rem;
+            font-size: 1.25rem;
+        }
+        @include at(md) {
+            padding: 0.5rem 2rem 0.5rem 4rem;
+        }
+        @include at(lg) {
+            padding: 0.5rem 4rem 0.5rem 8rem;
+        }
+    }
+
+    
+    &__header {
+        border-bottom: 1px solid var(--color-light-gray);
+        // h2 {
+        //     font-weight: 600;
+        //     font-size: 3.5rem;
+        //     padding: 0.75rem 0;
+        // }
+        h2 {
+            font-weight: 100;
+            font-size: 2.5rem;
+            padding-bottom: 0.75rem;
+        }
+    }
+    &__headerData {
+        border-bottom: 1px solid var(--color-light-gray);
+        display: grid;
+        font-weight: bold;
+        color: var(--color-dark-blue);
+        padding: 1.5rem 0;
+        @media screen and (min-width: 768px) {
+            grid-template-columns: repeat(5, 1fr) max(300px);
+        }
+        a {
+            font-size: 0.9rem;
+            color: var(--color-dark-blue);
+        }
+    }
+
+
+    &__program {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: auto;
+
+        &.-even {
+            background-color: var(--color-light-gray);
+        }
+        .composer {
+            grid-area: "composer";
+        }
+        
+        
+    }
+
+
+}

@@ -1,0 +1,22 @@
+@use "@imarc/pronto/resources/styles/imported" as *;
+
+.ais-CurrentRefinements {
+    border: none;
+    padding: 0 1.5rem;
+    @include at(lg) {
+        padding: 0;
+        border-top: thin solid var(--color-gray-200);
+    }
+    grid-area: filters;
+}
+
+.ais-CurrentRefinements--noRefinement {
+    border: none;
+}
+
+.ais-RefinementList {
+    padding: 0 0.5rem;
+    @include at(lg) {
+        padding: 0;
+    }
+}

@@ -24,6 +24,7 @@
   "homepage": "https://github.com/bostonsymphony/henry-search#readme",
   "dependencies": {
     "@babel/runtime": "^7.28.4",
+    "@imarc/pronto": "^2.0.0-rc.6",
     "@vitejs/plugin-vue-jsx": "^5.1.1",
     "@vueform/multiselect": "^2.6.11",
     "@vuepic/vue-datepicker": "^11.0.2",
@@ -43,6 +44,11 @@
     ".": {
       "import": "./dist/HenrySearch.js",
       "require": "./dist/HenrySearch.umd.js"
+    },
+    "./dist/HenrySearch.css": {
+      "import": "./dist/HenrySearch.css",
+      "require": "./dist/HenrySearch.css",
+      "default": "./dist/HenrySearch.css"
     }
   },
   "files": [
