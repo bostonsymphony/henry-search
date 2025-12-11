@@ -31,7 +31,7 @@ const showAudioLinks = (event) => {
     <template v-if="props.detail">
         <div class="headerLinks__media">
             <template v-if="props.item.program_book_link">
-                <a :href="props.item.program_link" target="_new">
+                <a :href="props.item.program_book_link" target="_new">
                     <svg class="headerLinks__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="12" fill="#01ABE6"/>
                         <path d="M8.30469 16.0947L15.8468 8.55259" stroke="white" stroke-width="2"/>

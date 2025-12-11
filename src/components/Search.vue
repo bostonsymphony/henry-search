@@ -132,13 +132,15 @@
 
   const formatWorkAttribute = (works, attributeName) => {    
     const attributeArray = []
-    works.forEach((w) => {
-        w[attributeName].forEach((attr) => {
-            if (!attributeArray.includes(attr)) {
-                attributeArray.push(attr)
-            }
-        })
-    })
+    if (works) {
+      works.forEach((w) => {
+          w[attributeName].forEach((attr) => {
+              if (!attributeArray.includes(attr)) {
+                  attributeArray.push(attr)
+              }
+          })
+      })
+    }
     return attributeArray.join("; ")
   }
 

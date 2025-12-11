@@ -220,11 +220,12 @@
         margin-right: 1rem;
         transition: display 400ms;
         &.closed {
-        display: none;
-        @include at(lg) {
-            display: inline;
+            //display: none;
+            @include at(lg) {
+                display: inline;
+            }
         }
-        }
+        
     }
     
     &__wrapper {

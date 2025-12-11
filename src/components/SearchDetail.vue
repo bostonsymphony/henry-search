@@ -95,13 +95,15 @@ const formatLocation = (venue, location) => {
 const formatWorkAttribute = (works, attributeName) => {
     let returnString = ""
     const attributeArray = []
-    works.forEach((w) => {
-        w[attributeName].forEach((attr) => {
-            if (!attributeArray.includes(attr)) {
-                attributeArray.push(attr)
-            }
+    if (works) {
+        works.forEach((w) => {
+            w[attributeName].forEach((attr) => {
+                if (!attributeArray.includes(attr)) {
+                    attributeArray.push(attr)
+                }
+            })
         })
-    })
+    }
     attributeArray.forEach((attr, index) => {
         returnString += `<a href="${ createURL(`works.${ attributeName }`, attr) }">${ attr }${ index < attributeArray.length - 1 ? ";&nbsp;" : ""}</a>`
     })
@@ -118,7 +120,7 @@ const createURL = (facet, value) => {
 
 <template>
     <template v-if="performance">
-        <div class="breadCrumb"><a :href="searchHistory[searchHistory.length - 1].link">Back to Search Results</a></div>
+        <div class="breadCrumb"><a :href="searchHistory && searchHistory.length ? searchHistory[searchHistory.length - 1].link : '/'">Back to Search Results</a></div>
         <div class="performance__details">
             <div class="performance__header">
                 <h1>{{ formatDate(performance.performance_date) }} Performance Detail</h1>

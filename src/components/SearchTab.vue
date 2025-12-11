@@ -73,6 +73,7 @@
     const showByWorks = ref(false)
     const workFilters = ref(null)
     const currentQuery = ref(null)
+    const filtersClosed = ref(false)
     
     const updateNow = ref(0)
 
@@ -117,18 +118,9 @@
     const searchClient = adapter.searchClient
 
     const toggleFilters = () => {
+        filtersClosed.value = !filtersClosed.value
         const wrapper = document.getElementById(`${props.indexName}_filterRail`)
-        const tabContent = document.getElementById(`${props.indexName}_tabs__content`)
-        const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
-        const toggleOnButton = document.getElementById(`${props.indexName}_filterToggleOn`)
-        if (toggleOnButton) {
-            toggleOnButton.classList.toggle('closed')
-        }
-        wrapper.classList.toggle('closed')
-        leftPane.classList.toggle('closed')
-        console.log("wrapper.classList.contains('closed')", wrapper.classList.contains('closed'), wrapper.classList)
         const allNestedElements = wrapper.querySelectorAll("*")
-        console.log('allNestedElements', allNestedElements)
         if (wrapper && wrapper.classList.contains('closed')) {
             allNestedElements.forEach((el) => {
                 el.setAttribute("tabindex", -1)
@@ -139,8 +131,6 @@
             })
         }
         
-        tabContent.classList.toggle('open')
-        tabContent.classList.toggle('closed')
     }
 
     const toggleFiltersMobile = () => {
@@ -165,9 +155,9 @@
             el.style.setProperty('--accordion-height-closed', `${summaryHeight}px`)
 
             setTimeout(() => {
-            el.open = false
-            el.classList.remove('-closing')
-            el.style.setProperty('--accordion-height-closed', 'auto')
+                el.open = false
+                el.classList.remove('-closing')
+                el.style.setProperty('--accordion-height-closed', 'auto')
             }, 0)
         })
     }
@@ -368,7 +358,7 @@
             let itemIndex = 0
             returnItems.forEach((item) => {
                 let shownWorks = []
-                item?.works.forEach((work) => {
+                item?.works?.forEach((work) => {
                     let workAdded = false
                     if (intersect(workFilters.value, work)?.length) {
                         shownWorks.push(work)
@@ -415,7 +405,7 @@
         :on-state-change="onStateChange"
         
     >
-        <div class="tabs__content open" :id="`${props.indexName}_tabs__content`">
+        <div :class="`tabs__content ${ filtersClosed ? 'closed' : 'open'}`" :id="`${props.indexName}_tabs__content`">
             <!-- Header and Search Section -->
             <div class="eventsSearch__topSection">
                 <!-- Search Filters Section -->
@@ -428,19 +418,17 @@
                                 class="searchBox"
                             >
                                 <template v-slot="{ currentRefinement, isSearchStalled, refine }">
-                                    <form class="ais-SearchBox-form" novalidate>
-                                        <label for="searchbox" class="label__hidden">{{ props.searchPlaceholder }}</label>
-                                        <input
-                                            class="ais-SearchBox-input"
-                                            id="searchbox"
-                                            type="search"
-                                            :value="currentRefinement"
-                                            @input="refine($event.currentTarget.value)"
-                                            :placeholder="props.searchPlaceholder"
-                                            >
-                                        <button type="submit" title="Submit the search query" class="ais-SearchBox-submit"><svg aria-hidden="true" width="10" height="10" viewBox="0 0 40 40" class="ais-SearchBox-submitIcon"><path d="M26.804 29.01c-2.832 2.34-6.465 3.746-10.426 3.746C7.333 32.756 0 25.424 0 16.378 0 7.333 7.333 0 16.378 0c9.046 0 16.378 7.333 16.378 16.378 0 3.96-1.406 7.594-3.746 10.426l10.534 10.534c.607.607.61 1.59-.004 2.202-.61.61-1.597.61-2.202.004L26.804 29.01zm-10.426.627c7.323 0 13.26-5.936 13.26-13.26 0-7.32-5.937-13.257-13.26-13.257C9.056 3.12 3.12 9.056 3.12 16.378c0 7.323 5.936 13.26 13.258 13.26z"></path></svg>
-                                        </button>
-                                    </form>
+                                    <label for="searchbox" class="label__hidden">{{ props.searchPlaceholder }}</label>
+                                    <input
+                                        class="ais-SearchBox-input"
+                                        id="searchbox"
+                                        type="search"
+                                        :value="currentRefinement"
+                                        @input="refine($event.currentTarget.value)"
+                                        :placeholder="props.searchPlaceholder"
+                                        >
+                                    <button type="submit" title="Submit the search query" class="ais-SearchBox-submit"><svg aria-hidden="true" width="10" height="10" viewBox="0 0 40 40" class="ais-SearchBox-submitIcon"><path d="M26.804 29.01c-2.832 2.34-6.465 3.746-10.426 3.746C7.333 32.756 0 25.424 0 16.378 0 7.333 7.333 0 16.378 0c9.046 0 16.378 7.333 16.378 16.378 0 3.96-1.406 7.594-3.746 10.426l10.534 10.534c.607.607.61 1.59-.004 2.202-.61.61-1.597.61-2.202.004L26.804 29.01zm-10.426.627c7.323 0 13.26-5.936 13.26-13.26 0-7.32-5.937-13.257-13.26-13.257C9.056 3.12 3.12 9.056 3.12 16.378c0 7.323 5.936 13.26 13.258 13.26z"></path></svg>
+                                    </button>
                                     <span :hidden="!isSearchStalled">Loading...</span>
                                 </template>
                             </ais-search-box>
@@ -503,7 +491,7 @@
             </div>
 
                 <!-- View Toggle and Active Filters -->
-            <section class="filters__filterRail" :id="`${props.indexName}_filterRail`">
+            <section :class="`filters__filterRail ${filtersClosed ? 'closed' : ''}`" :id="`${props.indexName}_filterRail`">
                 
                 <div class="filters__wrapper">
                     <div class="filters__header">
@@ -647,7 +635,7 @@
             </section>
 
             <!-- Search Results Section -->
-            <section class="eventsSearch__results" :id="`${props.indexName}_eventsSearch__results`">
+            <section :class="`eventsSearch__results ${ filtersClosed ? 'closed' : ''}`" :id="`${props.indexName}_eventsSearch__results`">
                 
                 <ais-hits :key="updateNow" class="eventsSearch__hits" :transform-items="filterItems">
                     <template v-slot="{ items }">
@@ -666,7 +654,7 @@
                                     Filters
                                 </button>
                                 <div class="eventsSearch__resultsSort">Sort by: 
-                                    <select v-model="sortView" @change="setView">
+                                    <select name="Sort Order" v-model="sortView" @change="setView">
                                     <option value="Most Recent">Most Recent</option>
                                     <option value="Most Relevant">Most Relevant</option>
                                     <option value="Oldest First">Oldest First</option>
@@ -676,7 +664,7 @@
                         </div>
                         <div class="eventsSearch__resultsHeader">
                             <div class="eventsSearch__resultsTitle">
-                                <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" class="filters__toggleOn" @click="toggleFilters()">
+                                <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" :class="`filters__toggleOn ${filtersClosed ? 'closed' : ''}`" @click="toggleFilters()">
                                     <rect width="24" height="24" rx="4" fill="#01ABE6"/>
                                     <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
                                     <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
@@ -695,22 +683,23 @@
                                 <h2 v-else>{{ props.resultsTitle }}</h2>
 
                             </div>
-                            <div class="actions">
-                                <div class="actions__sort">Sort by: 
-                                    <select v-model="sortView" @change="setView">
+                            <div class="resultActions">
+                                <div class="resultActions__sort">
+                                    <label class="resultActions__sortText">Sort by: </label>
+                                    <select name="sort_order" v-model="sortView" @change="setView">
                                     <option value="Most Recent">Most Recent</option>
                                     <option value="Most Relevant">Most Relevant</option>
                                     <option value="Oldest First">Oldest First</option>
                                     </select>
                                 </div>
-                                <div v-if="showNumHits" class="actions__buttons">
-                                    <a onclick="navigator.clipboard.writeText(window.location.href);" class="actions__icon">
+                                <div v-if="showNumHits" class="resultActions__buttons">
+                                    <a onclick="navigator.clipboard.writeText(window.location.href);" class="resultActions__icon">
                                         <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M3.8335 5.00683C4.00129 5.24348 4.21538 5.4393 4.46122 5.581C4.70706 5.72269 4.97891 5.80696 5.25834 5.82807C5.53776 5.84918 5.81823 5.80665 6.0807 5.70336C6.34317 5.60006 6.58152 5.43843 6.77957 5.22941L7.95175 3.99281C8.30762 3.6041 8.50454 3.08349 8.50009 2.5431C8.49564 2.00271 8.29018 1.48578 7.92796 1.10365C7.56574 0.721528 7.07574 0.504774 6.5635 0.500078C6.05127 0.495382 5.55778 0.70312 5.18932 1.07855L4.51727 1.78341" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M5.83333 3.99326C5.64156 3.7566 5.3969 3.56078 5.11594 3.41908C4.83497 3.27739 4.52428 3.19313 4.20494 3.17201C3.8856 3.1509 3.56507 3.19343 3.2651 3.29673C2.96513 3.40002 2.69273 3.56165 2.46639 3.77067L1.12675 5.00727C0.720043 5.39598 0.494997 5.9166 0.500084 6.45698C0.505171 6.99737 0.739985 7.5143 1.15395 7.89643C1.56791 8.27855 2.12791 8.49531 2.71332 8.5C3.29874 8.5047 3.86273 8.29696 4.28382 7.92153L5.04741 7.21667" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
                                     </a>
-                                    <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`"  class="actions__icon">
+                                    <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`"  class="resultActions__icon">
                                         <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M7.47805 10.9099L0.5 10.9099" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M0.75293 4.94067L3.92477 8.11252L7.09662 4.94067" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
