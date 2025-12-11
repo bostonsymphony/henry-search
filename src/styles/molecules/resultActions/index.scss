@@ -1,0 +1,42 @@
+@use "@imarc/pronto/resources/styles/imported" as *;
+
+.resultActions {
+    display: none;
+    @include at(lg) {
+      display:flex;
+      flex-wrap: nowrap;
+    }
+
+    &__buttons {
+        @include at(lg) {
+          display: inline;
+          border-left: thin solid var(--color-gray-400);
+          height: 1.75rem;
+          padding-left: .25rem;
+        }
+    }
+
+    &__icon {
+        background-color: var(--color-light-gray);
+        padding: 10px;
+        border-radius: 1rem;
+        margin: 0 .5rem;
+        cursor: pointer;
+    }
+
+    &__sort {
+        font-weight: 100;
+        font-size: 1.1rem;
+        margin-right: .5rem;
+        display: flex;
+        //align-items: center;
+        // select {
+        //   margin-bottom: 0;
+        // }
+    }
+
+    &__sortText {
+      padding-top:0.25rem;
+    }
+}
+
