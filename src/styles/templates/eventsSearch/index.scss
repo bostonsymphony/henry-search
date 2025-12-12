@@ -184,33 +184,33 @@
 
 
   // Mobile date picker modal styles
-  .dp__mobile_modal {
-    .dp__menu {
-      position: static !important;
-      top: auto !important;
-      left: auto !important;
-      right: auto !important;
-      bottom: auto !important;
-      width: 100% !important;
-      height: auto !important;
-      max-width: none !important;
-      max-height: none !important;
-      border-radius: 0 !important;
-      z-index: auto !important;
-      background: transparent !important;
-      box-shadow: none !important;
-      border: none !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
+  // .dp__mobile_modal {
+  //   .dp__menu {
+  //     position: static !important;
+  //     top: auto !important;
+  //     left: auto !important;
+  //     right: auto !important;
+  //     bottom: auto !important;
+  //     width: 100% !important;
+  //     height: auto !important;
+  //     max-width: none !important;
+  //     max-height: none !important;
+  //     border-radius: 0 !important;
+  //     z-index: auto !important;
+  //     background: transparent !important;
+  //     box-shadow: none !important;
+  //     border: none !important;
+  //     margin: 0 !important;
+  //     padding: 0 !important;
+  //   }
 
-    .dp__modal_body {
-      padding: 1rem !important;
-      flex: 1 !important;
-      display: flex !important;
-      flex-direction: column !important;
-    }
-  }
+  //   .dp__modal_body {
+  //     padding: 1rem !important;
+  //     flex: 1 !important;
+  //     display: flex !important;
+  //     flex-direction: column !important;
+  //   }
+  // }
 
   // Make dropdown menus span across both venue and ensemble filters
   .eventsSearch__filtersRow {
@@ -245,7 +245,7 @@
   // Desktop positioning for date picker to span across Date and Venue inputs
   .eventsSearch__filterGroup--date {
     --dp-menu-width: 300px;
-  @media (min-width: 769px) {
+    @media (min-width: 769px) {
       position: relative;
     }
 
@@ -254,7 +254,7 @@
         position: absolute !important;
         left: 0 !important;
         top: calc(100% + .5rem)  !important;
-        //width: calc(150% + 1rem) !important;
+        width: auto;
         z-index: 1000 !important;
       }
 
@@ -280,10 +280,11 @@
     color: var(--c-brand) !important;
   }
 
+  //HERE
+
   .dp__cell_inner {
     --dp-cell-border-radius: 16px !important;
     --dp-font-size: 14px !important;
-    --dp-cell-size: 48px;
     font-size: var(--dp-font-size);
   }
 
@@ -302,7 +303,7 @@
   .dp__calendar_item,
   .dp__calendar_header_item {
     flex-grow: 0 !important;
-    --dp-cell-size: 48px;
+    //--dp-cell-size: 48px;
   }
 
   .dp--year-select, .dp__month_year_select {
@@ -357,6 +358,7 @@
       }
     }
   }
+
   .dp__calendar_header_separator{
     height: 0 !important;
   }
@@ -377,5 +379,9 @@
 
   .dp__input_icon {
     --dp-icon-color: var(--color-dark-blue);
+  }
+
+  .dp__selection_preview {
+    max-width: 100px !important;
   }
 }

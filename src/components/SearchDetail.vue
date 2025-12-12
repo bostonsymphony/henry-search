@@ -4,6 +4,7 @@ import Typesense from 'typesense'
 import { ref, onMounted } from 'vue'
 
 import EventLinks from "./EventLinks.vue"
+import formatDate from '../composables/formatDate'
 
 const props = defineProps({
     performanceId: {
@@ -58,13 +59,13 @@ onMounted(() => {
    
 })
 
-const formatDate = (unix_timestamp) => {
-    // multiplied by 1000 so that the argument is in milliseconds, not seconds
-    const date = new Date(unix_timestamp * 1000)
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+// const formatDate = (unix_timestamp) => {
+//     // multiplied by 1000 so that the argument is in milliseconds, not seconds
+//     const date = new Date(unix_timestamp * 1000)
+//     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
-    return `${(months[date.getMonth()]).substring(0, 3)} ${date.getDay() + 1}, ${date.getFullYear()}`
-}
+//     return `${(months[date.getMonth()]).substring(0, 3)} ${date.getDay() + 1}, ${date.getFullYear()}`
+// }
 
 
 const formatTime = (unix_timestamp) => {
@@ -123,7 +124,7 @@ const createURL = (facet, value) => {
         <div class="breadCrumb"><a :href="searchHistory && searchHistory.length ? searchHistory[searchHistory.length - 1].link : '/'">Back to Search Results</a></div>
         <div class="performance__details">
             <div class="performance__header">
-                <h1>{{ formatDate(performance.performance_date) }} Performance Detail</h1>
+                <h1>{{ formatDate(performance.performance_date, true) }} Performance Detail</h1>
                 <h2>{{ formatTime(performance.performance_date) }} | {{ formatLocation(performance.venue, performance.location) }}</h2>
             </div>
             <div class="headerLinks">

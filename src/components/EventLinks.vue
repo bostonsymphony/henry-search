@@ -31,7 +31,7 @@ const showAudioLinks = (event) => {
     <template v-if="props.detail">
         <div class="headerLinks__media">
             <template v-if="props.item.program_book_link">
-                <a :href="props.item.program_book_link" target="_new">
+                <a :href="props.item.program_book_link" target="_blank">
                     <svg class="headerLinks__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="12" fill="#01ABE6"/>
                         <path d="M8.30469 16.0947L15.8468 8.55259" stroke="white" stroke-width="2"/>
@@ -76,7 +76,7 @@ const showAudioLinks = (event) => {
             <path d="M6.22876 12.0713L11.8854 6.41469" stroke="#01ABE6" stroke-width="1.5"/>
             <path d="M6.22864 6.41382L11.8854 6.41395L11.8855 12.0707" stroke="#01ABE6" stroke-width="1.5"/>
         </svg>
-        <a class="eventLinks__details" target="_new" :href="props.item.program_book_link" :title="formatDate(item.performance_date) + ' Details'">Program</a>
+        <a class="eventLinks__details" target="_blank" :href="props.item.program_book_link" :title="formatDate(item.performance_date) + ' Details'">Program</a>
         </div>
         <div v-if="props.item.media && props.item.media.includes('audio') && props.item.bso_audio_id" :class="`eventLinks ${ props.extraClasses }`">
             <button class="eventLinks__details" @click="showAudioLinks"  :title="formatDate(item.performance_date) + ' Audio'">

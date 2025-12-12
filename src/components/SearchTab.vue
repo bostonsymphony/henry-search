@@ -603,7 +603,7 @@
                                                     </form>
                                                 </div>
                                                 <div class="checkBoxes">
-                                                    <span v-if="!items.length">No matches found</span>
+                                                    <span class="checkBoxes__alert" v-if="!items.length"><span class="checkBoxes__alertIcon">!</span>No matches found</span>
                                                     <label v-for="item in items" class="checkBoxes__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
                                                         <div class="eventSearch__checkBox">
                                                             <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
