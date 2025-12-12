@@ -660,9 +660,10 @@
                                 :href="createURL()"
                                 @click.prevent="refine"
                             >
-                                <button>Clear</button>
-                                <button @click="toggleFiltersMobile()" class="filterApply">Apply</button>
+                                <button @click="toggleFiltersMobile()" class="filterClear">Clear</button>
+                                
                             </a>
+                            <button @click="toggleFiltersMobile()" class="filterApply">Apply</button>
                         </template>
                     </ais-clear-refinements>
                     
