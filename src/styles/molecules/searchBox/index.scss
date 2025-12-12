@@ -9,6 +9,12 @@
      align-items: center;
      box-sizing: border-box;
 
+     &__form {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+     }
+
      &.-filter {
       background-color:#ffffff;
      }
@@ -65,5 +71,11 @@
        justify-content: center !important;
        line-height: 1 !important;
        vertical-align: middle !important;
+     }
+
+     .ais-SearchBox-resetIcon {
+        width: 16px;
+        height: 16px;
+
      }
   }

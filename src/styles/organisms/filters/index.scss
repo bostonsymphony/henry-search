@@ -109,31 +109,41 @@
             .ais-ClearRefinements {
                 width: 100%;
                 height: 100%;
-                a {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-                justify-content: space-around;
-                padding: .5rem 2rem 0.5rem 1rem;
-                width: 100%;
-                height: 100%;
-                }
-                button {
-                    align-self: top;
-                width: 100%;
-                }
+                align-items: center;
+                justify-content: space-between;
             } 
-            button {
-                width: 100%;
+            a {
+                display: inline;
+                height: 95%;
+                width: 105%;
+                padding-top: 0.35rem;
+                padding-left: 1rem;
+            }
+            button.filterApply,
+            button.filterClear {
+                gap: 1rem;
+                justify-content: space-between;
+                width: 90%;
                 height: 80%;
                 justify-self: center;
                 border: 0;
                 border-radius: 5px;
-                &.filterApply {
+                padding: 1rem;
+                 
+            }
+            button.filterClear {
+                background-color: var(--color-gray-100);
+                border: none;
+                height: 90%;
+                    
+            }
+            button.filterApply {
                 background-color: var(--color-turquoise);
                 color: var(--color-dark-blue);
                 font-weight: 600;
-                }
+                margin-right: 2rem;
             }
             
         }
@@ -148,7 +158,7 @@
         .location {
             padding: 0 0.5rem;
             @include at(lg) {
-            padding: 0;
+                padding: 0;
             }
         }
 

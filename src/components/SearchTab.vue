@@ -531,13 +531,34 @@
                                 <div class="accordion__content" v-if="items.length || isFromSearch">
                                     <div class="ais-SearchBox searchBox -filter">
                                         <label class="label__hidden" :for="refinement.attribute">{{ refinement.placeholder }}</label>
-                                        <input :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
+                                        <form class="searchBox__form" @submit="$event.preventDefault()" @reset="searchForItems('')">
+                                            <input type="text" :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
+                                            <button v-if="isFromSearch"
+                                                class="ais-SearchBox-reset"
+                                                type="reset"
+                                                title="Clear the search query."
+                                                hidden
+                                                >
+                                                <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M8.5 0.5L0.5 8.5" stroke="#686F73" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M0.5 0.5L8.5 8.5" stroke="#686F73" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </button>
+                                        </form>
                                     </div>
                                     <div class="checkBoxes">
+                                        <span class="checkBoxes__alert" v-if="!items.length"><span class="checkBoxes__alertIcon">!</span>No matches found</span>
                                         <label v-for="item in items" class="checkBoxes__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
                                             <div class="eventSearch__checkBox">
-                                                <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
+                                                <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" 
+                                                    type="checkbox" 
+                                                    :id="slugify(refinement.title + ' ' + item.value)"  
+                                                    :value="item.value" 
+                                                    :checked="item.isRefined" 
+                                                    @click="refine(item.value)" />
+                                                    
                                             </div>
+                                            
                                             <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="eventsSearch__refinementCount">{{ item.count }}</span>
                                         </label>
                                     </div>
@@ -566,9 +587,23 @@
                                             <div class="accordion__content" v-if="items.length || isFromSearch">
                                                 <div class="ais-SearchBox searchBox -filter" v-if="!refinement.hideSearch">
                                                     <label class="label__hidden" :for="refinement.attribute">{{ refinement.placeholder }}</label>
-                                                    <input :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter">
+                                                    <form class="searchBox__form" @submit="$event.preventDefault()" @reset="searchForItems('')">
+                                                        <input type="text" :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
+                                                        <button v-if="isFromSearch"
+                                                            class="ais-SearchBox-reset"
+                                                            type="reset"
+                                                            title="Clear the search query."
+                                                            hidden
+                                                            >
+                                                            <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M8.5 0.5L0.5 8.5" stroke="#686F73" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                <path d="M0.5 0.5L8.5 8.5" stroke="#686F73" stroke-linecap="round" stroke-linejoin="round"/>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
                                                 </div>
                                                 <div class="checkBoxes">
+                                                    <span v-if="!items.length">No matches found</span>
                                                     <label v-for="item in items" class="checkBoxes__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
                                                         <div class="eventSearch__checkBox">
                                                             <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">

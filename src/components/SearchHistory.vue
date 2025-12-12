@@ -43,7 +43,7 @@ const filterHistory = (indexName) => {
 
 <template>
     <div v-if="searchHistory" class="history__grid">
-        <div class="history__performances">
+        <div class="history__performances" v-if="filterHistory(props.performanceIndex).length">
             <template v-for="item, index in filterHistory(props.performanceIndex)">
                 <h4 v-if="index == 0">Performances</h4>
                 <div class="history__item"  v-if="formatSearchTitle(item?.uiState[props.performanceIndex]).length">
@@ -52,7 +52,7 @@ const filterHistory = (indexName) => {
                 </div>
             </template>
         </div>
-        <div class="history__artists">
+        <div class="history__artists" v-if="filterHistory(props.artistIndex).length">
             <template class="history__item" v-for="item, index in filterHistory(props.artistIndex)">
                 <h4 v-if="index == 0">Artists</h4>
                 <div v-if="formatSearchTitle(item?.uiState[props.artistIndex]).length">
@@ -61,7 +61,7 @@ const filterHistory = (indexName) => {
                 </div>
             </template>
         </div>
-        <div class="history__works">
+        <div class="history__works" v-if="filterHistory(props.workIndex).length">
             <template v-for="item, index in filterHistory(props.workIndex)">
                 <h4 v-if="index == 0">Works</h4>
                 <div class="history__item" v-if="formatSearchTitle(item?.uiState[props.workIndex]).length">

@@ -1,6 +1,7 @@
 .checkBoxes {
-    margin: 1rem 0;
+    margin: 0.5rem 0;
     max-height: 10rem;
+    min-height: 1.8rem;
     overflow-y: auto;
     input[type=checkbox] {
       border: thin solid var(--color-dark-blue);
@@ -10,14 +11,28 @@
       width: 1rem;
       
     }
+    &__alert {
+      vertical-align: middle;
+    }
+    &__alertIcon {
+      background-color: var(--color-gray-300);
+      border-radius: 50%;
+      color: var(--color-white);
+      display: inline-block;
+      height: 1.4rem;
+      margin-right: .5rem;
+      text-align: center;
+      vertical-align: middle;
+      width: 1.4rem;
+    }
     &__boxLabel {
-        display: grid;
-        grid-template-columns: 1.5rem auto max(4rem);
-        padding-bottom: .5rem;
-        color: var(--color-dark-blue);
-        .itemCount {
+      display: grid;
+      grid-template-columns: 1.5rem auto max(4rem);
+      padding-bottom: .5rem;
+      color: var(--color-dark-blue);
+      .itemCount {
         text-align: right;
-        }
+      }
     }
     .-boxChecked {
       background-color: var(--color-turquoise);
