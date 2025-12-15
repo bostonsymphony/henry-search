@@ -37,6 +37,8 @@
         el.classList.remove("-open")
       })
     })
+
+
   })
 
   const mainRefinements = [

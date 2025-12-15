@@ -16,8 +16,9 @@
     import { history as historyRouter } from 'instantsearch.js/es/lib/routers'
     import { simple as simpleStateMapping } from 'instantsearch.js/es/lib/stateMappings'
     import VueDatePicker from '@vuepic/vue-datepicker'
-    import slugify from '../composables/slugify'
+    import _debounce from 'lodash.debounce'
 
+    import slugify from '../composables/slugify'
     import PAccordion from './PAccordion.vue'
     import formatDate from '../composables/formatDate'
     import formatSearchTitle from '../composables/formatSearchTitle'
@@ -246,9 +247,23 @@
         return returnFilters
     }
 
+    const debounce = (fn, time) => {
+        let timerId
+
+        return function (...args) {
+            if (timerId) {
+                clearTimeout(timerId)
+            }
+            
+            timerId = setTimeout(() => fn(...args, time))
+        }
+    }
+
     const onStateChange = ({ uiState, setUiState }) => {
         updateStateRefs(uiState)
-        setUiState(uiState)    
+        console.log('before', new Date())
+        setTimeout(setUiState(uiState), 3000)
+        console.log('after', new Date())
     }
 
     const updateTitle = (state) => {
@@ -316,7 +331,7 @@
        
     }
 
-    const intersect = (filters, work) => {
+     const intersect = (filters, work) => {
         let intersectKeys = Object.keys(filters).filter(k => Object.hasOwn(work, k))
         let intersectArray = []
         intersectKeys.forEach((key) => {
@@ -375,8 +390,11 @@
         } else {
             return items
         }
-        
+    }
 
+    const refineAndScroll = (refine, params, scrollId) => {
+        refine(params)
+        document.getElementById(scrollId).scrollIntoView()
     }
 
     const toMinValue = (value, range) => {
@@ -699,7 +717,7 @@
                             </div>
                         </div>
                         <div class="eventsSearch__resultsHeader">
-                            <div class="eventsSearch__resultsTitle">
+                            <div class="eventsSearch__resultsTitle" id="resultsTitle">
                                 <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" :class="`filters__toggleOn ${filtersClosed ? 'closed' : ''}`" @click="toggleFilters()">
                                     <rect width="24" height="24" rx="4" fill="#01ABE6"/>
                                     <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
@@ -819,14 +837,14 @@
                         >
                             <ul class="resultsPagination__paginationComponent" v-if="pages.length > 1">
                                 <li v-if="!isFirstPage && nbPages > 5" class="arrow">
-                                    <a :href="createURL(0)" @click.prevent="refine(0)">
+                                    <a :href="createURL(0)" @click.prevent="refineAndScroll(refine, 0, 'resultsTitle')">
                                     ‹‹
                                     </a>
                                 </li>
                                 <li v-if="!isFirstPage && nbPages > 5" class="arrow">
                                     <a
                                     :href="createURL(currentRefinement - 1)"
-                                    @click.prevent="refine(currentRefinement - 1)"
+                                    @click.prevent="refineAndScroll(refine, currentRefinement - 1, 'resultsTitle')"
                                     >
                                     ‹
                                     </a>
@@ -836,32 +854,32 @@
                                         <a
                                         :href="createURL(page)"
                                         :style="{ fontWeight: page === currentRefinement ? 'bold' : '' }"
-                                        @click.prevent="refine(page)"
+                                        @click.prevent="refineAndScroll(refine, page, 'resultsTitle')"
                                         >
                                         {{ page + 1 }}
                                         </a>
                                     </li>
                                     <li v-if="pages.length > 5">...</li>
                                     <li v-if="pages.length > 5">
-                                        <a :href="createURL(nbPages - 1)">
+                                        <a :href="createURL(nbPages - 1)" @click.prevent="refineAndScroll(refine, nbPages - 1, 'resultsTitle')">
                                             {{ nbPages }}
                                         </a>
                                     </li>
                                 </template>
                                 <template v-else>
                                     <li>
-                                        <a :href="createURL(0)" @click.prevent="refine(0)" :style="{ fontWeight: currentRefinement === 0 ? 'bold' : '' }">
+                                        <a :href="createURL(0)" @click.prevent="refineAndScroll(refine, 0, 'resultsTitle')" :style="{ fontWeight: currentRefinement === 0 ? 'bold' : '' }">
                                         1
                                         </a>
                                     </li>
                                     <li v-if="pages.length > 5">...</li>
                                     <li  v-for="page in 5" :key="page" v-if="nbPages > 5">
-                                        <a :href="createURL(nbPages - (5 - page) - 1)" :style="{ fontWeight: nbPages - (5 - page) - 1 === currentRefinement ? 'bold' : '' }">
+                                        <a :href="createURL(nbPages - (5 - page) - 1)" @click.prevent="refineAndScroll(refine, nbPages - (5 - page) - 1, 'resultsTitle')" :style="{ fontWeight: nbPages - (5 - page) - 1 === currentRefinement ? 'bold' : '' }">
                                             {{ nbPages - (5 - page) }}
                                         </a>
                                     </li>
                                     <li v-for="page in nbPages - 1" v-if="nbPages <= 5">
-                                        <a :href="createURL(page)" :style="{ fontWeight: page === currentRefinement ? 'bold' : '' }">
+                                        <a :href="createURL(page)" @click.prevent="refineAndScroll(refine, page, 'resultsTitle')" :style="{ fontWeight: page === currentRefinement ? 'bold' : '' }">
                                             {{ page + 1 }}
                                         </a>
                                     </li>
@@ -869,20 +887,20 @@
                                 <li v-if="!isLastPage && nbPages > 5" class="arrow">
                                     <a
                                     :href="createURL(currentRefinement + 1)"
-                                    @click.prevent="refine(currentRefinement + 1)"
+                                    @click.prevent="refineAndScroll(refine, currentRefinement + 1, 'resultsTitle')"
                                     >
                                     ›
                                     </a>
                                 </li>
                                 <li v-if="!isLastPage && nbPages > 5" class="arrow">
-                                    <a :href="createURL(nbPages)" @click.prevent="refine(nbPages)">
+                                    <a :href="createURL(nbPages)" @click.prevent="refineAndScroll(refine, currentRefinement + 1, 'resultsTitle')">
                                     ››
                                     </a>
                                 </li>
                             </ul>
                             <div v-else></div>
                         </template>
-
+ 
                     </ais-pagination>
                 </nav>
             </section> 
