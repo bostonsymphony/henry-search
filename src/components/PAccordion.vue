@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, useTemplateRef } from 'vue'
+import { onMounted, useTemplateRef, watch } from 'vue'
 
 /**
  * PAccordion is a vue component for the <details> element. It uses the native <details> element
@@ -17,7 +17,8 @@ const props = defineProps({
   summary: { type: String, default: 'summary:first-of-type' },
   startOpen: { type: Boolean, default: true},
   openText: { type: String, default: null},
-  closedText: { type: String, default: null}
+  closedText: { type: String, default: null},
+  name: { type: String, default: null}
 })
 const details = useTemplateRef('details')
 const summaryText = null
@@ -82,7 +83,7 @@ const handleToggle = event => {
 </script>
 
 <template>
-  <details ref="details" class="accordion" @click="handleToggle">
+  <details ref="details" class="accordion" :name="props.name" @click="handleToggle">
     <slot />
   </details>
 </template>

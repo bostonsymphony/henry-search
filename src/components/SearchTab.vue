@@ -1,5 +1,6 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, onMounted, useTemplateRef } from 'vue'
+    import { useDebounceFn } from '@vueuse/core'
     import {
         AisClearRefinements,
         AisCurrentRefinements,
@@ -16,7 +17,6 @@
     import { history as historyRouter } from 'instantsearch.js/es/lib/routers'
     import { simple as simpleStateMapping } from 'instantsearch.js/es/lib/stateMappings'
     import VueDatePicker from '@vuepic/vue-datepicker'
-    import _debounce from 'lodash.debounce'
 
     import slugify from '../composables/slugify'
     import PAccordion from './PAccordion.vue'
@@ -92,6 +92,8 @@
         }),
         stateMapping: simpleStateMapping()
     })
+
+    const mainRefinementList = ref({})
 
     const server = {
       connectionTimeoutSeconds: 20,
@@ -222,6 +224,7 @@
         
             sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
             updateTitle(uiState[props.indexName])
+            
         }
     }
 
@@ -247,23 +250,14 @@
         return returnFilters
     }
 
-    const debounce = (fn, time) => {
-        let timerId
-
-        return function (...args) {
-            if (timerId) {
-                clearTimeout(timerId)
-            }
-            
-            timerId = setTimeout(() => fn(...args, time))
-        }
-    }
-
     const onStateChange = ({ uiState, setUiState }) => {
         updateStateRefs(uiState)
-        console.log('before', new Date())
-        setTimeout(setUiState(uiState), 3000)
-        console.log('after', new Date())
+        setUiState(uiState)
+        
+        // console.log('before', new Date())
+
+        // setTimeout(() => , 3000)
+        // console.log('after', new Date())
     }
 
     const updateTitle = (state) => {
@@ -413,6 +407,31 @@
       return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxRange
     }
 
+    function debounce(func, params, delay) {
+        let timeout;
+        // return function (params) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                func(params);
+            }, delay);
+        //};
+    }
+
+    const getHeadingStyle = (attribute) => {       
+        if (mainRefinementList.value && typeof(mainRefinementList.value[attribute]) !== 'undefined' && mainRefinementList.value[attribute]) {
+            try {
+                if (mainRefinementList.value[attribute] && typeof(mainRefinementList.value[attribute].items) !== 'undefined' && mainRefinementList.value[attribute].items.length) {
+                    return ''
+                } else {
+                    return '-gray'
+                }
+            } catch (e) {
+                console.log(e)
+            }
+        }
+        return  ''
+    }
+
 </script>
 
 <template>
@@ -421,9 +440,8 @@
         :index-name="props.indexName"
         :routing="routing"
         :on-state-change="onStateChange"
-        
     >
-        <div :class="`tabs__content ${ filtersClosed ? 'closed' : 'open'}`" :id="`${props.indexName}_tabs__content`">
+            <div :class="`tabs__content ${ filtersClosed ? 'closed' : 'open'}`" :id="`${props.indexName}_tabs__content`">
             <!-- Header and Search Section -->
             <div class="eventsSearch__topSection">
                 <!-- Search Filters Section -->
@@ -431,10 +449,7 @@
                     <div class="filters__row">
                         <!-- Search Box -->
                         <div class="filters__filterGroup filters__search">
-                            <ais-search-box
-                                
-                                class="searchBox"
-                            >
+                            <ais-search-box class="searchBox" >
                                 <template v-slot="{ currentRefinement, isSearchStalled, refine }">
                                     <label for="searchbox" class="label__hidden">{{ props.searchPlaceholder }}</label>
                                     <input
@@ -535,17 +550,18 @@
                             </a>
                         </div>
                     </div>
-                    <ais-refinement-list v-for="refinement in mainRefinements" :attribute="refinement.attribute" operator="and">
-                        <template v-slot="{items, refine, searchForItems, isFromSearch}">
-                            <p-accordion :name="refinement.title" class="accordion" :start-open="true">
-                                <summary class="accordion__summary">
-                                    <h6 :class="`accordion__heading ${ !(items.length || isFromSearch) ? '-gray' : ''}`">{{ refinement.title }}</h6>
-                                    <div class="accordion__iconWrapper" v-if="items.length">
-                                        <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
-                                            <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </div>
-                                </summary>
+                    <p-accordion class="accordion" v-for="refinement in mainRefinements">
+                        <summary class="accordion__summary">
+                            <h6 :class="`accordion__heading ${ getHeadingStyle(refinement.attribute) }`">{{ refinement.title }}</h6>
+                            <div class="accordion__iconWrapper">
+                                <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
+                                    <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </summary>
+                        <ais-refinement-list :attribute="refinement.attribute" operator="and" :ref="(el) => {mainRefinementList[refinement.attribute] = el}">
+                            <template v-slot="{items, refine, searchForItems, isFromSearch}">
+                                
                                 <div class="accordion__content" v-if="items.length || isFromSearch">
                                     <div class="ais-SearchBox searchBox -filter">
                                         <label class="label__hidden" :for="refinement.attribute">{{ refinement.placeholder }}</label>
@@ -580,12 +596,13 @@
                                             <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="eventsSearch__refinementCount">{{ item.count }}</span>
                                         </label>
                                     </div>
-                                </div> 
-                            </p-accordion>
-                            <!-- <template v-else><div></div></template> -->
-                        </template>
-                    </ais-refinement-list>
-                    <p-accordion class="ais-RefinementList" v-if="props.addlRefinements" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
+                                </div>
+                            </template>
+                        </ais-refinement-list> 
+                    </p-accordion>
+                    <!-- <template v-else><div></div></template> -->
+                       
+                    <p-accordion class="ais-RefinementList" v-if="props.addlRefinements" name="more_filters" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
                         <summary class="accordion__summary">
                             <h6 class="accordion__heading -thin">More Filters</h6>
                         </summary>

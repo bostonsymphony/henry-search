@@ -44,7 +44,6 @@ onMounted(() => {
     client.collections(props.indexName).documents(props.performanceId).retrieve().then(function (results) {
         performance.value = results
         document.title = `BSO HENRY | ${ formatDate(performance.value.performance_date) } Performance Detail`
-        console.log(results)
     }).catch((e) => {
         console.log(e)
         //document.location = '/404'
