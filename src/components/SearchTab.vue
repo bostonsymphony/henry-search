@@ -1,6 +1,7 @@
 <script setup>
     import { ref, onMounted, useTemplateRef } from 'vue'
     import { useDebounceFn } from '@vueuse/core'
+    import _ from 'lodash';
     import {
         AisClearRefinements,
         AisCurrentRefinements,
@@ -88,8 +89,24 @@
                 updateStateRefs(uiState)
                 
                 return uiState
-            }
+            },
+            createURL({ qsModule, location, routeState }) {
+                const { origin, pathname, hash } = location;
+                const indexState = routeState["instant_search"] || {};
+                const queryString = qsModule.stringify(routeState);
+
+                const uiState = qsModule.parse(location.search.slice(1))
+                
+                updateSearchHistory(uiState)
+
+                // if (!indexState.query) {
+                //     return `${origin}${pathname}${hash}`;
+                // }
+
+                return `${origin}${pathname}?${queryString}${hash}`;
+            },
         }),
+        
         stateMapping: simpleStateMapping()
     })
 
@@ -183,49 +200,61 @@
             showByWorks.value = Object.keys(workFilters.value).length !== 0
 
             // update search history
-            let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
-            // if only pagination, don't add to search history
-            if (uiState[props.indexName].page && !uiState[props.indexName].query && !uiState[props.indexName].refinementList && !uiState[props.indexName].menu) {
-                return
-            }
-            searchHistory = searchHistory.map((item) => {
-                // make sure that all queries aren't entered into the history as a user types each letter
-                if (uiState[props.indexName].query?.includes(item.query) && uiState[props.indexName].query != item.query) {
-                    return {
-                        date: new Date(),
-                        uiState: uiState,
-                        query: uiState[props.indexName].query,
-                        link: document.location.href
-                    }
-                } else {
-                    return item
-                }
-            })
+            
+            
+            updateTitle(uiState[props.indexName])
+            
+        }
+    }
 
-            //make sure we're not just adding pagination
-            let addState = true
-            searchHistory.forEach((item) => {
-                if (item.link.replace(/\&page=\d*/, "") == document.location.href.replace(/\&page=\d*/, "")) {
-                    addState = false
-                    return
-                }
-            })
-            
-            
-            if (addState && !(searchHistory.map((a) => a.link)).includes(document.location.href) && 
-                    document.location.search != '') {
-                searchHistory.push({
+    const updateSearchHistory = (uiState) => {
+        let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
+        // if only pagination, don't add to search history
+        if (!uiState[props.indexName]) {
+            return
+        }
+        if (uiState[props.indexName].page && !uiState[props.indexName].query && !uiState[props.indexName].refinementList && !uiState[props.indexName].menu) {
+            return
+        }
+        searchHistory = searchHistory.map((item) => {
+            // make sure that all queries aren't entered into the history as a user types each letter
+            if (uiState[props.indexName].query?.includes(item.query) && uiState[props.indexName].query != item.query) {
+                return {
                     date: new Date(),
                     uiState: uiState,
                     query: uiState[props.indexName].query,
                     link: document.location.href
-                })
+                }
+            } else {
+                return item
             }
+        })
+
+        //make sure we're not just adding pagination
+        let addState = true
+        searchHistory.forEach((item) => {
+            if (item.link.replace(/\&page=\d*/, "") == document.location.href.replace(/\&page=\d*/, "")) {
+                addState = false
+                return
+            }
+            if (_.isEqual(item.uiState[props.indexName], uiState[props.indexName])) {
+                addState = false
+                return
+            }
+        })
         
-            sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
-            updateTitle(uiState[props.indexName])
-            
+        
+        if (addState && !(searchHistory.map((a) => a.link)).includes(document.location.href) && 
+                document.location.search != '') {
+            searchHistory.push({
+                date: new Date(),
+                uiState: uiState,
+                query: uiState[props.indexName].query,
+                link: document.location.href
+            })
         }
+    
+        sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
     }
 
     const getWorkFilters = (refinementList) => {

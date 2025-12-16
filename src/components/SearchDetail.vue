@@ -123,7 +123,7 @@ const createURL = (facet, value) => {
         <div class="breadCrumb"><a :href="searchHistory && searchHistory.length ? searchHistory[searchHistory.length - 1].link : '/'">Back to Search Results</a></div>
         <div class="performance__details">
             <div class="performance__header">
-                <h1>{{ formatDate(performance.performance_date, true) }} Performance Detail</h1>
+                <h1>{{ formatDate(performance.performance_date, 'detail') }} Performance Detail</h1>
                 <h2>{{ formatTime(performance.performance_date) }} | {{ formatLocation(performance.venue, performance.location) }}</h2>
             </div>
             <div class="headerLinks">

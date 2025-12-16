@@ -48,7 +48,7 @@ const filterHistory = (indexName) => {
                 <h4 v-if="index == 0">Performances</h4>
                 <div class="history__item"  v-if="formatSearchTitle(item?.uiState[props.performanceIndex]).length">
                     <a :href="item.link">{{ formatSearchTitle(item?.uiState[props.performanceIndex]) }}</a><br/>
-                    {{ formatDate((new Date(item.date)).getTime() / 1000, true, false) }}
+                    {{ formatDate((new Date(item.date)).getTime() / 1000, 'history', false) }}
                 </div>
             </template>
         </div>
@@ -57,7 +57,7 @@ const filterHistory = (indexName) => {
                 <h4 v-if="index == 0">Artists</h4>
                 <div v-if="formatSearchTitle(item?.uiState[props.artistIndex]).length">
                     <a :href="item.link">{{ formatSearchTitle(item?.uiState[props.artistIndex]) }}</a><br/>
-                    {{ formatDate((new Date(item.date)).getTime() / 1000, true, false) }}
+                    {{ formatDate((new Date(item.date)).getTime() / 1000, 'history', false) }}
                 </div>
             </template>
         </div>
@@ -66,7 +66,7 @@ const filterHistory = (indexName) => {
                 <h4 v-if="index == 0">Works</h4>
                 <div class="history__item" v-if="formatSearchTitle(item?.uiState[props.workIndex]).length">
                     <a :href="item.link">{{ formatSearchTitle(item?.uiState[props.workIndex]) }}</a><br/>
-                    {{ formatDate((new Date(item.date)).getTime() / 1000, true, false) }}
+                    {{ formatDate((new Date(item.date)).getTime() / 1000, 'history', false) }}
                 </div>
             </template>
         </div>
