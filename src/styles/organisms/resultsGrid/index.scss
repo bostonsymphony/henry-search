@@ -16,9 +16,9 @@
         font-size: 0.9rem;
         font-weight: bold;
         grid-column: 1/span 2;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem .75rem;
         @include at(lg) {
-            padding: 1rem;
+            padding: .75rem;
             grid-column: auto;
             border: none;
             border-right: thin solid var(--color-gray-200);
@@ -68,7 +68,7 @@
         }
         &.-first {
             border-top: thin solid var(--color-gray-200);
-            padding-top: 1rem;
+            padding-top: 0.75rem;
             @include at(lg) {
                 border-top: none;
                 border-left: thin solid var(--color-gray-200);
@@ -81,7 +81,7 @@
                 border-top: thin solid var(--color-gray-200);
                 border-bottom: thin solid var(--color-gray-200);
                 font-weight:100;
-                color: var(--color-gray-400);
+                color: var(--color-mid-gray);
             }
         }
         &.-hideMobile {

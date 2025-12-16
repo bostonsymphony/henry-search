@@ -643,7 +643,7 @@
                                                         <div class="eventSearch__checkBox">
                                                             <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
                                                         </div>
-                                                        <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="itemCount">{{ item.count }}</span>
+                                                        <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="eventsSearch__refinementCount">{{ item.count }}</span>
                                                     </label>
                                                 </div>
                                             </div> 

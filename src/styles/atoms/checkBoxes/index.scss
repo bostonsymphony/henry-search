@@ -3,9 +3,18 @@
     max-height: 10rem;
     min-height: 1.8rem;
     overflow-y: auto;
+    padding-bottom: 0.5rem;
     input[type=checkbox] {
-      border: thin solid var(--color-dark-blue);
-      // background-color: var(--color-white);
+      border: thin solid var(--color-gray-100);
+      background-color: var(--color-white);
+      border-radius: 0;
+      height: 1rem;
+      width: 1rem;
+      
+    }
+    input[type=checkbox]:checked {
+      border: thin solid var(--color-gray-100);
+      background-color: var(--color-turquoise);
       border-radius: 0;
       height: 1rem;
       width: 1rem;
