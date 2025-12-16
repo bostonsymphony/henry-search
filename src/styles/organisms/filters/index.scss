@@ -48,7 +48,7 @@
             width: 28rem;
             flex-direction: column;
             gap: 1rem;
-            padding-left: 8rem;
+            padding-left: 6.25rem;
         }
 
         .clearRefinements {
@@ -170,7 +170,7 @@
             width: 28rem;
             flex-direction: column;
             gap: 1rem;
-            padding-left: 8rem;
+            padding-left: 6.25rem;
             height: auto;
             padding-right: 2rem;
             padding-top: 3rem;
@@ -211,7 +211,7 @@
         "date date button";
 
         @include at(lg) {
-            grid-template-columns: minmax(18rem, 3fr) minmax(24rem, 2fr) minmax(18rem, 1fr);
+            grid-template-columns: minmax(18rem, 3fr) minmax(24rem, 2fr) minmax(12rem, 1fr);
             //grid-template-columns: 100% rem 18rem;
             grid-template-areas:
             "search date button";

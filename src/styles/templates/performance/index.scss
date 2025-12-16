@@ -8,7 +8,7 @@
     &__dataTitle {
         font-weight: 100;
         font-size: 0.9rem;
-        color: var(--color-dark-gray);
+        color: var(--color-mid-gray);
         
     }
     &__details {
@@ -21,7 +21,7 @@
             padding: 0.5rem 2rem 0.5rem 4rem;
         }
         @include at(lg) {
-            padding: 0.5rem 4rem 0.5rem 8rem;
+            padding: 0.5rem 6.25rem 0.5rem 6.25rem;
         }
     }
 
