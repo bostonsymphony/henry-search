@@ -1,6 +1,5 @@
 <script setup>
     import { ref, onMounted, useTemplateRef } from 'vue'
-    import { useDebounceFn } from '@vueuse/core'
     import _ from 'lodash';
     import {
         AisClearRefinements,
@@ -436,15 +435,6 @@
       return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxRange
     }
 
-    function debounce(func, params, delay) {
-        let timeout;
-        // return function (params) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                func(params);
-            }, delay);
-        //};
-    }
 
     const getHeadingStyle = (attribute) => {       
         if (mainRefinementList.value && typeof(mainRefinementList.value[attribute]) !== 'undefined' && mainRefinementList.value[attribute]) {
@@ -460,6 +450,7 @@
         }
         return  ''
     }
+
 
 </script>
 
@@ -757,7 +748,7 @@
                                     <select name="Sort Order" v-model="sortView" @change="setView">
                                     <option value="Most Recent">Most Recent</option>
                                     <option value="Most Relevant">Most Relevant</option>
-                                    <option value="Oldest First">Oldest First</option>
+                                    <option value="Oldest First">Oldest First!</option>
                                     </select>
                                 </div>
                             </div>
