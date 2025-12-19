@@ -825,8 +825,7 @@
                                         </template>
                                     </ais-clear-refinements>
                                     <ul class="activeFilters__filtersList">
-                                        <li v-for="item in items" :key="item.attribute">
-                                        <ul class="activeFilters__items">
+                                        <template v-for="item in items" :key="item.attribute">
                                             <li
                                             v-for="refinement in item.refinements"
                                             :key="[
@@ -844,8 +843,7 @@
                                                 class="activeFilters__remove"
                                             ></a>
                                             </li>
-                                        </ul>
-                                        </li>
+                                        </template>
                                     </ul>
                                     
                                 </div>

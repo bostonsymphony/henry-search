@@ -142,6 +142,10 @@
         }
     }
 
+    &__icon {
+        overflow: visible;
+        top: -0.5rem;
+    }
     &__lightLink {
         color: var(--color-turquoise);
     }
@@ -153,5 +157,14 @@
         @include at(lg) {
             display: none;
         }
+    }
+    .toolTip {
+        top: -0.2rem;
+        left: -0.2rem;
+    }
+    .toolTip__text {
+        width: 6rem;
+        left: -1rem;
+        margin-top:1rem;
     }
 }
