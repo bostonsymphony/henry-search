@@ -19,20 +19,21 @@
         font-weight: 100;
         border-radius: 4px;
         padding: 0 .5rem 0.25rem .75rem;
-        margin-bottom: 0.5rem;
+        text-wrap: nowrap;
     }
 
-    &__items {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.5rem;
-    }
+    // &__items {
+    //     display: flex;
+    //     flex-wrap: wrap;
+    //     align-items: center;
+    //     gap: 0.5rem;
+    // }
 
     &__filtersList {
         margin-bottom: 1rem;
         display: flex;
         gap: 0.5rem;
+        flex-wrap: wrap;
     }
     &__remove {
         color: var(--color-dark-blue);
