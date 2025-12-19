@@ -132,29 +132,29 @@ const createURL = (facet, value) => {
                 <event-links :detail="true" :item="performance" />
             </div>
             <div class="performance__headerData">
-                <div><span class="performance__dataTitle">Season:</span><br/><a :href="createURL('season', performance.season)">{{ performance.season }}</a></div>
-                <div><span class="performance__dataTitle">Orchestra/Ensemble:</span><br/>
+                <div class="performance__headerColumn"><span class="performance__dataTitle">Season:</span><br/><a :href="createURL('season', performance.season)">{{ performance.season }}</a></div>
+                <div class="performance__headerColumn"><span class="performance__dataTitle">Orchestra/Ensemble:</span><br/>
                     <span v-if="performance.works" v-html="formatWorkAttribute(performance.works, 'ensembles')">
                     </span>
                     <span v-else v-for="orch, index in performance.ensembles">
                         <a :href="createURL('ensemble', orch)">{{ orch + (index < performance.ensembles.length - 1 ? ";&nbsp;" : "") }}</a>
                     </span>
                 </div>
-            <div><span class="performance__dataTitle">Conductor:</span><br/>
+                <div class="performance__headerColumn"><span class="performance__dataTitle">Conductor:</span><br/>
                     <span v-if="performance.works" v-html="formatWorkAttribute(performance.works, 'conductors')">
                     </span>
                     <span v-else v-for="conductor, index in performance.conductors">
                         <a :href="createURL('conductors', conductor)">{{ conductor + (index < performance.conductors.length - 1 ? ",&nbsp;" : "") }}</a>
                     </span>
                 </div>
-                <div><span class="performance__dataTitle">Event Title:</span><br/>{{ performance.event_title && performance.event_title.length ? performance.event_title : '---' }}</div>
-                <div><span class="performance__dataTitle">Event Type:</span><br/>
+                <div class="performance__headerColumn"><span class="performance__dataTitle">Event Title:</span><br/>{{ performance.event_title && performance.event_title.length ? performance.event_title : '---' }}</div>
+                <div class="performance__headerColumn"><span class="performance__dataTitle">Event Type:</span><br/>
                     <span v-for="type, index in performance.event_type">
                         <a :href="createURL('event_type', type)">{{ type + (index < performance.event_type - 1 ? ",&nbsp;" : "") }}</a>
                     </span>
                     <span v-if="!performance.event_type || performance.event_type.length < 1">---</span>
                 </div>
-                <div><span class="performance__dataTitle">Notes:</span><br/>{{ performance.notes ?? '---' }}</div>
+                <div class="performance__headerColumn"><span class="performance__dataTitle">Notes:</span><br/>{{ performance.notes ?? '---' }}</div>
             </div>
             <h4>Program</h4>
             <div class="performanceGrid">

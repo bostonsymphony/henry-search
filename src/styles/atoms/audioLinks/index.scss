@@ -23,9 +23,11 @@
 
     &__link {
         justify-content: end;
+        gap: 0.25rem;
         white-space:nowrap;
         width: 100%;
-        font-size: 1rem;
+        font-size: 1.1rem;
+        font-weight: normal;
         padding: .75rem;
         color: var(--color-turquoise);
 
