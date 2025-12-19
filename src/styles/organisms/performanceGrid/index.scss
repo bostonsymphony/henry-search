@@ -15,7 +15,7 @@
         grid-column: 1/span 2;
         display: grid;
         @include at(md) {
-            padding: 1rem;
+            padding: 0.75rem;
             border-left: none;
             grid-column: auto;
         }
@@ -69,7 +69,7 @@
                 border-top: thin solid var(--color-gray-200);
                 border-bottom: thin solid var(--color-gray-200);
                 font-weight:100;
-                color: var(--color-gray-400);
+                color: var(--color-mid-gray);
             }
            
         }

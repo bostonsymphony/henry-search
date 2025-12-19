@@ -19,6 +19,7 @@
         font-weight: 100;
         border-radius: 4px;
         padding: 0 .5rem 0.25rem .75rem;
+        margin-bottom: 0.5rem;
     }
 
     &__items {
@@ -29,9 +30,6 @@
     }
 
     &__filtersList {
-        grid-column: 1/span 2;
-        display: flex;
-        gap: .75rem;
         margin-bottom: 1rem;
     }
     &__remove {

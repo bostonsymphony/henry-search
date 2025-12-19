@@ -21,13 +21,13 @@
             padding: 0.5rem 2rem 0.5rem 4rem;
         }
         @include at(lg) {
-            padding: 0.5rem 6.25rem 0.5rem 6.25rem;
+            padding: 2.5rem 6.25rem 0.5rem 6.25rem;
         }
     }
 
     
     &__header {
-        border-bottom: 1px solid var(--color-light-gray);
+        border-bottom: 1px solid var(--color-gray-200);
         // h2 {
         //     font-weight: 600;
         //     font-size: 3.5rem;
@@ -40,7 +40,7 @@
         }
     }
     &__headerData {
-        border-bottom: 1px solid var(--color-light-gray);
+        border-bottom: 1px solid var(--color-gray-200);
         display: grid;
         font-weight: bold;
         color: var(--color-dark-blue);
@@ -66,8 +66,11 @@
         .composer {
             grid-area: "composer";
         }
-        
-        
+    }
+
+    &__separator {
+        color: var(--color-mid-gray);
+        font-weight: 100;
     }
 
 

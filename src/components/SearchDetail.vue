@@ -43,6 +43,8 @@ onMounted(() => {
 
     client.collections(props.indexName).documents(props.performanceId).retrieve().then(function (results) {
         performance.value = results
+        // console.log(results)
+        // console.log(new Date(results.performance_datetime))
         document.title = `BSO HENRY | ${ formatDate(performance.value.performance_date) } Performance Detail`
     }).catch((e) => {
         console.log(e)
@@ -124,7 +126,7 @@ const createURL = (facet, value) => {
         <div class="performance__details">
             <div class="performance__header">
                 <h1>{{ formatDate(performance.performance_date, 'detail') }} Performance Detail</h1>
-                <h2>{{ formatTime(performance.performance_date) }} | {{ formatLocation(performance.venue, performance.location) }}</h2>
+                <h2>{{ formatTime(performance.performance_date) }} <span class="performance__separator">|</span> {{ formatLocation(performance.venue, performance.location) }}</h2>
             </div>
             <div class="headerLinks">
                 <event-links :detail="true" :item="performance" />
