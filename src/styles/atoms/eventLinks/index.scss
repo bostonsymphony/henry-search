@@ -14,9 +14,17 @@
     &__details {
       display: flex;
       background-color: inherit;
-      padding: 0;
+      padding: 0 0.5rem 0 0.25rem;
       border: none;
       color: var(--color-turquoise);
       font-weight: bold;
     }
+    button.eventLinks__details {
+      display: flex;
+      gap: .35rem;
+      align-items: flex-start;
+      text-align: left;
+      padding-left: 0;
+      padding-top: 0.1rem;
+  }
 }

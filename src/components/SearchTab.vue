@@ -346,7 +346,7 @@
             return 'Date: ' + refinement.label[0] + ' ' + formatDate(refinement.value) + ' ×'
         }
         if (attributeMap[refinement.attribute]) {
-            return attributeMap[refinement.attribute] + ': ' + refinement.value + ' ×'
+            return attributeMap[refinement.attribute] + ': ' + refinement.value + ' <span="activeFilters__removeIcon">×</span>'
         } else {
             return refinement.attribute + ': ' + refinement.value + ' ×'
         }
@@ -784,19 +784,26 @@
                                     </select>
                                 </div>
                                 <div v-if="showNumHits" class="resultActions__buttons">
-                                    <a onclick="navigator.clipboard.writeText(window.location.href);" class="resultActions__icon">
-                                        <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M3.8335 5.00683C4.00129 5.24348 4.21538 5.4393 4.46122 5.581C4.70706 5.72269 4.97891 5.80696 5.25834 5.82807C5.53776 5.84918 5.81823 5.80665 6.0807 5.70336C6.34317 5.60006 6.58152 5.43843 6.77957 5.22941L7.95175 3.99281C8.30762 3.6041 8.50454 3.08349 8.50009 2.5431C8.49564 2.00271 8.29018 1.48578 7.92796 1.10365C7.56574 0.721528 7.07574 0.504774 6.5635 0.500078C6.05127 0.495382 5.55778 0.70312 5.18932 1.07855L4.51727 1.78341" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M5.83333 3.99326C5.64156 3.7566 5.3969 3.56078 5.11594 3.41908C4.83497 3.27739 4.52428 3.19313 4.20494 3.17201C3.8856 3.1509 3.56507 3.19343 3.2651 3.29673C2.96513 3.40002 2.69273 3.56165 2.46639 3.77067L1.12675 5.00727C0.720043 5.39598 0.494997 5.9166 0.500084 6.45698C0.505171 6.99737 0.739985 7.5143 1.15395 7.89643C1.56791 8.27855 2.12791 8.49531 2.71332 8.5C3.29874 8.5047 3.86273 8.29696 4.28382 7.92153L5.04741 7.21667" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </a>
-                                    <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`"  class="resultActions__icon">
-                                        <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M7.47805 10.9099L0.5 10.9099" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M0.75293 4.94067L3.92477 8.11252L7.09662 4.94067" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M3.9248 8.11242V0.5" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </a>
+                                    <div class="toolTip">
+                                        <a onclick="navigator.clipboard.writeText(window.location.href);" class="resultActions__icon">
+                                            <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M3.8335 5.00683C4.00129 5.24348 4.21538 5.4393 4.46122 5.581C4.70706 5.72269 4.97891 5.80696 5.25834 5.82807C5.53776 5.84918 5.81823 5.80665 6.0807 5.70336C6.34317 5.60006 6.58152 5.43843 6.77957 5.22941L7.95175 3.99281C8.30762 3.6041 8.50454 3.08349 8.50009 2.5431C8.49564 2.00271 8.29018 1.48578 7.92796 1.10365C7.56574 0.721528 7.07574 0.504774 6.5635 0.500078C6.05127 0.495382 5.55778 0.70312 5.18932 1.07855L4.51727 1.78341" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M5.83333 3.99326C5.64156 3.7566 5.3969 3.56078 5.11594 3.41908C4.83497 3.27739 4.52428 3.19313 4.20494 3.17201C3.8856 3.1509 3.56507 3.19343 3.2651 3.29673C2.96513 3.40002 2.69273 3.56165 2.46639 3.77067L1.12675 5.00727C0.720043 5.39598 0.494997 5.9166 0.500084 6.45698C0.505171 6.99737 0.739985 7.5143 1.15395 7.89643C1.56791 8.27855 2.12791 8.49531 2.71332 8.5C3.29874 8.5047 3.86273 8.29696 4.28382 7.92153L5.04741 7.21667" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            
+                                        </a>
+                                        <span class="toolTip__text">Copy Link</span>
+                                    </div>
+                                    <div class="toolTip">
+                                        <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`"  class="resultActions__icon">
+                                            <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7.47805 10.9099L0.5 10.9099" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M0.75293 4.94067L3.92477 8.11252L7.09662 4.94067" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M3.9248 8.11242V0.5" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </a>
+                                        <span class="toolTip__text">Export CSV</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
