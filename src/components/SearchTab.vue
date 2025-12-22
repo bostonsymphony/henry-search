@@ -891,7 +891,7 @@
                                     ‹
                                     </a>
                                 </li>
-                                <template v-if="nbPages - 5 > currentRefinement + 1">
+                                <template v-if="nbPages - 5 > currentRefinement">
                                     <li v-for="page in pages.slice(0, 5)" :key="page">
                                         <a
                                         :href="createURL(page)"

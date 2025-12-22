@@ -1,3 +1,5 @@
+import formatDate from '../composables/formatDate'
+
 export default function formatSearchTitle(state) {
     let searchName = state.query ? '"' + state.query + '"' : ""
     if (state.refinementList) {
@@ -31,7 +33,7 @@ export default function formatSearchTitle(state) {
             if (searchName != "") {
                 searchName += "; "
             }
-            searchName += " " + formatDate(dateRange[0]) + " to " + ( dateRange[1].length ? formatDate(dateRange[0]) : "Present" );
+            searchName += " " + formatDate(dateRange[0]) + " to " + ( dateRange[1].length ? formatDate(dateRange[1]) : "Present" );
         })
     }
     
