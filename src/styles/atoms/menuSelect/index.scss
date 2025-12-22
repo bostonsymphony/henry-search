@@ -1,11 +1,10 @@
 .ais-MenuSelect {
-    .multiselect {
-      border: thin solid var(--color-gray-400);
-      margin-bottom: 0.3rem;
-      &.is-open {
-        border: thin solid var(--color-turquoise);
-        box-shadow: none;
-      } 
+    border: thin solid var(--color-gray-400);
+    margin-bottom: 0.3rem;
+    border-radius: 5px;
+    select {
+      margin: .25rem;
+      width: 95%;
     }
     .multiselect-caret {
       width: 0.5rem;
@@ -20,9 +19,14 @@
       margin-top: 0.5rem;
       margin-left: 0.1rem;
     }
-    .multiselect-option {
+    option {
       border-bottom: thin solid var(--color-gray-400);
       font-size: 0.9rem;
       padding-left: 1.5rem;
     }
+}
+
+.ais-MenuSelect:active {
+  border: thin solid var(--color-turquoise);
+  box-shadow: none;
 }
