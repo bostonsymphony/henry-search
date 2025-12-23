@@ -90,6 +90,9 @@
             width: 100vw;
             height: 100%;
             padding-right: 0;
+            @include at(lg) {
+                top: 0px;
+            }
             &.closed {
                 @include at(lg) {
                     display: none;
@@ -161,10 +164,7 @@
                 }
             }
             .location {
-                padding: 0 0.5rem;
-                @include at(lg) {
-                    padding: 0;
-                }
+                padding: 0;
             }
 
 

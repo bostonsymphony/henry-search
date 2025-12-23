@@ -622,7 +622,7 @@
                     </p-accordion>
                     <!-- <template v-else><div></div></template> -->
                        
-                    <p-accordion class="ais-RefinementList" v-if="props.addlRefinements" name="more_filters" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
+                    <p-accordion class="ais-RefinementList -sub" v-if="props.addlRefinements" name="more_filters" :start-open="false" open-text="Fewer Filters" closed-text="More Filters">
                         <summary class="accordion__summary">
                             <h6 class="accordion__heading -thin">More Filters</h6>
                         </summary>
