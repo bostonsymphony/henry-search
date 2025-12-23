@@ -23,7 +23,7 @@
     padding: 0;
     width: 2.5rem;
     height: 100%;
-    @include at(md) {
+    @include at(lg) {
       height: 80%;
       width: 100%;
     }

@@ -2,7 +2,7 @@
 
 .dateRange {
     grid-area: date;
-    @include at(md) {
+    @include at(lg) {
         padding-top: 0.5rem;
     }
     

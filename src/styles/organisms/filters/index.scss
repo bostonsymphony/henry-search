@@ -7,7 +7,7 @@
 
     &__button {
         justify-self: end;
-        @include at(md) {
+        @include at(lg) {
             padding-top: 0.5rem;
             justify-self: stretch;
         }
@@ -18,7 +18,7 @@
             width: 2rem;
             height: 2rem;
             stroke: var(--color-dark-blue);
-            @include at(md) {
+            @include at(lg) {
                 display: none;
             }
         }
@@ -210,7 +210,7 @@
 
     &__searchButton {
         display: none;
-        @include at(md) {
+        @include at(lg) {
             display: inline;
         }
     }

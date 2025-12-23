@@ -14,7 +14,7 @@
         z-index: 100;
         display: block;
         
-        @include at(md) {
+        @include at(lg) {
             left: 7rem;
         }
         
@@ -29,7 +29,7 @@
         margin-bottom: 0;
         flex-wrap: wrap;
         gap: 1rem;
-        @include at(md) {
+        @include at(lg) {
             gap: 2rem;
         }
     }
