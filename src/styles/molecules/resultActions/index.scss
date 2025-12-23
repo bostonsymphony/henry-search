@@ -9,19 +9,29 @@
 
     &__buttons {
         @include at(lg) {
-          display: inline;
+          display: flex;
+          gap: 0.25rem;
           border-left: thin solid var(--color-gray-200);
           height: 1.75rem;
-          padding-left: .25rem;
+          padding-left: .5rem;
         }
     }
 
     &__icon {
-        background-color: var(--color-light-gray);
-        padding: 10px;
-        border-radius: 1rem;
-        margin: 0 .25rem;
+        background-color: var(--color-light-blue);
+        border-radius: 15px;
+        fill: var(--color-light-blue);
+        stroke: var(--color-dark-blue);
+        outline: none; 
+        width: 2rem;
+        height: 2rem;
         cursor: pointer;
+    }
+
+    &__icon:hover {
+      background-color: var(--color-white);
+      border: 1px solid var(--color-dark-blue);
+      fill: var(--color-white);
     }
 
     &__sort {

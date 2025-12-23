@@ -156,9 +156,18 @@
         const wrapper = document.getElementById(`${props.indexName}_filterRail`)
         const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
         const containers = document.querySelectorAll('.container')
+        const otherHiddenEls = document.querySelectorAll('.mobileHide')
         wrapper.classList.toggle('openMobile')
         leftPane.classList.toggle('openMobile')
         containers.forEach((el) => {
+            if (el.style.display != "none") {
+                el.style.display = "none"
+            } else {
+                el.style.display = "grid"
+            }
+            
+        })
+        otherHiddenEls.forEach((el) => {
             if (el.style.display != "none") {
                 el.style.display = "none"
             } else {
@@ -532,9 +541,9 @@
                         </div>
                         <div class="filters__button">
                             <button class="button info">
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" class="mobileSearch">
-                                    <path d="M6.00037 11.2504C8.90007 11.2504 11.2507 8.89978 11.2507 6.00018C11.2507 3.10059 8.90007 0.75 6.00037 0.75C3.10067 0.75 0.75 3.10059 0.75 6.00018C0.75 8.89978 3.10067 11.2504 6.00037 11.2504Z" stroke="#14284E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M9.7124 9.71265L12.7502 12.7503" stroke="#14284E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <svg width="32" height="32" viewBox="-9 -9 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="mobileSearch">
+                                    <path d="M6.00037 11.2504C8.90007 11.2504 11.2507 8.89978 11.2507 6.00018C11.2507 3.10059 8.90007 0.75 6.00037 0.75C3.10067 0.75 0.75 3.10059 0.75 6.00018C0.75 8.89978 3.10067 11.2504 6.00037 11.2504Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M9.7124 9.71265L12.7502 12.7503" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                                 </svg>
                                 <span class="filters__searchButton">Search</span>
                             </button>
@@ -550,13 +559,13 @@
                     <div class="filters__header">
                         <div class="filters__toggle">
                             <svg width="24" height="24" viewBox="0 0 24 24" class="filters__icon">
-                                <rect width="24" height="24" rx="4" fill="#01ABE6"/>
-                                <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
-                                <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
-                                <path d="M6 17.75H18.8864" stroke="white" stroke-linecap="round"/>
-                                <circle cx="8.72709" cy="17.9544" r="1.54545" fill="#01ABE6" stroke="white"/>
-                                <circle cx="14.8633" cy="12.5" r="1.54545" fill="#01ABE6" stroke="white"/>
-                                <circle cx="10.7725" cy="7.04545" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                <rect width="24" height="24" rx="4" />
+                                <path d="M6 7.25H18.8864" stroke-linecap="round"/>
+                                <path d="M6 12.5681H18.8864" stroke-linecap="round"/>
+                                <path d="M6 17.75H18.8864"  stroke-linecap="round"/>
+                                <circle cx="8.72709" cy="17.9544" r="1.54545" />
+                                <circle cx="14.8633" cy="12.5" r="1.54545" />
+                                <circle cx="10.7725" cy="7.04545" r="1.54545" />
                             </svg> 
                             <span class="label">Filters</span>
                         </div>
@@ -737,7 +746,7 @@
                             <div class="filters__toggle">
                                 <button class="filterButton" @click="toggleFiltersMobile()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" >
-                                        <rect width="24" height="24" rx="4" fill="#01ABE6"/>
+                                        <rect width="24" height="24" rx="4"/>
                                         <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
                                         <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
                                         <path d="M6 17.75H18.8864" stroke="white" stroke-linecap="round"/>
@@ -757,15 +766,15 @@
                             </div>
                         </div>
                         <div class="eventsSearch__resultsHeader">
-                            <div class="eventsSearch__resultsTitle" id="resultsTitle">
+                            <div class="eventsSearch__resultsTitle -title" id="resultsTitle">
                                 <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" :class="`filters__toggleOn ${filtersClosed ? 'closed' : ''}`" @click="toggleFilters()">
-                                    <rect width="24" height="24" rx="4" fill="#01ABE6"/>
-                                    <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
-                                    <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
-                                    <path d="M6 17.75H18.8864" stroke="white" stroke-linecap="round"/>
-                                    <circle cx="8.72709" cy="17.9544" r="1.54545" fill="#01ABE6" stroke="white"/>
-                                    <circle cx="14.8633" cy="12.5" r="1.54545" fill="#01ABE6" stroke="white"/>
-                                    <circle cx="10.7725" cy="7.04545" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                    <rect width="24" height="24" rx="4" />
+                                    <path d="M6 7.25H18.8864" stroke-linecap="round"/>
+                                    <path d="M6 12.5681H18.8864" stroke-linecap="round"/>
+                                    <path d="M6 17.75H18.8864"  stroke-linecap="round"/>
+                                    <circle cx="8.72709" cy="17.9544" r="1.54545" />
+                                    <circle cx="14.8633" cy="12.5" r="1.54545" />
+                                    <circle cx="10.7725" cy="7.04545" r="1.54545" />
                                 </svg> 
                                 <h2 v-if="showNumHits">
                                     <ais-stats>
@@ -788,22 +797,24 @@
                                 </div>
                                 <div v-if="showNumHits" class="resultActions__buttons">
                                     <div class="toolTip">
-                                        <a onclick="navigator.clipboard.writeText(window.location.href);" class="resultActions__icon">
-                                            <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M3.8335 5.00683C4.00129 5.24348 4.21538 5.4393 4.46122 5.581C4.70706 5.72269 4.97891 5.80696 5.25834 5.82807C5.53776 5.84918 5.81823 5.80665 6.0807 5.70336C6.34317 5.60006 6.58152 5.43843 6.77957 5.22941L7.95175 3.99281C8.30762 3.6041 8.50454 3.08349 8.50009 2.5431C8.49564 2.00271 8.29018 1.48578 7.92796 1.10365C7.56574 0.721528 7.07574 0.504774 6.5635 0.500078C6.05127 0.495382 5.55778 0.70312 5.18932 1.07855L4.51727 1.78341" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M5.83333 3.99326C5.64156 3.7566 5.3969 3.56078 5.11594 3.41908C4.83497 3.27739 4.52428 3.19313 4.20494 3.17201C3.8856 3.1509 3.56507 3.19343 3.2651 3.29673C2.96513 3.40002 2.69273 3.56165 2.46639 3.77067L1.12675 5.00727C0.720043 5.39598 0.494997 5.9166 0.500084 6.45698C0.505171 6.99737 0.739985 7.5143 1.15395 7.89643C1.56791 8.27855 2.12791 8.49531 2.71332 8.5C3.29874 8.5047 3.86273 8.29696 4.28382 7.92153L5.04741 7.21667" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <a onclick="navigator.clipboard.writeText(window.location.href);">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"  class="resultActions__icon" outline="black">
+                                                <!-- <circle cx="12" cy="12" stroke="none" r="12"/> -->
+                                                <path d="M11.3334 12.5068C11.5012 12.7435 11.7153 12.9393 11.9611 13.081C12.2069 13.2227 12.4788 13.307 12.7582 13.3281C13.0376 13.3492 13.3181 13.3066 13.5806 13.2034C13.8431 13.1001 14.0814 12.9384 14.2795 12.7294L15.4516 11.4928C15.8075 11.1041 16.0044 10.5835 16 10.0431C15.9955 9.50271 15.7901 8.98578 15.4278 8.60365C15.0656 8.22153 14.5756 8.00477 14.0634 8.00008C13.5511 7.99538 13.0577 8.20312 12.6892 8.57855L12.0171 9.28341" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M13.3333 11.4932C13.1416 11.2565 12.8969 11.0607 12.6159 10.919C12.335 10.7773 12.0243 10.6931 11.7049 10.672C11.3856 10.6508 11.0651 10.6934 10.7651 10.7967C10.4651 10.9 10.1927 11.0616 9.96639 11.2706L8.62675 12.5072C8.22004 12.8959 7.995 13.4165 8.00008 13.9569C8.00517 14.4973 8.23998 15.0142 8.65395 15.3964C9.06791 15.7785 9.62791 15.9952 10.2133 15.9999C10.7987 16.0046 11.3627 15.7969 11.7838 15.4215L12.5474 14.7166" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
-                                            
                                         </a>
                                         <span class="toolTip__text">Copy Link</span>
                                     </div>
                                     <div class="toolTip">
-                                        <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`"  class="resultActions__icon">
-                                            <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M7.47805 10.9099L0.5 10.9099" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M0.75293 4.94067L3.92477 8.11252L7.09662 4.94067" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M3.9248 8.11242V0.5" stroke="#01ABE6" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`" >
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="resultActions__icon">
+                                                <!-- <circle cx="12" cy="12" r="12" stroke="none "/> -->
+                                                <path d="M15.9785 17.41L9.00049 17.41" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M9.25317 11.4406L12.425 14.6124L15.5969 11.4406" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12.425 14.6124V7" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
+
                                         </a>
                                         <span class="toolTip__text">Export CSV</span>
                                     </div>

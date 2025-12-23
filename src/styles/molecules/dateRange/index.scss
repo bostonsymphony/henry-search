@@ -2,6 +2,10 @@
 
 .dateRange {
     grid-area: date;
+    @include at(md) {
+        padding-top: 0.5rem;
+    }
+    
     .ais-RangeInput {
         display: flex;
         gap: 1rem;

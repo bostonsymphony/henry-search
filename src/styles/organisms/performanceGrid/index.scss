@@ -100,6 +100,10 @@
                 font-weight: 600;
             }
         }
+        svg {
+            fill: var(--color-dark-blue);
+            stroke: var(--color-white);
+        }
     }
 
     &__mobileHeader {

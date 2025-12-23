@@ -8,15 +8,22 @@
     &__button {
         justify-self: end;
         @include at(md) {
-                justify-self: stretch;
+            padding-top: 0.5rem;
+            justify-self: stretch;
         }
 
 
         .mobileSearch {
             display: inline;
+            width: 2rem;
+            height: 2rem;
+            stroke: var(--color-dark-blue);
             @include at(md) {
-            display: none;
+                display: none;
             }
+        }
+        .mobileSearch:hover {
+            stroke: var(--color-white);
         }
     }
 
@@ -185,9 +192,17 @@
 
     &__icon {
         display: none;
+        fill: var(--color-dark-blue);
+        stroke: var(--color-white);
         @include at(lg) {
+            
             display:inline;
         }
+    }
+    &__icon:hover {
+        fill: var(--color-white);
+        stroke: var(--color-dark-blue);
+        outline: var(--color-dark-blue)
     }
     &__search {
         grid-area: search;
@@ -234,6 +249,9 @@
         display: none;
         margin-right: 1rem;
         transition: display 400ms;
+
+        stroke: var(--color-white);
+        fill: var(--color-dark-blue);
         &.closed {
             //display: none;
             @include at(lg) {
@@ -241,6 +259,12 @@
             }
         }
         
+    }
+
+    &__toggleOn:hover {
+        fill: var(--color-white);
+        stroke: var(--color-dark-blue);
+        outline: var(--color-dark-blue);
     }
     
     &__wrapper {
