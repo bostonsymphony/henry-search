@@ -27,7 +27,7 @@ const props = defineProps({
 
 const performance = ref(null)
 
-const searchHistory = ref(JSON.parse(sessionStorage.getItem('searchHistory')))
+const previousPageUrl = ref(sessionStorage.getItem('previousPageUrl'))
 
 
 onMounted(() => {
@@ -122,7 +122,7 @@ const createURL = (facet, value) => {
 
 <template>
     <template v-if="performance">
-        <div class="breadCrumb"><a :href="searchHistory && searchHistory.length ? searchHistory[searchHistory.length - 1].link : '/'">Back to Search Results</a></div>
+        <div class="breadCrumb"><a :href="previousPageUrl ? previousPageUrl : '/'">Back to Search Results</a></div>
         <div class="performance__details">
             <div class="performance__header">
                 <h1>{{ formatDate(performance.performance_date, 'detail') }} Performance Detail</h1>

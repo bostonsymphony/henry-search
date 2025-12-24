@@ -34,6 +34,8 @@
   svg {
     fill: var(--color-dark-blue);
     stroke: var(--color-white);
+    height: 18px;
+    min-width: 18px;
   }
 }
 .eventLinks:hover svg {

@@ -95,6 +95,7 @@
                 const queryString = qsModule.stringify(routeState);
 
                 const uiState = qsModule.parse(location.search.slice(1))
+                sessionStorage.setItem('previousPageUrl', window.location.href)
                 
                 updateSearchHistory(uiState)
 
@@ -157,6 +158,7 @@
         const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
         const containers = document.querySelectorAll('.container')
         const otherHiddenEls = document.querySelectorAll('.mobileHide')
+        wrapper.classList.remove('closed')
         wrapper.classList.toggle('openMobile')
         leftPane.classList.toggle('openMobile')
         containers.forEach((el) => {
@@ -261,7 +263,7 @@
                 link: document.location.href
             })
         }
-    
+        
         sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
     }
 
