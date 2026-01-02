@@ -511,7 +511,7 @@
                                             });
                                             
                                         }"
-                                        
+                                        :teleport="true"
                                         :clearable="false"
                                         :multi-calendars="false"
                                         :enable-time-picker="false"
@@ -529,6 +529,7 @@
                                             min: formatMinValue(currentRefinement.min, range.min),
                                             max: formatMaxValue(modelValue/1000, range.max),
                                         })}"
+                                        :teleport="true"
                                         :clearable="false"
                                         :text-input="true"
                                         :enter-submit="true"
