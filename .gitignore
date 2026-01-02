@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .vscode
+
+.env-non-cloud
+config/license.key.1
