@@ -75,7 +75,7 @@
     const workFilters = ref(null)
     const currentQuery = ref(null)
     const filtersClosed = ref(false)
-    const mobileFiltersClosed = ref(false)
+    const mobileFiltersClosed = ref(true)
     
     const updateNow = ref(0)
 
@@ -163,7 +163,6 @@
         wrapper.classList.remove('closed')
         wrapper.classList.toggle('openMobile')
         leftPane.classList.toggle('openMobile')
-        console.log(wrapper.classList)
         containers.forEach((el) => {
             if (el.style.display != "none") {
                 el.style.display = "none"
