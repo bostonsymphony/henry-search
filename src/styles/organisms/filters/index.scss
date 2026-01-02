@@ -46,8 +46,10 @@
         transition: width 400ms, padding-left 400ms;
         width: 0;
         &.closed {
-            width: 0;
-            padding-left: 6rem;
+            @include at(lg) {
+                width: 0;
+                padding-left: 6rem;
+            }
         }
 
         @include at(lg) {
@@ -270,7 +272,7 @@
     &__wrapper {
         overflow-y: scroll;
         width: 100%;
-        height: 100%;
+        height: 90%;
         @include at(lg) {
             overflow: hidden;
             display: grid;

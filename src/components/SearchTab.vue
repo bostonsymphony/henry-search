@@ -75,6 +75,7 @@
     const workFilters = ref(null)
     const currentQuery = ref(null)
     const filtersClosed = ref(false)
+    const mobileFiltersClosed = ref(false)
     
     const updateNow = ref(0)
 
@@ -154,6 +155,7 @@
     }
 
     const toggleFiltersMobile = () => {
+        mobileFiltersClosed.value = !mobileFiltersClosed.value
         const wrapper = document.getElementById(`${props.indexName}_filterRail`)
         const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
         const containers = document.querySelectorAll('.container')
@@ -161,6 +163,7 @@
         wrapper.classList.remove('closed')
         wrapper.classList.toggle('openMobile')
         leftPane.classList.toggle('openMobile')
+        console.log(wrapper.classList)
         containers.forEach((el) => {
             if (el.style.display != "none") {
                 el.style.display = "none"
@@ -556,7 +559,7 @@
             </div>
 
                 <!-- View Toggle and Active Filters -->
-            <section :class="`filters__filterRail ${filtersClosed ? 'closed' : ''}`" :id="`${props.indexName}_filterRail`">
+            <section :class="`filters__filterRail ${filtersClosed ? 'closed' : ''} ${mobileFiltersClosed ? '' : 'openMobile'}`" :id="`${props.indexName}_filterRail`">
                 
                 <div class="filters__wrapper">
                     <div class="filters__header">
@@ -741,7 +744,7 @@
             </section>
 
             <!-- Search Results Section -->
-            <section :class="`eventsSearch__results ${ filtersClosed ? 'closed' : ''}`" :id="`${props.indexName}_eventsSearch__results`">
+            <section :class="`eventsSearch__results ${ filtersClosed ? 'closed' : ''}  ${mobileFiltersClosed ? '' : 'openMobile'}`" :id="`${props.indexName}_eventsSearch__results`">
                 
                 <ais-hits :key="updateNow" class="eventsSearch__hits" :transform-items="filterItems">
                     <template v-slot="{ items }">
