@@ -617,16 +617,12 @@
                                     <div class="checkBoxes">
                                         <span class="checkBoxes__alert" v-if="!items.length"><span class="checkBoxes__alertIcon">!</span>No matches found</span>
                                         <label v-for="item in items" class="checkBoxes__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
-                                            <div class="eventSearch__checkBox">
-                                                <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" 
-                                                    type="checkbox" 
-                                                    :id="slugify(refinement.title + ' ' + item.value)"  
-                                                    :value="item.value" 
-                                                    :checked="item.isRefined" 
-                                                    @click="refine(item.value)" />
-                                                    
-                                            </div>
-                                            
+                                            <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" 
+                                                type="checkbox" 
+                                                :id="slugify(refinement.title + ' ' + item.value)"  
+                                                :value="item.value" 
+                                                :checked="item.isRefined" 
+                                                @click="refine(item.value)" />
                                             <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="eventsSearch__refinementCount">{{ item.count }}</span>
                                         </label>
                                     </div>
@@ -674,9 +670,7 @@
                                                 <div class="checkBoxes">
                                                     <span class="checkBoxes__alert" v-if="!items.length"><span class="checkBoxes__alertIcon">!</span>No matches found</span>
                                                     <label v-for="item in items" class="checkBoxes__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
-                                                        <div class="eventSearch__checkBox">
-                                                            <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
-                                                        </div>
+                                                        <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
                                                         <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="eventsSearch__refinementCount">{{ item.count }}</span>
                                                     </label>
                                                 </div>

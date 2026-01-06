@@ -21,6 +21,12 @@
         .audioLinks__links {
             width: 18rem;
         }
+
+        .audioLinks__link {
+            color: var(--color-dark-blue);
+            font-weight: normal;
+            font-size: 1.1rem;
+        }
     }
     &__media {
         display: flex;

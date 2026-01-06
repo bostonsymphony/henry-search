@@ -20,9 +20,9 @@
     font-weight: bold;
   }
 
-  // button:hover {
-  //   background-color: var(--color-dark-blue);
-  // }
+  button:hover {
+    background-color: none;
+  }
   button.eventLinks__details {
     display: flex;
     gap: .35rem;
@@ -31,19 +31,20 @@
     padding-left: 0;
     padding-top: 0.1rem;
   }
-  svg {
+  svg.eventLinks__icon {
     fill: var(--color-dark-blue);
     stroke: var(--color-white);
     height: 18px;
     min-width: 18px;
   }
 }
-.eventLinks:hover svg {
-    stroke: var(--color-dark-blue);
-    outline: var(--color-dark-blue);
-    fill: var(--color-white);
+
+.eventLinks__link:hover svg {
+  stroke: var(--color-dark-blue);
+  outline: var(--color-dark-blue);
+  fill: var(--color-white);
 }
-.eventLinks:hover a, .eventLinks:hover button {
+a.eventLinks__link:hover, .eventLinks:hover button, a.eventLinks__details:hover, .eventLinks__details:hover button {
   text-decoration: underline;
   fill: none;
 }

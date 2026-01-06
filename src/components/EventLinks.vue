@@ -63,7 +63,7 @@ const showAudioLinks = (event) => {
     </template>
     <template v-else>
         <div :class="`eventLinks ${ props.extraClasses }`">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="eventLinks__icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="9" cy="9" r="8.5" vector-effect="non-scaling-stroke"/>
                 <path d="M5 9H13" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
                 <path d="M9 5L13 9L9 13" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
@@ -71,7 +71,7 @@ const showAudioLinks = (event) => {
             <a class="eventLinks__details" :href="`/details?performanceId=${props.item.id}`" :title="formatDate(item.performance_date) + ' Details'">Details</a>
         </div>
         <div v-if="props.item.program_book_link" :class="`eventLinks ${ props.extraClasses }`">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="eventLinks__icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="9" cy="9" r="9" />
             <path d="M6.22876 12.0714L11.8854 6.41475" stroke-width="1.5"/>
             <path d="M6.22864 6.41376L11.8854 6.41388L11.8855 12.0706" stroke-width="1.5"/>
@@ -81,7 +81,7 @@ const showAudioLinks = (event) => {
         </div>
         <div v-if="props.item.media && props.item.media.includes('audio') && props.item.bso_audio_id" :class="`eventLinks ${ props.extraClasses }`">
             <button class="eventLinks__details" @click="showAudioLinks"  :title="formatDate(item.performance_date) + ' Audio'">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="eventLinks__icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="9" cy="9" r="9" />
                     <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
