@@ -377,7 +377,7 @@
                     { facet: 'works.artists.role', value: item.artist_role },
                     { facet: 'works.title', value: item.work_title }
                   ])">
-                    <span class="resultsGrid__lightLink">{{ item.num_performances }} Performances</span>
+                    {{ item.num_performances }} Performances
                     
                   </a>                  
                 </div>
@@ -436,7 +436,7 @@
                   <a :href="createURL([{ facet: 'works.composers', value: item.composers},
                     { facet: 'works.title', value: item.title}
                   ])">
-                    <span class="resultsGrid__lightLink">{{ item.num_performances }} Performances</span>
+                    {{ item.num_performances }} Performances
                   </a>
                 </div>
               </template>

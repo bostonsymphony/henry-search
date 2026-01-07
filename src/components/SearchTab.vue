@@ -485,6 +485,8 @@
                             <ais-search-box class="searchBox" >
                                 <template v-slot="{ currentRefinement, isSearchStalled, refine }">
                                     <label for="searchbox" class="label__hidden">{{ props.searchPlaceholder }}</label>
+                                    <button type="submit" title="Submit the search query" class="ais-SearchBox-submit"><svg aria-hidden="true" width="10" height="10" viewBox="0 0 40 40" class="ais-SearchBox-submitIcon"><path d="M26.804 29.01c-2.832 2.34-6.465 3.746-10.426 3.746C7.333 32.756 0 25.424 0 16.378 0 7.333 7.333 0 16.378 0c9.046 0 16.378 7.333 16.378 16.378 0 3.96-1.406 7.594-3.746 10.426l10.534 10.534c.607.607.61 1.59-.004 2.202-.61.61-1.597.61-2.202.004L26.804 29.01zm-10.426.627c7.323 0 13.26-5.936 13.26-13.26 0-7.32-5.937-13.257-13.26-13.257C9.056 3.12 3.12 9.056 3.12 16.378c0 7.323 5.936 13.26 13.258 13.26z"></path></svg>
+                                    </button>
                                     <input
                                         class="ais-SearchBox-input input"
                                         id="searchbox"
@@ -493,8 +495,7 @@
                                         @input="refine($event.currentTarget.value)"
                                         :placeholder="props.searchPlaceholder"
                                         >
-                                    <button type="submit" title="Submit the search query" class="ais-SearchBox-submit"><svg aria-hidden="true" width="10" height="10" viewBox="0 0 40 40" class="ais-SearchBox-submitIcon"><path d="M26.804 29.01c-2.832 2.34-6.465 3.746-10.426 3.746C7.333 32.756 0 25.424 0 16.378 0 7.333 7.333 0 16.378 0c9.046 0 16.378 7.333 16.378 16.378 0 3.96-1.406 7.594-3.746 10.426l10.534 10.534c.607.607.61 1.59-.004 2.202-.61.61-1.597.61-2.202.004L26.804 29.01zm-10.426.627c7.323 0 13.26-5.936 13.26-13.26 0-7.32-5.937-13.257-13.26-13.257C9.056 3.12 3.12 9.056 3.12 16.378c0 7.323 5.936 13.26 13.258 13.26z"></path></svg>
-                                    </button>
+                                    
                                     <span :hidden="!isSearchStalled">Loading...</span>
                                 </template>
                             </ais-search-box>
@@ -597,10 +598,10 @@
                             <template v-slot="{items, refine, searchForItems, isFromSearch}">
                                 
                                 <div class="accordion__content" v-if="items.length || isFromSearch">
-                                    <!-- <div class="ais-SearchBox searchBox -filter"> -->
+                                    <div class="ais-SearchBox searchBox -filter">
                                         <label class="label__hidden" :for="refinement.attribute">{{ refinement.placeholder }}</label>
                                         <form class="searchBox__form" @submit="$event.preventDefault()" @reset="searchForItems('')">
-                                            <input type="text" :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter ais-SearchBox searchBox"  v-if="!refinement.hideSearch">
+                                            <input type="text" :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
                                             <button v-if="isFromSearch"
                                                 class="ais-SearchBox-reset"
                                                 type="reset"
@@ -613,7 +614,7 @@
                                                 </svg>
                                             </button>
                                         </form>
-                                    <!-- </div> -->
+                                    </div>
                                     <div class="checkBoxes">
                                         <span class="checkBoxes__alert" v-if="!items.length"><span class="checkBoxes__alertIcon">!</span>No matches found</span>
                                         <label v-for="item in items" class="checkBoxes__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
@@ -644,9 +645,9 @@
                                             <summary class="accordion__summary">
                                                 <h6 :class="`accordion__heading ${ !(items.length || isFromSearch) ? '-gray' : ''}`">{{ refinement.title }}</h6>
                                                 <div class="accordion__iconWrapper" v-if="items.length">
-                                                <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
-                                                    <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
+                                                    <svg class="accordion__icon icon icon--chevron-right" aria-hidden="true" role="presentation"  viewBox="0 0 18 18" fill="none">
+                                                        <path d="M7 17L15 9L7 1" stroke="var(--icon-color, currentColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
                                                 </div>
                                             </summary>
                                             <div class="accordion__content" v-if="items.length || isFromSearch">
@@ -691,15 +692,15 @@
                                         <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.country'" operator="and" limit="100" >
                                             <template v-slot="{ items, refine }">
                                                 <select @change="refine($event.currentTarget.value)">
-                                                    <option>Select Country</option>
+                                                    <option value="">Select Country</option>
                                                     <option v-for="item in items" :selected="item.isRefined" :key="item.value" :value="item.value">{{ item.label }}</option>
                                                 </select>
                                             </template>
                                         </ais-menu-select>
-                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="and" limit="100" :sort-by="['name']">
+                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="and" limit="100">
                                            <template v-slot="{ items, refine }">
                                                 <select @change="refine($event.currentTarget.value)">
-                                                    <option>Select State</option>
+                                                    <option value="">Select State</option>
                                                     <option v-for="item in items" :selected="item.isRefined" :key="item.value" :value="item.value">{{ item.label }}</option>
                                                 </select>
                                             </template>
@@ -707,7 +708,7 @@
                                         <ais-menu-select placeholder="Select City" v-if="refinement.type == 'location'" :attribute="'location.city'" operator="and"  limit="100">
                                             <template v-slot="{ items, refine }">
                                                 <select @change="refine($event.currentTarget.value)">
-                                                    <option>Select City</option>
+                                                    <option value="">Select City</option>
                                                     <option v-for="item in items" :selected="item.isRefined" :key="item.value" :value="item.value">{{ item.label }}</option>
                                                 </select>
                                             </template>
