@@ -1,6 +1,6 @@
 {
   "name": "henry-search",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "Searches a typesense archive of musical performances",
   "main": "js/main.js",
   "scripts": {
