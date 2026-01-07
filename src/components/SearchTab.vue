@@ -696,7 +696,7 @@
                                                 </select>
                                             </template>
                                         </ais-menu-select>
-                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="and" limit="100">
+                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="and" limit="100" :sort-by="['name']">
                                            <template v-slot="{ items, refine }">
                                                 <select @change="refine($event.currentTarget.value)">
                                                     <option>Select State</option>

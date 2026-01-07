@@ -3,6 +3,13 @@
 .breadCrumb {
     background-color: var(--color-light-gold);
     padding: 0.5rem 1.5rem;
+    a {
+        color: var(--color-dark-blue);
+    }
+    a:hover {
+        text-decoration: underline;
+        color: var(--color-dark-blue);
+    }
     @include at(md) {
         padding: 0.5rem 2rem 0.5rem 4rem;
     }

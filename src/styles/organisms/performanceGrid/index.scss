@@ -22,6 +22,10 @@
         a{
             color: var(--color-dark-blue);
         }
+        a:hover {
+            color: var(--color-dark-blue);
+            text-decoration: underline;
+        }
 
         &.-artist {
             grid-column: auto;

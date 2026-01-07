@@ -45,7 +45,7 @@ const filterHistory = (indexName) => {
     <div v-if="searchHistory" class="history__grid">
         <div class="history__performances" v-if="filterHistory(props.performanceIndex).length">
             <template v-for="item, index in filterHistory(props.performanceIndex)">
-                <h4 v-if="index == 0">Performances</h4>
+                <h2 v-if="index == 0">Performances</h2>
                 <div class="history__item"  v-if="formatSearchTitle(item?.uiState[props.performanceIndex]).length">
                     <a :href="item.link">{{ formatSearchTitle(item?.uiState[props.performanceIndex]) }}</a><br/>
                     {{ formatDate((new Date(item.date)).getTime() / 1000, 'history', false) }}
@@ -53,9 +53,9 @@ const filterHistory = (indexName) => {
             </template>
         </div>
         <div class="history__artists" v-if="filterHistory(props.artistIndex).length">
-            <template class="history__item" v-for="item, index in filterHistory(props.artistIndex)">
-                <h4 v-if="index == 0">Artists</h4>
-                <div v-if="formatSearchTitle(item?.uiState[props.artistIndex]).length">
+            <template v-for="item, index in filterHistory(props.artistIndex)">
+                <h2 v-if="index == 0">Artists</h2>
+                <div class="history__item" v-if="formatSearchTitle(item?.uiState[props.artistIndex]).length">
                     <a :href="item.link">{{ formatSearchTitle(item?.uiState[props.artistIndex]) }}</a><br/>
                     {{ formatDate((new Date(item.date)).getTime() / 1000, 'history', false) }}
                 </div>
@@ -63,7 +63,7 @@ const filterHistory = (indexName) => {
         </div>
         <div class="history__works" v-if="filterHistory(props.workIndex).length">
             <template v-for="item, index in filterHistory(props.workIndex)">
-                <h4 v-if="index == 0">Works</h4>
+                <h2 v-if="index == 0">Works</h2>
                 <div class="history__item" v-if="formatSearchTitle(item?.uiState[props.workIndex]).length">
                     <a :href="item.link">{{ formatSearchTitle(item?.uiState[props.workIndex]) }}</a><br/>
                     {{ formatDate((new Date(item.date)).getTime() / 1000, 'history', false) }}
@@ -71,8 +71,12 @@ const filterHistory = (indexName) => {
             </template>
         </div>
     </div>
-    <div v-else>
-        <h4>No current search history</h4>
+    <div v-else class="history__grid">
+        <div class="history__noResults">
+            <h2>No Searches</h2>
+            <p>Your searches for performances, artists, and works will display on this page.</p>
+        </div>
+        
     </div>
 
 </template>

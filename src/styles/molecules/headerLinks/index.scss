@@ -32,21 +32,37 @@
         display: flex;
         justify-content: left;
         background-color: white;
+        color: var(--color-dark-blue);
         margin-bottom: 0;
         flex-wrap: wrap;
         gap: 1rem;
+        a, a:hover {
+            color: var(--color-dark-blue);
+        }
         @include at(lg) {
             gap: 2rem;
         }
     }
     a {
-            font-size: 1.25rem;
-            font-weight: 600;
-            gap: 0.2rem;
-            cursor: pointer;
+        color: var(--color-dark-blue);
+        font-size: 1.25rem;
+        font-weight: 600;
+        gap: 0.2rem;
+        cursor: pointer;
+    }
+    a:hover 
+    {
+        color: var(--color-dark-blue);
+        text-decoration: underline;
+        svg {
+            stroke: var(--color-dark-blue);
+            fill: var(--color-white);
         }
+    }
     &__icon {
         height: 1.5rem;
         width: 1.5rem;
+        fill: var(--color-dark-blue);
+        stroke: var(--color-white);
     }
 }
