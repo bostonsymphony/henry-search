@@ -36,6 +36,9 @@
             font-weight: 100;
             color: var(--color-mid-gray);
         }
+        &.-thin:hover {
+            text-decoration: underline;
+        }
     }
     
     &__iconWrapper {

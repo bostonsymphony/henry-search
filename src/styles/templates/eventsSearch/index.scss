@@ -17,7 +17,21 @@
     }
   }
 
+  .ais-Stats {
+    width: 100%;
+    text-align: center;
+    @include at(md) {
+      width: auto;
+      text-align: left;
+    }
+  }
 
+  .ais-Pagination {
+    width: 100%;
+    @include at(md) {
+      width: auto;
+    }
+  }
 
   .button {
     padding: 0;

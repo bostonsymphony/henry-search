@@ -50,6 +50,9 @@
        &::placeholder {
         color: var(--color-mid-gray);
        }
+       &:focus {
+        outline: var(--color-turquoise);
+       }
        &.-filter {
           background-color:#ffffff;
           border: none;
@@ -85,6 +88,6 @@
      }
   }
 
-// .searchBox:active {
-//   border: 3px solid red;
-// }
+.searchBox:active {
+  border: 3px solid red;
+}

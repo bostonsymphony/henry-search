@@ -24,6 +24,15 @@ const showAudioLinks = (event) => {
     audioLinkBox.classList.toggle("-open")
 }
 
+const copyUrl = () => {
+    navigator.clipboard.writeText(window.location.href)
+    const htmlHolder = document.querySelector('#copy_link').innerHTML
+    document.querySelector('#copy_link').innerHTML = "URL Copied!"
+    setTimeout(() => {
+        document.querySelector('#copy_link').innerHTML = htmlHolder
+    }, 1000)
+}
+
 
 </script>
 
@@ -52,7 +61,7 @@ const showAudioLinks = (event) => {
                 
             </template>
         </div>
-        <a onclick="navigator.clipboard.writeText(window.location.href);">
+        <a @click="copyUrl()" id="copy_link">
             <svg class="headerLinks__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="11.25" fill="white" stroke="#01ABE6" stroke-width="1.5"/>
                 <path d="M11.0835 12.6969C11.3142 13.0223 11.6086 13.2915 11.9466 13.4864C12.2846 13.6812 12.6584 13.797 13.0427 13.8261C13.4269 13.8551 13.8125 13.7966 14.1734 13.6546C14.5343 13.5126 14.862 13.2903 15.1343 13.0029L16.7461 11.3026C17.2354 10.7681 17.5062 10.0523 17.5 9.30925C17.4939 8.56622 17.2114 7.85545 16.7134 7.33002C16.2153 6.8046 15.5416 6.50656 14.8372 6.50011C14.1329 6.49365 13.4544 6.77929 12.9477 7.2955L12.0237 8.26469" stroke="#01ABE6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

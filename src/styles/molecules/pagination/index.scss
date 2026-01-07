@@ -4,18 +4,28 @@
     display: flex;
     justify-content: space-between;
     padding: 1rem 1.5rem;
+    flex-wrap: wrap;
     @include at(lg) {
-        padding: 2rem  0;
+      padding: 2rem  0;
+    }
+
+    &__currentPage{
+      font-weight: bold;
+      border-bottom: 2px solid var(--color-turquoise);
     }
 
     &__paginationComponent {
-
       display: flex;
       align-items: center;
       gap: 0.5rem;
       list-style: none;
       margin: 0;
-      padding: 0;
+      padding: 1rem 0 0 0;
+      justify-content: center;
+      @include at(md) {
+        justify-content: left;
+        padding-top: 0;
+      }
 
       li {
         padding: 0 .2rem;
@@ -26,7 +36,7 @@
       }
 
       li:hover {
-        border-bottom: 2px solid var(--color-turquoise);
+        font-weight: bold;
       }
 
       a {
