@@ -4,13 +4,18 @@ const props = defineProps({
     audioId: {
         type: Number,
         require: true
+    },
+    extraClasses: {
+        type: String,
+        require: false,
+        default: ''
     }
 })
 
 </script>
 
 <template>
-    <div class="audioLinks__box">
+    <div :class="`audioLinks__box ${props.extraClasses}`">
         <div class="audioLinks__links">                            
             <span class="audioLinks__label -first">Public</span>
                 <a href="https://forms.office.com/pages/responsepage.aspx?id=OdIW0TyQrUiHfXYXUGXf-OBndBFJDdZNtXXrOlwA-shUNVBBNjZNQkozSEw2SUs3SFU1Q1I2R1VQTCQlQCN0PWcu&fswReload=1&fswNavStart=1674745526953" target="_blank" class="audioLinks__link -first">Request Form<svg class="audioLinks__arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">

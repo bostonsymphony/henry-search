@@ -7,10 +7,17 @@
 
     &__box {
         display:none;
+        right: 5rem;
+        margin-top: 2rem;
+        &.-inGrid {
+            right: 0rem;
+            left: -7rem;
+            width: 15rem;
+            margin-top: 0;
+        }
         &.-open {
             position:absolute;
-            right: 5rem;
-            margin-top: 2rem;
+            
             z-index: 100;
             display:block;
         }

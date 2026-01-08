@@ -37,10 +37,12 @@
     &__sort {
         font-weight: 100;
         font-size: 1.1rem;
-        margin-right: .5rem;
+        //margin-right: .5rem;
         display: flex;
+        
         select {
           margin: 0 0 0.2rem 0;
+          -webkit-appearance: none;
         }
         //align-items: center;
         // select {

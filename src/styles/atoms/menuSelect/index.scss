@@ -4,6 +4,7 @@
     border-radius: 5px;
     select {
       margin: .25rem;
+      -webkit-appearance: none;
       width: 95%;
     }
     .multiselect-caret {

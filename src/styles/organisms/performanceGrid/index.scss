@@ -2,8 +2,8 @@
 
 .performanceGrid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    @include at(lg) {
+    grid-template-columns: 1fr;
+    @include at(md) {
         grid-template-columns: repeat(5, 1fr);
         margin-bottom: 6rem;
     }

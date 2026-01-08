@@ -689,7 +689,7 @@
                                         </div>
                                     </summary>
                                     <div class="accordion__content">
-                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.country'" operator="and" limit="100" >
+                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.country'" operator="and" :limit="100" >
                                             <template v-slot="{ items, refine }">
                                                 <select @change="refine($event.currentTarget.value)">
                                                     <option value="">Select Country</option>
@@ -697,7 +697,7 @@
                                                 </select>
                                             </template>
                                         </ais-menu-select>
-                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="and" limit="100">
+                                        <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="and" :limit="100">
                                            <template v-slot="{ items, refine }">
                                                 <select @change="refine($event.currentTarget.value)">
                                                     <option value="">Select State</option>
@@ -705,7 +705,7 @@
                                                 </select>
                                             </template>
                                         </ais-menu-select>
-                                        <ais-menu-select placeholder="Select City" v-if="refinement.type == 'location'" :attribute="'location.city'" operator="and"  limit="100">
+                                        <ais-menu-select placeholder="Select City" v-if="refinement.type == 'location'" :attribute="'location.city'" operator="and"  :limit="100">
                                             <template v-slot="{ items, refine }">
                                                 <select @change="refine($event.currentTarget.value)">
                                                     <option value="">Select City</option>
