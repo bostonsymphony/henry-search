@@ -25,6 +25,7 @@
 
 
     import pSelect from '@vueform/multiselect'
+import { truncate } from 'lodash';
  
     const props = defineProps({
         indexName: {
@@ -514,13 +515,15 @@
                                             });
                                             
                                         }"
+                                        :auto-apply="true"
+                                        :year-range="[1850,2050]"
                                         :teleport="true"
                                         :clearable="false"
                                         :multi-calendars="false"
                                         :enable-time-picker="false"
                                         :enter-submit="true"
                                         :tab-submit="true"
-                                        :text-input="true"
+                                        :text-input="false"
                                         placeholder="Start"
                                         id="start"
                                     />
@@ -532,9 +535,11 @@
                                             min: formatMinValue(currentRefinement.min, range.min),
                                             max: formatMaxValue(modelValue/1000, range.max),
                                         })}"
+                                        :auto-apply="true"
+                                        :year-range="[1850,2050]"
                                         :teleport="true"
                                         :clearable="false"
-                                        :text-input="true"
+                                        :text-input="false"
                                         :enter-submit="true"
                                         :tab-submit="true"
                                         :multi-calendars="false"

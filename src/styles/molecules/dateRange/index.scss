@@ -189,3 +189,20 @@
 
 
 }
+#start {
+    .dp__menu {
+        left: 8rem !important;
+        @include at(md) {
+            left: 0 !important;
+        }
+    }
+}
+
+// #end {
+//     .dp__menu {
+//         left: 4rem !important;
+//         @include at(md) {
+//             left: 0 !important;
+//         }
+//     }
+// }
