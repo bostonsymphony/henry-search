@@ -1,469 +1,467 @@
 <script setup>
-    import { ref, onMounted, useTemplateRef } from 'vue'
-    import _ from 'lodash';
-    import {
-        AisClearRefinements,
-        AisCurrentRefinements,
-        AisHits,
-        AisInstantSearch,
-        AisMenuSelect,
-        AisPagination,
-        AisRangeInput,
-        AisRefinementList,
-        AisSearchBox,
-        AisStats
-    } from 'vue-instantsearch/vue3/es'
-    import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter'
-    import { history as historyRouter } from 'instantsearch.js/es/lib/routers'
-    import { simple as simpleStateMapping } from 'instantsearch.js/es/lib/stateMappings'
-    import VueDatePicker from '@vuepic/vue-datepicker'
+import { ref, defineEmits } from 'vue'
+import _ from 'lodash';
+import {
+    AisClearRefinements,
+    AisCurrentRefinements,
+    AisHits,
+    AisInstantSearch,
+    AisMenuSelect,
+    AisPagination,
+    AisRangeInput,
+    AisRefinementList,
+    AisSearchBox,
+    AisStats
+} from 'vue-instantsearch/vue3/es'
+import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter'
+import { history as historyRouter } from 'instantsearch.js/es/lib/routers'
+import { simple as simpleStateMapping } from 'instantsearch.js/es/lib/stateMappings'
+import VueDatePicker from '@vuepic/vue-datepicker'
 
-    import slugify from '../composables/slugify'
-    import PAccordion from './PAccordion.vue'
-    import formatDate from '../composables/formatDate'
-    import formatSearchTitle from '../composables/formatSearchTitle'
-
-
-    import pSelect from '@vueform/multiselect'
-import { truncate } from 'lodash';
+import slugify from '../composables/slugify'
+import PAccordion from './PAccordion.vue'
+import formatDate from '../composables/formatDate'
+import formatSearchTitle from '../composables/formatSearchTitle'
  
-    const props = defineProps({
-        indexName: {
-            type: String,
-            default: "archived_performances"
-        },
-        mainRefinements: {
-            type: Object,
-            require: true
-        },
-        addlRefinements: {
-            type: Object,
-            default: null
-        },
-        queryByFields: {
-            type: String,
-            default: "works, season, venue, event_types, notes, event_title, ensembles, conductors"
-        },
-        includeFields: {
-            type: String,
-            default:  "works, season, venue, event_types, notes, event_title, orchestras, conductors"
-        },
-        sortField: {
-            type: String,
-            default: "performance_date"
-        },
-        searchPlaceholder: {
-            type: String,
-            default: "Search for performances..."
-        },
-        resultsTitle: {
-            type: String,
-            default: "Performances"
-        },
-        searchKey: {
-            type: String,
-            require: true
-        },
-        searchHost: {
-            type: String,
-            require: true
-        }
-    })
+const props = defineProps({
+    indexName: {
+        type: String,
+        default: "archived_performances"
+    },
+    mainRefinements: {
+        type: Object,
+        require: true
+    },
+    addlRefinements: {
+        type: Object,
+        default: null
+    },
+    queryByFields: {
+        type: String,
+        default: "works, season, venue, event_types, notes, event_title, ensembles, conductors"
+    },
+    includeFields: {
+        type: String,
+        default:  "works, season, venue, event_types, notes, event_title, orchestras, conductors"
+    },
+    sortField: {
+        type: String,
+        default: "performance_date"
+    },
+    searchPlaceholder: {
+        type: String,
+        default: "Search for performances..."
+    },
+    resultsTitle: {
+        type: String,
+        default: "Performances"
+    },
+    searchKey: {
+        type: String,
+        require: true
+    },
+    searchHost: {
+        type: String,
+        require: true
+    }
+})
 
-    const sortView = ref('Most Recent')
-    const showNumHits = ref(false)
-    const showByWorks = ref(false)
-    const workFilters = ref(null)
-    const currentQuery = ref(null)
-    const filtersClosed = ref(false)
-    const mobileFiltersClosed = ref(true)
+const sortView = ref('Most Recent')
+const showNumHits = ref(false)
+const showByWorks = ref(false)
+const workFilters = ref(null)
+const currentQuery = ref(null)
+const filtersClosed = ref(false)
+const mobileFiltersClosed = ref(true)
+
+const updateNow = ref(0)
+
+const emit = defineEmits(['push'])
+
+const routing = ref({
+    router: historyRouter({
+        // Disable scroll restoration to prevent erratic behavior
+        writeDelay: 0,
+        parseURL({ qsModule, location }) {
+            const uiState = qsModule.parse(location.search.slice(1))
+
+            updateStateRefs(uiState)
+            
+            return uiState
+        },
+        createURL({ qsModule, location, routeState }) {
+            const { origin, pathname, hash } = location;
+            const indexState = routeState["instant_search"] || {};
+            const queryString = qsModule.stringify(routeState);
+
+            const uiState = qsModule.parse(location.search.slice(1))
+            sessionStorage.setItem('previousPageUrl', window.location.href)
+            
+            updateSearchHistory(uiState)
+
+            // if (!indexState.query) {
+            //     return `${origin}${pathname}${hash}`;
+            // }
+
+            return `${origin}${pathname}?${queryString}${hash}`;
+        },
+    }),
     
-    const updateNow = ref(0)
+    stateMapping: simpleStateMapping()
+})
 
-    const routing = ref({
-        router: historyRouter({
-            // Disable scroll restoration to prevent erratic behavior
-            writeDelay: 0,
-            parseURL({ qsModule, location }) {
-                const uiState = qsModule.parse(location.search.slice(1))
+const mainRefinementList = ref({})
 
-                updateStateRefs(uiState)
-                
-                return uiState
-            },
-            createURL({ qsModule, location, routeState }) {
-                const { origin, pathname, hash } = location;
-                const indexState = routeState["instant_search"] || {};
-                const queryString = qsModule.stringify(routeState);
+const server = {
+    connectionTimeoutSeconds: 20,
+    apiKey:  props.searchKey, 
+    nodes: [
+    {
+        host: props.searchHost,
+        path: '', 
+        port: '443',
+        protocol: 'https',
+    },
+    ],
+    cacheSearchResultsForSeconds: 0,
+}
+const adapter = new TypesenseInstantSearchAdapter({
+    server: server,
+    additionalSearchParameters: {
+        query_by: props.queryByFields,
+        sort_by: `${props.sortField}:desc`,
+        include_fields: props.includeFields,
+        highlight_fields: 'none'
+    },
+})
 
-                const uiState = qsModule.parse(location.search.slice(1))
-                sessionStorage.setItem('previousPageUrl', window.location.href)
-                
-                updateSearchHistory(uiState)
+const searchClient = adapter.searchClient
 
-                // if (!indexState.query) {
-                //     return `${origin}${pathname}${hash}`;
-                // }
-
-                return `${origin}${pathname}?${queryString}${hash}`;
-            },
-        }),
-        
-        stateMapping: simpleStateMapping()
-    })
-
-    const mainRefinementList = ref({})
-
-    const server = {
-      connectionTimeoutSeconds: 20,
-      apiKey:  props.searchKey, 
-      nodes: [
-        {
-          host: props.searchHost,
-          path: '', 
-          port: '443',
-          protocol: 'https',
-        },
-      ],
-      cacheSearchResultsForSeconds: 0,
+const toggleFilters = () => {
+    filtersClosed.value = !filtersClosed.value
+    const wrapper = document.getElementById(`${props.indexName}_filterRail`)
+    const allNestedElements = wrapper.querySelectorAll("*")
+    if (wrapper && wrapper.classList.contains('closed')) {
+        allNestedElements.forEach((el) => {
+            el.setAttribute("tabindex", -1)
+        })
+    } else {
+        allNestedElements.forEach((el) => {
+            el.removeAttribute("tabindex")
+        })
     }
-    const adapter = new TypesenseInstantSearchAdapter({
-        server: server,
-        additionalSearchParameters: {
-            query_by: props.queryByFields,
-            sort_by: `${props.sortField}:desc`,
-            include_fields: props.includeFields,
-            highlight_fields: 'none'
-        },
-    })
+    
+}
 
-    const searchClient = adapter.searchClient
-
-    const toggleFilters = () => {
-        filtersClosed.value = !filtersClosed.value
-        const wrapper = document.getElementById(`${props.indexName}_filterRail`)
-        const allNestedElements = wrapper.querySelectorAll("*")
-        if (wrapper && wrapper.classList.contains('closed')) {
-            allNestedElements.forEach((el) => {
-                el.setAttribute("tabindex", -1)
-            })
+const toggleFiltersMobile = () => {
+    mobileFiltersClosed.value = !mobileFiltersClosed.value
+    const wrapper = document.getElementById(`${props.indexName}_filterRail`)
+    const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
+    const containers = document.querySelectorAll('.container')
+    const otherHiddenEls = document.querySelectorAll('.mobileHide')
+    wrapper.classList.remove('closed')
+    wrapper.classList.toggle('openMobile')
+    leftPane.classList.toggle('openMobile')
+    containers.forEach((el) => {
+        if (el.style.display != "none") {
+            el.style.display = "none"
         } else {
-            allNestedElements.forEach((el) => {
-                el.removeAttribute("tabindex")
-            })
+            el.style.display = "grid"
         }
         
-    }
-
-    const toggleFiltersMobile = () => {
-        mobileFiltersClosed.value = !mobileFiltersClosed.value
-        const wrapper = document.getElementById(`${props.indexName}_filterRail`)
-        const leftPane = document.getElementById(`${props.indexName}_eventsSearch__results`)
-        const containers = document.querySelectorAll('.container')
-        const otherHiddenEls = document.querySelectorAll('.mobileHide')
-        wrapper.classList.remove('closed')
-        wrapper.classList.toggle('openMobile')
-        leftPane.classList.toggle('openMobile')
-        containers.forEach((el) => {
-            if (el.style.display != "none") {
-                el.style.display = "none"
-            } else {
-                el.style.display = "grid"
-            }
-            
-        })
-        otherHiddenEls.forEach((el) => {
-            if (el.style.display != "none") {
-                el.style.display = "none"
-            } else {
-                el.style.display = "grid"
-            }
-            
-        })
-        const detailsEls = document.querySelectorAll('details')
-        detailsEls.forEach((el) => {
-            const summary = el.querySelector('summary:first-of-type')
-            const summaryHeight = summary?.clientHeight
-            el.classList.add('-closing')
-            el.style.setProperty('--accordion-height-closed', `${summaryHeight}px`)
-
-            setTimeout(() => {
-                el.open = false
-                el.classList.remove('-closing')
-                el.style.setProperty('--accordion-height-closed', 'auto')
-            }, 0)
-        })
-    }
-
-    const updateStateRefs = (uiState) => {
-        if (uiState && uiState[props.indexName]) {
-            currentQuery.value = uiState[props.indexName].query
-            if (currentQuery.value) {
-                if (sortView.value != 'Most Relevant') {
-                    sortView.value = 'Most Relevant'
-                }
-            } else {
-                if (sortView.value != 'Most Recent') {
-                    sortView.value = 'Most Recent'
-                }
-            }
-            setView()
-            showNumHits.value = currentQuery.value || uiState[props.indexName].refinementList || uiState[props.indexName].range || uiState[props.indexName].menu
-            workFilters.value =  uiState[props.indexName].refinementList && Object.keys(uiState[props.indexName].refinementList).length !== 0 ? getWorkFilters(uiState[props.indexName].refinementList) : []
-            showByWorks.value = Object.keys(workFilters.value).length !== 0
-
-            // update search history
-            
-            
-            updateTitle(uiState[props.indexName])
-            
+    })
+    otherHiddenEls.forEach((el) => {
+        if (el.style.display != "none") {
+            el.style.display = "none"
+        } else {
+            el.style.display = "grid"
         }
-    }
+        
+    })
+    const detailsEls = document.querySelectorAll('details')
+    detailsEls.forEach((el) => {
+        const summary = el.querySelector('summary:first-of-type')
+        const summaryHeight = summary?.clientHeight
+        el.classList.add('-closing')
+        el.style.setProperty('--accordion-height-closed', `${summaryHeight}px`)
 
-    const updateSearchHistory = (uiState) => {
-        let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
-        // if only pagination, don't add to search history
-        if (!uiState[props.indexName]) {
-            return
-        }
-        if (uiState[props.indexName].page && !uiState[props.indexName].query && !uiState[props.indexName].refinementList && !uiState[props.indexName].menu) {
-            return
-        }
-        searchHistory = searchHistory.map((item) => {
-            // make sure that all queries aren't entered into the history as a user types each letter
-            if (uiState[props.indexName].query?.includes(item.query) && uiState[props.indexName].query != item.query) {
-                return {
-                    date: new Date(),
-                    uiState: uiState,
-                    query: uiState[props.indexName].query,
-                    link: document.location.href
-                }
-            } else {
-                return item
-            }
-        })
+        setTimeout(() => {
+            el.open = false
+            el.classList.remove('-closing')
+            el.style.setProperty('--accordion-height-closed', 'auto')
+        }, 0)
+    })
+}
 
-        //make sure we're not just adding pagination
-        let addState = true
-        searchHistory.forEach((item) => {
-            if (item.link.replace(/\&page=\d*/, "") == document.location.href.replace(/\&page=\d*/, "")) {
-                addState = false
-                return
+const updateStateRefs = (uiState) => {
+    if (uiState && uiState[props.indexName]) {
+        currentQuery.value = uiState[props.indexName].query
+        if (currentQuery.value) {
+            if (sortView.value != 'Most Relevant') {
+                sortView.value = 'Most Relevant'
             }
-            if (_.isEqual(item.uiState[props.indexName], uiState[props.indexName])) {
-                addState = false
-                return
+        } else {
+            if (sortView.value != 'Most Recent') {
+                sortView.value = 'Most Recent'
             }
-        })
+        }
+        setView()
+        showNumHits.value = currentQuery.value || uiState[props.indexName].refinementList || uiState[props.indexName].range || uiState[props.indexName].menu
+        workFilters.value =  uiState[props.indexName].refinementList && Object.keys(uiState[props.indexName].refinementList).length !== 0 ? getWorkFilters(uiState[props.indexName].refinementList) : []
+        showByWorks.value = Object.keys(workFilters.value).length !== 0
+
+        // update search history
         
         
-        if (addState && !(searchHistory.map((a) => a.link)).includes(document.location.href) && 
-                document.location.search != '') {
-            searchHistory.push({
+        updateTitle(uiState[props.indexName])
+        
+    }
+}
+
+const updateSearchHistory = (uiState) => {
+    let searchHistory = sessionStorage.getItem('searchHistory') ? JSON.parse(sessionStorage.getItem('searchHistory')) : []
+    // if only pagination, don't add to search history
+    if (!uiState[props.indexName]) {
+        return
+    }
+    if (uiState[props.indexName].page && !uiState[props.indexName].query && !uiState[props.indexName].refinementList && !uiState[props.indexName].menu) {
+        return
+    }
+    searchHistory = searchHistory.map((item) => {
+        // make sure that all queries aren't entered into the history as a user types each letter
+        if (uiState[props.indexName].query?.includes(item.query) && uiState[props.indexName].query != item.query) {
+            return {
                 date: new Date(),
                 uiState: uiState,
                 query: uiState[props.indexName].query,
                 link: document.location.href
-            })
-        }
-        
-        sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
-    }
-
-    const getWorkFilters = (refinementList) => {
-        let returnFilters = {}
-        Object.entries(refinementList).forEach(([k, v]) => {
-            if (k.includes('works')) {
-                let workAttribute = k.substring(k.indexOf('works.') + 6, k.length)
-                const subFilter = {}
-                if (workAttribute.includes('.')) {
-                    const workSubAttribute = workAttribute.substring(workAttribute.indexOf('.') + 1, workAttribute.length)
-                    workAttribute = workAttribute.substring(0, workAttribute.indexOf('.'))
-                    const subSubFilter = {}
-                    subSubFilter[workSubAttribute] = v
-                    subFilter[workAttribute] = subSubFilter
-                    
-                } else {
-                    subFilter[workAttribute] = v
-                }
-                returnFilters = {...returnFilters, ...subFilter}
             }
+        } else {
+            return item
+        }
+    })
+
+    //make sure we're not just adding pagination
+    let addState = true
+    searchHistory.forEach((item) => {
+        if (item.link.replace(/\&page=\d*/, "") == document.location.href.replace(/\&page=\d*/, "")) {
+            addState = false
+            return
+        }
+        if (_.isEqual(item.uiState[props.indexName], uiState[props.indexName])) {
+            addState = false
+            return
+        }
+    })
+    
+    
+    if (addState && !(searchHistory.map((a) => a.link)).includes(document.location.href) && 
+            document.location.search != '') {
+        searchHistory.push({
+            date: new Date(),
+            uiState: uiState,
+            query: uiState[props.indexName].query,
+            link: document.location.href
         })
-        return returnFilters
-    }
-
-    const onStateChange = ({ uiState, setUiState }) => {
-        updateStateRefs(uiState)
-        setUiState(uiState)
-        
-        // console.log('before', new Date())
-
-        // setTimeout(() => , 3000)
-        // console.log('after', new Date())
-    }
-
-    const updateTitle = (state) => {
-        document.title = "BSO HENRY | " + formatSearchTitle(state)
-    }
-
-    const setView = () => {
-        if (sortView.value == 'Oldest First') {
-            adapter.updateConfiguration({...adapter.configuration, additionalSearchParameters: {
-                query_by: props.queryByFields,
-                sort_by: `${props.sortField}:asc`
-            }})
-        } else if (sortView.value == 'Most Relevant') {
-            adapter.updateConfiguration({...adapter.configuration, additionalSearchParameters: {
-                query_by: props.queryByFields,
-                sort_by: `_text_match:desc,${props.sortField}:desc`
-            }})
-        } else {
-            adapter.updateConfiguration({...adapter.configuration, additionalSearchParameters: {
-                query_by: props.queryByFields,
-                sort_by: `${props.sortField}:desc`
-            }})
-        }
-        updateNow.value++
-    }
-
-    const formatRefinement = (refinement) => {
-        const attributeMap = {
-            "works.composers" : "Composer",
-            "works.title" : "Work",
-            "works.conductors" : "Conductor",
-            "ensembles" : "Orchestra",
-            "works.ensembles" : "Orchestra",
-            "works.artists.name" : "Artist",
-            "query" : "Keyword",
-            'works.artists.role': 'Instrument/Role',
-            'works.additional_creators.name': 'Additional Creator',
-            'works.additional_creators.role': 'Creator Role',
-            'season': 'Season',
-            'event_title': 'Event Title',
-            'event_types': 'Series',
-            'venue': 'Venue',
-            'works.commission': 'Commission',
-            'works.premiere': 'Premiere',
-            'location.city': 'City',
-            'location.country': 'Country',
-            'location.state': 'State',
-            'artist_name': 'Artist',
-            'artist_role': 'Instrument/Role',
-            'title': 'Work Title',
-            'composers': 'Composer',
-            'composer': 'Composer',
-            'media': 'Media',
-            'creators.name': 'Additional Creator',
-            'creators.role': 'Creator Role'
-        }
-        if (refinement.attribute == 'performance_date' || refinement.attribute == 'last_performance_date') {
-            return 'Date: ' + refinement.label[0] + ' ' + formatDate(refinement.value) + ' ×'
-        }
-        if (attributeMap[refinement.attribute]) {
-            return attributeMap[refinement.attribute] + ': ' + refinement.value + ' <span="activeFilters__removeIcon">×</span>'
-        } else {
-            return refinement.attribute + ': ' + refinement.value + ' ×'
-        }
-       
-    }
-
-     const intersect = (filters, work) => {
-        let intersectKeys = Object.keys(filters).filter(k => Object.hasOwn(work, k))
-        let intersectArray = []
-        intersectKeys.forEach((key) => {
-            if (typeof filters[key] == 'object' && typeof work[key] == 'object') {
-                if (Array.isArray(work[key]) && Array.isArray(filters[key])) {
-                    work[key].forEach((w) => {
-                        filters[key].forEach((f) => {
-                            if (w == f) {
-                                intersectArray.push(w)
-                            }
-                        })
-                    })
-                } else if (Array.isArray(work[key])) {
-                    Object.entries(filters[key])?.forEach(([k1, v1]) => {
-                        work[key]?.forEach((workvalue) => {
-                            if (typeof workvalue == 'object') {
-                                Object.entries(workvalue).forEach(([k2, v2]) => {                                    
-                                    if (k1 == k2 && v1.includes(v2)) {
-                                        intersectArray.push(workvalue[k2])
-                                    }
-                                })
-                            }
-                            
-                        })
-                    }) 
-                }
-            } else if (filters[key].includes(work[key])) {
-                intersectArray.push(work[key])
-            }
-        })
-        return intersectArray
-
-    }
-
-    const filterItems = (items) => {
-        if (showByWorks.value && props.indexName == "dev_henry_perfs") {
-            
-            let returnItems = items
-            let itemIndex = 0
-            returnItems.forEach((item) => {
-                let shownWorks = []
-                item?.works?.forEach((work) => {
-                    let workAdded = false
-                    if (intersect(workFilters.value, work)?.length) {
-                        shownWorks.push(work)
-                        workAdded = true
-                    }
-                    if (!workAdded && currentQuery.value && JSON.stringify(work).includes(currentQuery.value)) {
-                        shownWorks.push(work)
-                    }  
-                })
-                returnItems[itemIndex].works = shownWorks
-                itemIndex++
-            })
-            return returnItems
-        } else {
-            return items
-        }
-    }
-
-    const refineAndScroll = (refine, params, scrollId) => {
-        refine(params)
-        document.getElementById(scrollId).scrollIntoView()
-    }
-
-    const toMinValue = (value, range) => {
-        return typeof value.min === "number" && value.min != 0 ? value.min * 1000 : range.min * 1000
-    }
-
-    const toMaxValue = (value, range) => {
-        return typeof value.max === "number" && value.max != 0 ? value.max * 1000 : range.max * 1000
-    }
-
-    const formatMinValue = (minValue, minRange) => {
-        return typeof minValue === "number" && minValue !== null && minValue !== minRange ? minValue : minRange
     }
     
-    const formatMaxValue = (maxValue, maxRange) => {
-      return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxRange
-    }
+    sessionStorage.setItem('searchHistory', JSON.stringify(searchHistory))
+}
 
-
-    const getHeadingStyle = (attribute) => {       
-        if (mainRefinementList.value && typeof(mainRefinementList.value[attribute]) !== 'undefined' && mainRefinementList.value[attribute]) {
-            try {
-                if (mainRefinementList.value[attribute] && typeof(mainRefinementList.value[attribute].items) !== 'undefined' && mainRefinementList.value[attribute].items.length) {
-                    return ''
-                } else {
-                    return '-gray'
-                }
-            } catch (e) {
-                return ''
+const getWorkFilters = (refinementList) => {
+    let returnFilters = {}
+    Object.entries(refinementList).forEach(([k, v]) => {
+        if (k.includes('works')) {
+            let workAttribute = k.substring(k.indexOf('works.') + 6, k.length)
+            const subFilter = {}
+            if (workAttribute.includes('.')) {
+                const workSubAttribute = workAttribute.substring(workAttribute.indexOf('.') + 1, workAttribute.length)
+                workAttribute = workAttribute.substring(0, workAttribute.indexOf('.'))
+                const subSubFilter = {}
+                subSubFilter[workSubAttribute] = v
+                subFilter[workAttribute] = subSubFilter
+                
+            } else {
+                subFilter[workAttribute] = v
             }
+            returnFilters = {...returnFilters, ...subFilter}
         }
-        return  ''
+    })
+    return returnFilters
+}
+
+const onStateChange = ({ uiState, setUiState }) => {
+    updateStateRefs(uiState)
+    setUiState(uiState)
+    
+    // console.log('before', new Date())
+
+    // setTimeout(() => , 3000)
+    // console.log('after', new Date())
+}
+
+const updateTitle = (state) => {
+    document.title = "BSO HENRY | " + formatSearchTitle(state)
+}
+
+const setView = () => {
+    if (sortView.value == 'Oldest First') {
+        adapter.updateConfiguration({...adapter.configuration, additionalSearchParameters: {
+            query_by: props.queryByFields,
+            sort_by: `${props.sortField}:asc`
+        }})
+    } else if (sortView.value == 'Most Relevant') {
+        adapter.updateConfiguration({...adapter.configuration, additionalSearchParameters: {
+            query_by: props.queryByFields,
+            sort_by: `_text_match:desc,${props.sortField}:desc`
+        }})
+    } else {
+        adapter.updateConfiguration({...adapter.configuration, additionalSearchParameters: {
+            query_by: props.queryByFields,
+            sort_by: `${props.sortField}:desc`
+        }})
     }
+    updateNow.value++
+}
+
+const formatRefinement = (refinement) => {
+    const attributeMap = {
+        "works.composers" : "Composer",
+        "works.title" : "Work",
+        "works.conductors" : "Conductor",
+        "ensembles" : "Orchestra",
+        "works.ensembles" : "Orchestra",
+        "works.artists.name" : "Artist",
+        "query" : "Keyword",
+        'works.artists.role': 'Instrument/Role',
+        'works.additional_creators.name': 'Additional Creator',
+        'works.additional_creators.role': 'Creator Role',
+        'season': 'Season',
+        'event_title': 'Event Title',
+        'event_types': 'Series',
+        'venue': 'Venue',
+        'works.commission': 'Commission',
+        'works.premiere': 'Premiere',
+        'location.city': 'City',
+        'location.country': 'Country',
+        'location.state': 'State',
+        'artist_name': 'Artist',
+        'artist_role': 'Instrument/Role',
+        'title': 'Work Title',
+        'composers': 'Composer',
+        'composer': 'Composer',
+        'media': 'Media',
+        'creators.name': 'Additional Creator',
+        'creators.role': 'Creator Role'
+    }
+    if (refinement.attribute == 'performance_date' || refinement.attribute == 'last_performance_date') {
+        return 'Date: ' + refinement.label[0] + ' ' + formatDate(refinement.value) + ' ×'
+    }
+    if (attributeMap[refinement.attribute]) {
+        return attributeMap[refinement.attribute] + ': ' + refinement.value + ' <span="activeFilters__removeIcon">×</span>'
+    } else {
+        return refinement.attribute + ': ' + refinement.value + ' ×'
+    }
+    
+}
+
+    const intersect = (filters, work) => {
+    let intersectKeys = Object.keys(filters).filter(k => Object.hasOwn(work, k))
+    let intersectArray = []
+    intersectKeys.forEach((key) => {
+        if (typeof filters[key] == 'object' && typeof work[key] == 'object') {
+            if (Array.isArray(work[key]) && Array.isArray(filters[key])) {
+                work[key].forEach((w) => {
+                    filters[key].forEach((f) => {
+                        if (w == f) {
+                            intersectArray.push(w)
+                        }
+                    })
+                })
+            } else if (Array.isArray(work[key])) {
+                Object.entries(filters[key])?.forEach(([k1, v1]) => {
+                    work[key]?.forEach((workvalue) => {
+                        if (typeof workvalue == 'object') {
+                            Object.entries(workvalue).forEach(([k2, v2]) => {                                    
+                                if (k1 == k2 && v1.includes(v2)) {
+                                    intersectArray.push(workvalue[k2])
+                                }
+                            })
+                        }
+                        
+                    })
+                }) 
+            }
+        } else if (filters[key].includes(work[key])) {
+            intersectArray.push(work[key])
+        }
+    })
+    return intersectArray
+
+}
+
+const filterItems = (items) => {
+    if (showByWorks.value && props.indexName == "dev_henry_perfs") {
+        
+        let returnItems = items
+        let itemIndex = 0
+        returnItems.forEach((item) => {
+            let shownWorks = []
+            item?.works?.forEach((work) => {
+                let workAdded = false
+                if (intersect(workFilters.value, work)?.length) {
+                    shownWorks.push(work)
+                    workAdded = true
+                }
+                if (!workAdded && currentQuery.value && JSON.stringify(work).includes(currentQuery.value)) {
+                    shownWorks.push(work)
+                }  
+            })
+            returnItems[itemIndex].works = shownWorks
+            itemIndex++
+        })
+        return returnItems
+    } else {
+        return items
+    }
+}
+
+const refineAndScroll = (refine, params, scrollId) => {
+    refine(params)
+    document.getElementById(scrollId).scrollIntoView()
+}
+
+const toMinValue = (value, range) => {
+    return typeof value.min === "number" && value.min != 0 ? value.min * 1000 : range.min * 1000
+}
+
+const toMaxValue = (value, range) => {
+    return typeof value.max === "number" && value.max != 0 ? value.max * 1000 : range.max * 1000
+}
+
+const formatMinValue = (minValue, minRange) => {
+    return typeof minValue === "number" && minValue !== null && minValue !== minRange ? minValue : minRange
+}
+
+const formatMaxValue = (maxValue, maxRange) => {
+    return typeof maxValue === "number" &&  maxValue !== null && maxValue !== maxRange ? maxValue : maxRange
+}
+
+
+const getHeadingStyle = (attribute) => {       
+    if (mainRefinementList.value && typeof(mainRefinementList.value[attribute]) !== 'undefined' && mainRefinementList.value[attribute]) {
+        try {
+            if (mainRefinementList.value[attribute] && typeof(mainRefinementList.value[attribute].items) !== 'undefined' && mainRefinementList.value[attribute].items.length) {
+                return ''
+            } else {
+                return '-gray'
+            }
+        } catch (e) {
+            return ''
+        }
+    }
+    return  ''
+}
 
 
 </script>
@@ -628,7 +626,7 @@ import { truncate } from 'lodash';
                                                 :id="slugify(refinement.title + ' ' + item.value)"  
                                                 :value="item.value" 
                                                 :checked="item.isRefined" 
-                                                @click="refine(item.value)" />
+                                                @click="refine(item.value);$emit('push', {event: item.isRefined ? 'unfilter' : 'filter', type: refinement.title, data: item.value})" />
                                             <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="eventsSearch__refinementCount">{{ item.count }}</span>
                                         </label>
                                     </div>
@@ -676,7 +674,7 @@ import { truncate } from 'lodash';
                                                 <div class="checkBoxes">
                                                     <span class="checkBoxes__alert" v-if="!items.length"><span class="checkBoxes__alertIcon">!</span>No matches found</span>
                                                     <label v-for="item in items" class="checkBoxes__boxLabel" :for="slugify(refinement.title + ' ' + item.value)">
-                                                        <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value)">
+                                                        <input :class="`checkbox ${item.isRefined ? '-boxChecked' : ''}`" type="checkbox" :id="slugify(refinement.title + ' ' + item.value)"  :value="item.value" :checked="item.isRefined" @click="refine(item.value);$emit('push', {event: item.isRefined ? 'unfilter' : 'filter', type: refinement.title, data: item.value})">
                                                         <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="eventsSearch__refinementCount">{{ item.count }}</span>
                                                     </label>
                                                 </div>
@@ -696,7 +694,7 @@ import { truncate } from 'lodash';
                                     <div class="accordion__content">
                                         <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.country'" operator="and" :limit="100" >
                                             <template v-slot="{ items, refine }">
-                                                <select @change="refine($event.currentTarget.value)">
+                                                <select @change="refine($event.currentTarget.value);$emit('push', {event: 'filter', type: 'location.country', data: $event.currentTarget.value})">
                                                     <option value="">Select Country</option>
                                                     <option v-for="item in items" :selected="item.isRefined" :key="item.value" :value="item.value">{{ item.label }}</option>
                                                 </select>
@@ -704,7 +702,7 @@ import { truncate } from 'lodash';
                                         </ais-menu-select>
                                         <ais-menu-select v-if="refinement.type == 'location'" :attribute="'location.state'" operator="and" :limit="100">
                                            <template v-slot="{ items, refine }">
-                                                <select @change="refine($event.currentTarget.value)">
+                                                <select @change="refine($event.currentTarget.value);$emit('push', {event: 'filter', type: 'location.state', data: $event.currentTarget.value})">
                                                     <option value="">Select State</option>
                                                     <option v-for="item in items" :selected="item.isRefined" :key="item.value" :value="item.value">{{ item.label }}</option>
                                                 </select>
@@ -712,7 +710,7 @@ import { truncate } from 'lodash';
                                         </ais-menu-select>
                                         <ais-menu-select placeholder="Select City" v-if="refinement.type == 'location'" :attribute="'location.city'" operator="and"  :limit="100">
                                             <template v-slot="{ items, refine }">
-                                                <select @change="refine($event.currentTarget.value)">
+                                                <select @change="refine($event.currentTarget.value);$emit('push', {event: 'filter', type: 'location.city', data: $event.currentTarget.value})">
                                                     <option value="">Select City</option>
                                                     <option v-for="item in items" :selected="item.isRefined" :key="item.value" :value="item.value">{{ item.label }}</option>
                                                 </select>
@@ -802,7 +800,7 @@ import { truncate } from 'lodash';
                                 </div>
                                 <div v-if="showNumHits" class="resultActions__buttons">
                                     <div class="toolTip">
-                                        <a onclick="navigator.clipboard.writeText(window.location.href);">
+                                        <a onclick="navigator.clipboard.writeText(window.location.href);" id="shareActions__icon">
                                             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"  class="resultActions__icon" outline="black">
                                                 <!-- <circle cx="12" cy="12" stroke="none" r="12"/> -->
                                                 <path d="M11.3334 12.5068C11.5012 12.7435 11.7153 12.9393 11.9611 13.081C12.2069 13.2227 12.4788 13.307 12.7582 13.3281C13.0376 13.3492 13.3181 13.3066 13.5806 13.2034C13.8431 13.1001 14.0814 12.9384 14.2795 12.7294L15.4516 11.4928C15.8075 11.1041 16.0044 10.5835 16 10.0431C15.9955 9.50271 15.7901 8.98578 15.4278 8.60365C15.0656 8.22153 14.5756 8.00477 14.0634 8.00008C13.5511 7.99538 13.0577 8.20312 12.6892 8.57855L12.0171 9.28341" stroke-linecap="round" stroke-linejoin="round"/>
@@ -812,7 +810,7 @@ import { truncate } from 'lodash';
                                         <span class="toolTip__text">Copy Link</span>
                                     </div>
                                     <div class="toolTip">
-                                        <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`" >
+                                        <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`" id="downloadActions__icon">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="resultActions__icon">
                                                 <!-- <circle cx="12" cy="12" r="12" stroke="none "/> -->
                                                 <path d="M15.9785 17.41L9.00049 17.41" stroke-linecap="round" stroke-linejoin="round"/>

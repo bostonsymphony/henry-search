@@ -1,6 +1,6 @@
 <script setup>
 
-  import { ref, onMounted } from 'vue'
+  import { onMounted, defineEmits } from 'vue'
   import '@vuepic/vue-datepicker/dist/main.css'
   import PTabs from './PTabs.vue'
   import SearchTab from "./SearchTab.vue"
@@ -31,16 +31,20 @@
       require: true
     }
   })
+
+  const emit = defineEmits(['push'])
+
+  const pushEmit = (obj) => {
+    emit('push', obj)
+  }
   
   onMounted(() => {
     document.addEventListener("click", function(){
-      console.log('click')
       document.querySelectorAll(".audioLinks__box").forEach((el) => {
         el.classList.remove("-open")
       })
     })
-
-
+    
   })
 
   const mainRefinements = [
@@ -172,6 +176,7 @@
           results-title="Performances"
           :search-key="props.searchKey"
           :search-host="props.searchHost"
+          @push="pushEmit"
         >
           <template v-slot="{ items }">
             <div class="resultsGrid" v-if="items && items.length">
