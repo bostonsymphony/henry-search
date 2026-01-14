@@ -17,6 +17,7 @@
         font-weight: bold;
         grid-column: 1/span 2;
         padding: 0.5rem .75rem;
+        word-break: break-word;
         @include at(lg) {
             padding: .75rem;
             grid-column: auto;

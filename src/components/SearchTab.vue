@@ -399,7 +399,7 @@ const formatRefinement = (refinement) => {
 
 const filterItems = (items) => {
     if (!items.length) {
-        emit('push', {event: 'no_results', data: currentQuery.value})
+        emitNoResults()
     }
     if (showByWorks.value && props.indexName == "dev_henry_perfs") {
         
@@ -478,6 +478,21 @@ const emitQuery = useDebounceFn(() => {
         emit('push', {event: 'search_form', data: currentQuery.value})
     }
 }, 1000)
+
+const emitNoResults = useDebounceFn(() => {
+    if (currentQuery.value) {
+        emit('push', {event: 'no_results', data: currentQuery.value})
+    }
+}, 1000)
+
+const copyUrl = () => {
+    navigator.clipboard.writeText(window.location.href)
+    const htmlHolder = document.querySelector('#copy_link').innerHTML
+    document.querySelector('#copy_link').innerHTML = "URL Copied!"
+    setTimeout(() => {
+        document.querySelector('#copy_link').innerHTML = htmlHolder
+    }, 1000)
+}
 
 </script>
 
@@ -814,15 +829,15 @@ const emitQuery = useDebounceFn(() => {
                                     </select>
                                 </div>
                                 <div v-if="showNumHits" class="resultActions__buttons">
-                                    <div class="toolTip">
-                                        <a onclick="navigator.clipboard.writeText(window.location.href);" id="shareActions__icon">
+                                    <div class="toolTip" id="copy_tooltip">
+                                        <a @click="copyUrl()" id="shareActions__icon">
                                             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"  class="resultActions__icon" outline="black">
                                                 <!-- <circle cx="12" cy="12" stroke="none" r="12"/> -->
                                                 <path d="M11.3334 12.5068C11.5012 12.7435 11.7153 12.9393 11.9611 13.081C12.2069 13.2227 12.4788 13.307 12.7582 13.3281C13.0376 13.3492 13.3181 13.3066 13.5806 13.2034C13.8431 13.1001 14.0814 12.9384 14.2795 12.7294L15.4516 11.4928C15.8075 11.1041 16.0044 10.5835 16 10.0431C15.9955 9.50271 15.7901 8.98578 15.4278 8.60365C15.0656 8.22153 14.5756 8.00477 14.0634 8.00008C13.5511 7.99538 13.0577 8.20312 12.6892 8.57855L12.0171 9.28341" stroke-linecap="round" stroke-linejoin="round"/>
                                                 <path d="M13.3333 11.4932C13.1416 11.2565 12.8969 11.0607 12.6159 10.919C12.335 10.7773 12.0243 10.6931 11.7049 10.672C11.3856 10.6508 11.0651 10.6934 10.7651 10.7967C10.4651 10.9 10.1927 11.0616 9.96639 11.2706L8.62675 12.5072C8.22004 12.8959 7.995 13.4165 8.00008 13.9569C8.00517 14.4973 8.23998 15.0142 8.65395 15.3964C9.06791 15.7785 9.62791 15.9952 10.2133 15.9999C10.7987 16.0046 11.3627 15.7969 11.7838 15.4215L12.5474 14.7166" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                         </a>
-                                        <span class="toolTip__text">Copy Link</span>
+                                        <span class="toolTip__text" id="copy_link">Copy Link</span>
                                     </div>
                                     <div class="toolTip">
                                         <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`" id="downloadActions__icon">
