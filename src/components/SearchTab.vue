@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits } from 'vue'
+import { useTemplateRef, ref, defineEmits } from 'vue'
 import _ from 'lodash';
 import {
     AisClearRefinements,
@@ -17,6 +17,7 @@ import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter'
 import { history as historyRouter } from 'instantsearch.js/es/lib/routers'
 import { simple as simpleStateMapping } from 'instantsearch.js/es/lib/stateMappings'
 import VueDatePicker from '@vuepic/vue-datepicker'
+import { useDebounceFn } from "@vueuse/core"
 
 import slugify from '../composables/slugify'
 import PAccordion from './PAccordion.vue'
@@ -111,6 +112,7 @@ const routing = ref({
 })
 
 const mainRefinementList = ref({})
+const refinementSearchBoxes = ref([])
 
 const server = {
     connectionTimeoutSeconds: 20,
@@ -293,11 +295,6 @@ const getWorkFilters = (refinementList) => {
 const onStateChange = ({ uiState, setUiState }) => {
     updateStateRefs(uiState)
     setUiState(uiState)
-    
-    // console.log('before', new Date())
-
-    // setTimeout(() => , 3000)
-    // console.log('after', new Date())
 }
 
 const updateTitle = (state) => {
@@ -401,6 +398,9 @@ const formatRefinement = (refinement) => {
 }
 
 const filterItems = (items) => {
+    if (!items.length) {
+        emit('push', {event: 'no_results', data: currentQuery.value})
+    }
     if (showByWorks.value && props.indexName == "dev_henry_perfs") {
         
         let returnItems = items
@@ -463,6 +463,21 @@ const getHeadingStyle = (attribute) => {
     return  ''
 }
 
+const clearRefinementSearches = () => {
+    if (refinementSearchBoxes.value && refinementSearchBoxes.value.length) {
+        refinementSearchBoxes.value.forEach((el) => {
+            if (el) {
+                el.value = ""
+            }
+        })
+    }
+}
+
+const emitQuery = useDebounceFn(() => {
+    if (currentQuery.value) {
+        emit('push', {event: 'search_form', data: currentQuery.value})
+    }
+}, 1000)
 
 </script>
 
@@ -491,7 +506,7 @@ const getHeadingStyle = (attribute) => {
                                         id="searchbox"
                                         type="search"
                                         :value="currentRefinement"
-                                        @input="refine($event.currentTarget.value)"
+                                        @input="refine($event.currentTarget.value);emitQuery()"
                                         :placeholder="props.searchPlaceholder"
                                         >
                                     
@@ -604,7 +619,7 @@ const getHeadingStyle = (attribute) => {
                                     <div class="ais-SearchBox searchBox -filter">
                                         <label class="label__hidden" :for="refinement.attribute">{{ refinement.placeholder }}</label>
                                         <form class="searchBox__form" @submit="$event.preventDefault()" @reset="searchForItems('')">
-                                            <input type="text" :id="refinement.attribute" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
+                                            <input type="text" :id="refinement.attribute" :ref="(el) => refinementSearchBoxes.push(el)" @input="searchForItems($event.currentTarget.value)" :placeholder="refinement.placeholder" class="ais-SearchBox-input -filter"  v-if="!refinement.hideSearch">
                                             <button v-if="isFromSearch"
                                                 class="ais-SearchBox-reset"
                                                 type="reset"
@@ -626,7 +641,7 @@ const getHeadingStyle = (attribute) => {
                                                 :id="slugify(refinement.title + ' ' + item.value)"  
                                                 :value="item.value" 
                                                 :checked="item.isRefined" 
-                                                @click="refine(item.value);$emit('push', {event: item.isRefined ? 'unfilter' : 'filter', type: refinement.title, data: item.value})" />
+                                                @click="refine(item.value);$emit('push', {event: item.isRefined ? 'unfilter' : 'search_filter', filter_category: refinement.title, filter_value : item.value})" />
                                             <label :for="slugify(refinement.title + ' ' + item.value)">{{ item.value }}</label><span class="eventsSearch__refinementCount">{{ item.count }}</span>
                                         </label>
                                     </div>
@@ -728,7 +743,7 @@ const getHeadingStyle = (attribute) => {
                         <template v-slot="{ refine, createURL }">
                             <a
                                 :href="createURL()"
-                                @click.prevent="refine"
+                                @click.prevent="refine();clearRefinementSearches()"
                             >
                                 <button @click="toggleFiltersMobile()" class="filterClear">Clear</button>
                                 
@@ -832,7 +847,7 @@ const getHeadingStyle = (attribute) => {
                                         <template v-slot="{ canRefine, refine, createURL }">
                                         <a
                                             :href="createURL()"
-                                            @click.prevent="refine"
+                                            @click.prevent="refine();clearRefinementSearches()"
                                             v-if="canRefine"
                                             class="activeFilters__clearFilters"
                                         >
