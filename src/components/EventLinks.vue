@@ -74,9 +74,9 @@ const copyUrl = () => {
         <div :class="`eventLinks ${ props.extraClasses }`">
             <a class="eventLinks__details" :href="`/details?performanceId=${props.item.id}`" :title="formatDate(item.performance_date) + ' Details'">
                 <svg class="eventLinks__icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="9" cy="9" r="8.5" vector-effect="non-scaling-stroke"/>
-                    <path d="M5 9H13" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
-                    <path d="M9 5L13 9L9 13" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+                    <circle cx="9" cy="9" r="9" />
+                    <path d="M4.85706 9H12.8571" stroke-width="1.5"/>
+                    <path d="M8.85706 5L12.8571 9L8.85706 13" stroke-width="1.5"/>
                 </svg>
                 Details
             </a>

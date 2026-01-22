@@ -48,11 +48,11 @@
   })
 
   const mainRefinements = [
-    {attribute: 'works.composers', title: 'Composer', placeholder: 'Search Composers'},
-    {attribute: 'works.title', title: 'Work', placeholder: 'Search Works'},
-    {attribute: 'works.conductors', title: 'Conductor', placeholder: 'Search Conductors'},
-    {attribute: 'works.ensembles', title: 'Orchestra/Ensemble', placeholder: 'Search Orchestras/Ensembles'},
-    {attribute: 'works.artists.name', title: 'Artist', placeholder: 'Search Artists'},
+    {attribute: 'works.composers', title: 'Composer', placeholder: 'Search Composers', startOpen: true},
+    {attribute: 'works.title', title: 'Work', placeholder: 'Search Works', startOpen: false},
+    {attribute: 'works.conductors', title: 'Conductor', placeholder: 'Search Conductors', startOpen: false},
+    {attribute: 'works.ensembles', title: 'Orchestra/Ensemble', placeholder: 'Search Orchestras/Ensembles', startOpen: false},
+    {attribute: 'works.artists.name', title: 'Artist', placeholder: 'Search Artists', startOpen: false},
   ]
 
   const addlRefinements = [
@@ -70,8 +70,8 @@
   ]
 
   const artistRefinements = [
-    {attribute: 'artist_name', title: 'Artist/Ensemble', placeholder: 'Search Artists/Ensembles'},
-    {attribute: 'artist_role', title: 'Instrument/Role', placeholder: 'Instruments/Roles'}
+    {attribute: 'artist_name', title: 'Artist/Ensemble', placeholder: 'Search Artists/Ensembles', startOpen: true},
+    {attribute: 'artist_role', title: 'Instrument/Role', placeholder: 'Instruments/Roles', startOpen: false}
   ]
 
   const addlArtistRefinements = [
@@ -80,9 +80,9 @@
   ]
 
   const workRefinements = [
-    {attribute: 'composers', title: 'Composer', placeholder: 'Search Composers'},
-    {attribute: 'title', title: 'Work Title', placeholder: 'Search Work Titles'},
-    {attribute: 'commission', title: 'Commission', placeholder: 'Search Commissions'}
+    {attribute: 'composers', title: 'Composer', placeholder: 'Search Composers', startOpen: true},
+    {attribute: 'title', title: 'Work Title', placeholder: 'Search Work Titles', startOpen: false},
+    {attribute: 'commission', title: 'Commission', placeholder: 'Search Commissions', startOpen: false}
   ]
 
   const addlWorkRefinements = [

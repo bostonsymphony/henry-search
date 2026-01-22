@@ -45,7 +45,7 @@ onMounted(() => {
         performance.value = results
         // console.log(results)
         // console.log(new Date(results.performance_datetime))
-        document.title = `BSO HENRY | ${ formatDate(performance.value.performance_date) } Performance Detail`
+        document.title = `BSO Performance History | ${ formatDate(performance.value.performance_date) } Performance Detail`
     }).catch((e) => {
         console.log(e)
         //document.location = '/404'

@@ -298,7 +298,7 @@ const onStateChange = ({ uiState, setUiState }) => {
 }
 
 const updateTitle = (state) => {
-    document.title = "BSO HENRY | " + formatSearchTitle(state)
+    document.title = `BSO Performance History${formatSearchTitle(state) ? " | " + formatSearchTitle(state) : "" }`
 }
 
 const setView = () => {
@@ -618,7 +618,7 @@ const copyUrl = () => {
                             </a>
                         </div>
                     </div>
-                    <p-accordion class="accordion" v-for="refinement in mainRefinements">
+                    <p-accordion class="accordion" v-for="refinement in mainRefinements" :start-open="refinement.startOpen">
                         <summary class="accordion__summary">
                             <h6 :class="`accordion__heading ${ getHeadingStyle(refinement.attribute) }`">{{ refinement.title }}</h6>
                             <div class="accordion__iconWrapper">
