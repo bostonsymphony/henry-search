@@ -298,7 +298,7 @@ const onStateChange = ({ uiState, setUiState }) => {
 }
 
 const updateTitle = (state) => {
-    document.title = `BSO Performance History${formatSearchTitle(state) ? " | " + formatSearchTitle(state) : "" }`
+    document.title = `BSO Performance History${formatSearchTitle(state) ? " | Results for '" + formatSearchTitle(state) + "'" : "" }`
 }
 
 const setView = () => {
