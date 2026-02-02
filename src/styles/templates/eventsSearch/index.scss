@@ -100,6 +100,7 @@
       
       .filterButton {
         background-color: var(--color-white);
+        color: var(--color-dark-blue);
         border: none;
         display: flex;
         align-items: center;
@@ -109,10 +110,15 @@
   }
 
   &__resultsSort {
-    font-weight: 100;
-    font-size: 1.1rem;
-    margin-right: .5rem;
-    padding-top: 0.25rem;
+    padding-top: 1rem;
+
+    @include at(md) {
+      font-weight: 100;
+      font-size: 1.1rem;
+      margin-right: .5rem;
+      padding-top: 0.25rem;
+    }
+    
   }
 
   &__resultsTitle {
