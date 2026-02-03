@@ -43,8 +43,8 @@ const copyUrl = () => {
                 <a :href="props.item.program_book_link" target="_blank">
                     <svg class="headerLinks__icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="12" />
-                        <path d="M8.30469 16.0947L15.8468 8.55259" stroke-width="2"/>
-                        <path d="M8.30469 8.55127L15.847 8.55144L15.8472 16.0937" stroke-width="2"/>
+                        <path d="M8.30469 16.0947L15.8468 8.55259" stroke-width="2" fill="none"/>
+                        <path d="M8.30469 8.55127L15.847 8.55144L15.8472 16.0937" stroke-width="2" fill="none"/>
                     </svg>
                     View Program Book
                 </a>
@@ -53,8 +53,8 @@ const copyUrl = () => {
                 <a @click="showAudioLinks">
                     <svg class="headerLinks__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="12"/>
-                        <path d="M13.081 6.66675L9.23961 9.73985H6.1665V14.3495H9.23961L13.081 17.4226V6.66675Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M16.5688 9.32495C17.289 10.0453 17.6936 11.0222 17.6936 12.0408C17.6936 13.0594 17.289 14.0363 16.5688 14.7567" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.081 6.66675L9.23961 9.73985H6.1665V14.3495H9.23961L13.081 17.4226V6.66675Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <path d="M16.5688 9.32495C17.289 10.0453 17.6936 11.0222 17.6936 12.0408C17.6936 13.0594 17.289 14.0363 16.5688 14.7567" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                     </svg>
                     Access Audio</a>
                 <audio-links :audio-id="props.item.bso_audio_id" />
@@ -75,8 +75,8 @@ const copyUrl = () => {
             <a class="eventLinks__details" :href="`/details?performanceId=${props.item.id}`" :title="formatDate(item.performance_date) + ' Details'">
                 <svg class="eventLinks__icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="9" cy="9" r="9" />
-                    <path d="M4.85706 9H12.8571" stroke-width="1.5"/>
-                    <path d="M8.85706 5L12.8571 9L8.85706 13" stroke-width="1.5"/>
+                    <path d="M4.85706 9H12.8571" stroke-width="1.5" fill="none"/>
+                    <path d="M8.85706 5L12.8571 9L8.85706 13" stroke-width="1.5" fill="none"/>
                 </svg>
                 Details
             </a>
@@ -85,8 +85,8 @@ const copyUrl = () => {
             <a class="eventLinks__details" target="_blank" :href="props.item.program_book_link" :title="formatDate(item.performance_date) + ' Details'">
                 <svg class="eventLinks__icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="9" cy="9" r="9" />
-                    <path d="M6.22876 12.0714L11.8854 6.41475" stroke-width="1.5"/>
-                    <path d="M6.22864 6.41376L11.8854 6.41388L11.8855 12.0706" stroke-width="1.5"/>
+                    <path d="M6.22876 12.0714L11.8854 6.41475" stroke-width="1.5" fill="none"/>
+                    <path d="M6.22864 6.41376L11.8854 6.41388L11.8855 12.0706" stroke-width="1.5" fill="none"/>
                 </svg>
 
                 Program
@@ -96,8 +96,8 @@ const copyUrl = () => {
             <button class="eventLinks__details" @click="showAudioLinks"  :title="formatDate(item.performance_date) + ' Audio'">
                 <svg class="eventLinks__icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="9" cy="9" r="9" />
-                    <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                 </svg>
 
                 Audio

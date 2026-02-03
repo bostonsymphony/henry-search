@@ -597,15 +597,18 @@ const copyUrl = () => {
                 <div class="filters__wrapper">
                     <div class="filters__header">
                         <div class="filters__toggle">
-                            <svg width="24" height="24" viewBox="0 0 24 24" class="filters__icon">
-                                <rect width="24" height="24" rx="4" />
-                                <path d="M6 7.25H18.8864" stroke-linecap="round"/>
-                                <path d="M6 12.5681H18.8864" stroke-linecap="round"/>
-                                <path d="M6 17.75H18.8864"  stroke-linecap="round"/>
-                                <circle cx="8.72709" cy="17.9544" r="1.54545" />
-                                <circle cx="14.8633" cy="12.5" r="1.54545" />
-                                <circle cx="10.7725" cy="7.04545" r="1.54545" />
-                            </svg> 
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="none" xmlns="http://www.w3.org/2000/svg"  class="filters__icon">
+                                <rect x="0.5" y="0.5" width="23" height="23" rx="3.5" stroke="none" />
+                                <path d="M5.5 12H12.5" stroke-linecap="round" fill="none"/>
+                                <path d="M10 17.5L18.5 17.5" stroke-linecap="round" fill="none"/>
+                                <path d="M5.5 17.5H6.5" stroke-linecap="round" fill="none"/>
+                                <circle cx="8.22734" cy="17.4546" r="1.54545"/>
+                                <circle cx="14.3636" cy="12" r="1.54545"/>
+                                <path d="M16 12L18.5 12" stroke-linecap="round" fill="none"/>
+                                <path d="M12 6.5L18.5 6.5" stroke-linecap="round" fill="none"/>
+                                <path d="M5.5 6.5H8.5" stroke-linecap="round" fill="none"/>
+                                <circle cx="10.2726" cy="6.54545" r="1.54545"/>
+                            </svg>
                             <span class="label">Filters</span>
                         </div>
                         <div>
@@ -801,7 +804,7 @@ const copyUrl = () => {
                         <div class="eventsSearch__resultsHeader">
                             <div class="eventsSearch__resultsTitle -title" id="resultsTitle">
                                 <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" :class="`filters__toggleOn ${filtersClosed ? 'closed' : ''}`" @click="toggleFilters()">
-                                    <rect width="24" height="24" rx="4" />
+                                    <rect width="24" height="24" rx="4" stroke-linecap="round"/>
                                     <path d="M6 7.25H18.8864" stroke-linecap="round"/>
                                     <path d="M6 12.5681H18.8864" stroke-linecap="round"/>
                                     <path d="M6 17.75H18.8864"  stroke-linecap="round"/>
@@ -831,21 +834,21 @@ const copyUrl = () => {
                                 <div v-if="showNumHits" class="resultActions__buttons">
                                     <div class="toolTip" id="copy_tooltip">
                                         <a @click="copyUrl()" id="shareActions__icon">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"  class="resultActions__icon" outline="black">
-                                                <!-- <circle cx="12" cy="12" stroke="none" r="12"/> -->
-                                                <path d="M11.3334 12.5068C11.5012 12.7435 11.7153 12.9393 11.9611 13.081C12.2069 13.2227 12.4788 13.307 12.7582 13.3281C13.0376 13.3492 13.3181 13.3066 13.5806 13.2034C13.8431 13.1001 14.0814 12.9384 14.2795 12.7294L15.4516 11.4928C15.8075 11.1041 16.0044 10.5835 16 10.0431C15.9955 9.50271 15.7901 8.98578 15.4278 8.60365C15.0656 8.22153 14.5756 8.00477 14.0634 8.00008C13.5511 7.99538 13.0577 8.20312 12.6892 8.57855L12.0171 9.28341" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M13.3333 11.4932C13.1416 11.2565 12.8969 11.0607 12.6159 10.919C12.335 10.7773 12.0243 10.6931 11.7049 10.672C11.3856 10.6508 11.0651 10.6934 10.7651 10.7967C10.4651 10.9 10.1927 11.0616 9.96639 11.2706L8.62675 12.5072C8.22004 12.8959 7.995 13.4165 8.00008 13.9569C8.00517 14.4973 8.23998 15.0142 8.65395 15.3964C9.06791 15.7785 9.62791 15.9952 10.2133 15.9999C10.7987 16.0046 11.3627 15.7969 11.7838 15.4215L12.5474 14.7166" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"  class="resultActions__icon">
+                                            <!-- <circle cx="12" cy="12" r="12"/> -->
+                                            <path d="M10.8982 12.0536C11.136 12.3715 11.4393 12.6345 11.7877 12.8249C12.1361 13.0152 12.5213 13.1284 12.9173 13.1567C13.3132 13.1851 13.7106 13.128 14.0826 12.9892C14.4545 12.8505 14.7923 12.6334 15.0729 12.3526L16.7339 10.6916C17.2382 10.1695 17.5172 9.47018 17.5109 8.74432C17.5046 8.01846 17.2135 7.32412 16.7002 6.81084C16.1869 6.29756 15.4926 6.00641 14.7667 6.0001C14.0409 5.9938 13.3416 6.27283 12.8194 6.77712L11.8671 7.7239" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                            <path d="M13.1129 10.9466C12.8751 10.6287 12.5717 10.3657 12.2233 10.1754C11.875 9.98504 11.4897 9.87186 11.0938 9.8435C10.6978 9.81514 10.3004 9.87227 9.92847 10.011C9.55654 10.1498 9.21879 10.3669 8.93814 10.6476L7.27712 12.3086C6.77283 12.8308 6.4938 13.5301 6.5001 14.2559C6.50641 14.9818 6.79756 15.6761 7.31084 16.1894C7.82412 16.7027 8.51846 16.9938 9.24432 17.0001C9.97018 17.0064 10.6695 16.7274 11.1916 16.2231L12.1384 15.2763" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                        </svg>
                                         </a>
                                         <span class="toolTip__text" id="copy_link">Copy Link</span>
                                     </div>
                                     <div class="toolTip">
                                         <a :href="`/actions/csvexport/csv-export${ routing.router.getLocation().search }`" id="downloadActions__icon">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="resultActions__icon">
-                                                <!-- <circle cx="12" cy="12" r="12" stroke="none "/> -->
-                                                <path d="M15.9785 17.41L9.00049 17.41" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M9.25317 11.4406L12.425 14.6124L15.5969 11.4406" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M12.425 14.6124V7" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <circle cx="12" cy="12" r="12" stroke="none "/>
+                                                <path d="M15.9785 17.41L9.00049 17.41" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                                <path d="M9.25317 11.4406L12.425 14.6124L15.5969 11.4406" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                                <path d="M12.425 14.6124V7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                                             </svg>
 
                                         </a>
