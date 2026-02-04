@@ -218,6 +218,11 @@
         fill: var(--color-white);
         stroke: var(--color-dark-blue);
         border: 1px solid var(--color-dark-blue);
+        @include at(lg) {
+             fill: var(--color-light-blue);
+            stroke: var(--color-dark-blue);
+            border: none;
+        }
     }
     &__search {
         grid-area: search;
@@ -269,6 +274,11 @@
             @include at(lg) {
                 display: inline;
             }
+        }
+        &.closed:hover {
+            fill: var(--color-white);
+            stroke: var(--color-dark-blue);
+            border: 1px solid var(--color-dark-blue);
         }
         
     }
