@@ -180,6 +180,13 @@
                 padding: 0;
             }
 
+            .filters__icon {
+                display: none;
+                @include at(lg) {
+                    display: inline;
+                }
+            }
+
 
             @include at(lg) {
                 display:inline;

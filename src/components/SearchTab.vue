@@ -780,8 +780,8 @@ const copyUrl = () => {
                     <template v-slot="{ items }">
                         <div class="eventsSearch__resultsHeader -mobile">
                             <div class="filters__toggle">
-                                <button class="filterButton filters__icon"" @click="toggleFiltersMobile()">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" >
+                                <button class="filterButton" @click="toggleFiltersMobile()">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" class="filters__icon">
                                        <rect x="0.5" y="0.5" width="23" height="23" rx="3.5" stroke="none" />
                                         <path d="M5.5 12H12.5" stroke-linecap="round" fill="none"/>
                                         <path d="M10 17.5L18.5 17.5" stroke-linecap="round" fill="none"/>
