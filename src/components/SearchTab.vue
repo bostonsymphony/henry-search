@@ -780,15 +780,18 @@ const copyUrl = () => {
                     <template v-slot="{ items }">
                         <div class="eventsSearch__resultsHeader -mobile">
                             <div class="filters__toggle">
-                                <button class="filterButton" @click="toggleFiltersMobile()">
+                                <button class="filterButton filters__icon"" @click="toggleFiltersMobile()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" >
-                                        <rect width="24" height="24" rx="4"/>
-                                        <path d="M6 7.25H18.8864" stroke="white" stroke-linecap="round"/>
-                                        <path d="M6 12.5681H18.8864" stroke="white" stroke-linecap="round"/>
-                                        <path d="M6 17.75H18.8864" stroke="white" stroke-linecap="round"/>
-                                        <circle cx="8.72709" cy="17.9544" r="1.54545" fill="#01ABE6" stroke="white"/>
-                                        <circle cx="14.8633" cy="12.5" r="1.54545" fill="#01ABE6" stroke="white"/>
-                                        <circle cx="10.7725" cy="7.04545" r="1.54545" fill="#01ABE6" stroke="white"/>
+                                       <rect x="0.5" y="0.5" width="23" height="23" rx="3.5" stroke="none" />
+                                        <path d="M5.5 12H12.5" stroke-linecap="round" fill="none"/>
+                                        <path d="M10 17.5L18.5 17.5" stroke-linecap="round" fill="none"/>
+                                        <path d="M5.5 17.5H6.5" stroke-linecap="round" fill="none"/>
+                                        <circle cx="8.22734" cy="17.4546" r="1.54545"/>
+                                        <circle cx="14.3636" cy="12" r="1.54545"/>
+                                        <path d="M16 12L18.5 12" stroke-linecap="round" fill="none"/>
+                                        <path d="M12 6.5L18.5 6.5" stroke-linecap="round" fill="none"/>
+                                        <path d="M5.5 6.5H8.5" stroke-linecap="round" fill="none"/>
+                                        <circle cx="10.2726" cy="6.54545" r="1.54545"/>
                                     </svg> 
                                     Filters
                                 </button>
@@ -803,14 +806,17 @@ const copyUrl = () => {
                         </div>
                         <div class="eventsSearch__resultsHeader">
                             <div class="eventsSearch__resultsTitle -title" id="resultsTitle">
-                                <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" :class="`filters__toggleOn ${filtersClosed ? 'closed' : ''}`" @click="toggleFilters()">
-                                    <rect width="24" height="24" rx="4" stroke-linecap="round"/>
-                                    <path d="M6 7.25H18.8864" stroke-linecap="round"/>
-                                    <path d="M6 12.5681H18.8864" stroke-linecap="round"/>
-                                    <path d="M6 17.75H18.8864"  stroke-linecap="round"/>
-                                    <circle cx="8.72709" cy="17.9544" r="1.54545" />
-                                    <circle cx="14.8633" cy="12.5" r="1.54545" />
-                                    <circle cx="10.7725" cy="7.04545" r="1.54545" />
+                                <svg width="24" height="24" viewBox="0 0 24 24" :id="`${props.indexName}_filterToggleOn`" :class="`filters__icon filters__toggleOn ${filtersClosed ? 'closed' : ''}`" @click="toggleFilters()">
+                                    <rect x="0.5" y="0.5" width="23" height="23" rx="3.5" stroke="none" />
+                                    <path d="M5.5 12H12.5" stroke-linecap="round" fill="none"/>
+                                    <path d="M10 17.5L18.5 17.5" stroke-linecap="round" fill="none"/>
+                                    <path d="M5.5 17.5H6.5" stroke-linecap="round" fill="none"/>
+                                    <circle cx="8.22734" cy="17.4546" r="1.54545"/>
+                                    <circle cx="14.3636" cy="12" r="1.54545"/>
+                                    <path d="M16 12L18.5 12" stroke-linecap="round" fill="none"/>
+                                    <path d="M12 6.5L18.5 6.5" stroke-linecap="round" fill="none"/>
+                                    <path d="M5.5 6.5H8.5" stroke-linecap="round" fill="none"/>
+                                    <circle cx="10.2726" cy="6.54545" r="1.54545"/>
                                 </svg> 
                                 <h2 v-if="showNumHits">
                                     <ais-stats>

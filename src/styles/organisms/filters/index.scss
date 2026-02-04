@@ -257,9 +257,6 @@
         display: none;
         margin-right: 1rem;
         transition: display 400ms;
-
-        stroke: var(--color-white);
-        fill: var(--color-dark-blue);
         &.closed {
             //display: none;
             @include at(lg) {
@@ -267,12 +264,6 @@
             }
         }
         
-    }
-
-    &__toggleOn:hover {
-        fill: var(--color-white);
-        stroke: var(--color-dark-blue);
-        outline: var(--color-dark-blue);
     }
     
     &__wrapper {
