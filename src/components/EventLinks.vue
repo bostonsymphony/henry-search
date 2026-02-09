@@ -41,7 +41,7 @@ const copyUrl = () => {
         <div class="headerLinks__media">
             <template v-if="props.item.program_book_link">
                 <a :href="props.item.program_book_link" target="_blank">
-                    <svg class="headerLinks__icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="headerLinks__icon" width="24" height="24" viewBox="-1 -1 26 26" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="12" />
                         <path d="M8.30469 16.0947L15.8468 8.55259" stroke-width="2" fill="none"/>
                         <path d="M8.30469 8.55127L15.847 8.55144L15.8472 16.0937" stroke-width="2" fill="none"/>
@@ -51,7 +51,7 @@ const copyUrl = () => {
             </template>
             <template v-if="props.item.media && props.item.media.includes('audio') && props.item.bso_audio_id">
                 <a @click="showAudioLinks">
-                    <svg class="headerLinks__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="headerLinks__icon" width="24" height="24" viewBox="-1 -1 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="12"/>
                         <path d="M13.081 6.66675L9.23961 9.73985H6.1665V14.3495H9.23961L13.081 17.4226V6.66675Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                         <path d="M16.5688 9.32495C17.289 10.0453 17.6936 11.0222 17.6936 12.0408C17.6936 13.0594 17.289 14.0363 16.5688 14.7567" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -62,10 +62,10 @@ const copyUrl = () => {
             </template>
         </div>
         <a @click="copyUrl()" id="copy_link">
-            <svg class="headerLinks__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="11.25" stroke-width="1.5"/>
-                <path d="M11.0835 12.6969C11.3142 13.0223 11.6086 13.2915 11.9466 13.4864C12.2846 13.6812 12.6584 13.797 13.0427 13.8261C13.4269 13.8551 13.8125 13.7966 14.1734 13.6546C14.5343 13.5126 14.862 13.2903 15.1343 13.0029L16.7461 11.3026C17.2354 10.7681 17.5062 10.0523 17.5 9.30925C17.4939 8.56622 17.2114 7.85545 16.7134 7.33002C16.2153 6.8046 15.5416 6.50656 14.8372 6.50011C14.1329 6.49365 13.4544 6.77929 12.9477 7.2955L12.0237 8.26469" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M13.8333 11.3032C13.5696 10.9778 13.2332 10.7085 12.8469 10.5137C12.4606 10.3189 12.0334 10.203 11.5943 10.174C11.1552 10.145 10.7145 10.2034 10.302 10.3455C9.88955 10.4875 9.515 10.7097 9.20377 10.9971L7.36178 12.6975C6.80256 13.2319 6.49312 13.9478 6.50012 14.6908C6.50711 15.4338 6.82998 16.1446 7.39918 16.67C7.96838 17.1955 8.73837 17.4935 9.54331 17.5C10.3483 17.5064 11.1237 17.2208 11.7027 16.7046L12.7527 15.7354" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg width="24" height="24" viewBox="-1 -1 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" class="headerLinks__icon">
+                <circle cx="12" cy="12" r="12" />
+                <path d="M10.8982 12.0536C11.136 12.3715 11.4393 12.6345 11.7877 12.8249C12.1361 13.0152 12.5213 13.1284 12.9173 13.1567C13.3132 13.1851 13.7106 13.128 14.0826 12.9892C14.4545 12.8505 14.7923 12.6334 15.0729 12.3526L16.7339 10.6916C17.2382 10.1695 17.5172 9.47018 17.5109 8.74432C17.5046 8.01846 17.2135 7.32412 16.7002 6.81084C16.1869 6.29756 15.4926 6.00641 14.7667 6.0001C14.0409 5.9938 13.3416 6.27283 12.8194 6.77712L11.8671 7.7239" stroke-linecap="round" fill="none" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M13.1129 10.9466C12.8751 10.6287 12.5717 10.3657 12.2233 10.1754C11.875 9.98504 11.4897 9.87186 11.0938 9.8435C10.6978 9.81514 10.3004 9.87227 9.92847 10.011C9.55654 10.1498 9.21879 10.3669 8.93814 10.6476L7.27712 12.3086C6.77283 12.8308 6.4938 13.5301 6.5001 14.2559C6.50641 14.9818 6.79756 15.6761 7.31084 16.1894C7.82412 16.7027 8.51846 16.9938 9.24432 17.0001C9.97018 17.0064 10.6695 16.7274 11.1916 16.2231L12.1384 15.2763" stroke-linecap="round" fill="none" stroke-linejoin="round"  stroke-width="1.5"/>
             </svg>
             Copy URL
         </a>
@@ -73,7 +73,7 @@ const copyUrl = () => {
     <template v-else>
         <div :class="`eventLinks ${ props.extraClasses }`">
             <a class="eventLinks__details" :href="`/details?performanceId=${props.item.id}`" :title="formatDate(item.performance_date) + ' Details'">
-                <svg class="eventLinks__icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="eventLinks__icon" width="18" height="18" viewBox="-1 -1 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="9" cy="9" r="9" />
                     <path d="M4.85706 9H12.8571" stroke-width="1.5" fill="none"/>
                     <path d="M8.85706 5L12.8571 9L8.85706 13" stroke-width="1.5" fill="none"/>
@@ -83,7 +83,7 @@ const copyUrl = () => {
         </div>
         <div v-if="props.item.program_book_link" :class="`eventLinks ${ props.extraClasses }`">
             <a class="eventLinks__details" target="_blank" :href="props.item.program_book_link" :title="formatDate(item.performance_date) + ' Details'">
-                <svg class="eventLinks__icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="eventLinks__icon" width="18" height="18" viewBox="-1 -1 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="9" cy="9" r="9" />
                     <path d="M6.22876 12.0714L11.8854 6.41475" stroke-width="1.5" fill="none"/>
                     <path d="M6.22864 6.41376L11.8854 6.41388L11.8855 12.0706" stroke-width="1.5" fill="none"/>
@@ -94,7 +94,7 @@ const copyUrl = () => {
         </div>
         <div v-if="props.item.media && props.item.media.includes('audio') && props.item.bso_audio_id" :class="`eventLinks ${ props.extraClasses }`">
             <button class="eventLinks__details" @click="showAudioLinks"  :title="formatDate(item.performance_date) + ' Audio'">
-                <svg class="eventLinks__icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="eventLinks__icon" width="18" height="18" viewBox="-1 -1 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="9" cy="9" r="9" />
                     <path d="M9.81086 5L6.92983 7.30483H4.625V10.7621H6.92983L9.81086 13.0669V5Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                     <path d="M12.4268 6.99219C12.9669 7.53246 13.2703 8.26513 13.2703 9.02908C13.2703 9.79302 12.9669 10.5257 12.4268 11.066" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
